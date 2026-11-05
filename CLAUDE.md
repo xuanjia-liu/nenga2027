@@ -14,6 +14,7 @@ python3 build.py              # src/ + generated/ → dist/nenga2027.html (artif
 npm install && npm test       # build + Playwright smoke test (screenshots → tests/out/, fails on page errors)
 npm test -- mochi omikuji     # only some demos (ids: shear count gacha post flock popup dome omikuji fuku mochi)
 python3 tools/embed_assets.py # after changing assets/count/*.webp or blender/*.glb
+python3 tools/process_sfx.py # picks.json + bgm.json + candidates (audio-studio MCP takes) → assets/sfx/*.mp3, bgm/*.mp3, generated/sfx.js + bgm.js
 python3 tools/process_count_assets.py   # re-crop/grade the 「ひつじを数えて」 painted PNGs (Pillow + numpy)
 PYBPY=python3 tools/blender_export.sh   # re-export Blender models (bpy module) — or plain `blender` on PATH
 npm run serve                 # http://localhost:8027/preview.html
@@ -26,13 +27,16 @@ npm run serve                 # http://localhost:8027/preview.html
 ```
 src/body.html        all markup (nav, hero, ideas, CEO draft, demo sections, memo, footer, logo <symbol>)
 src/style.css        DS tokens + every demo's styles (phone first; PC via @container scr (min-width:700px))
+src/sound.js         NENGA.snd: effects (random take + pitch/volume jitter), per-demo background loops, shared ON/OFF
 src/app.js           device frames (phone/PC toggle), ideas fold, A 毛刈り, B ひつじを数えて (Matter.js finale)
 src/three-demos.js   three.js harness `stage()` + C ガチャ, D 未来ポスト, E 群れ, F 飛び出す絵本, G スノードーム;
                      exports window.NENGA.fx (sound/haptics helpers) and window.NENGA.three (stage, canvasTex, …)
 src/jp.js            I ひつじ福笑い (DOM)
 src/omikuji.js       H ひつじみくじ (3D tube from Blender, shake → flip → stick drop → dark reveal)
 src/mochi.js         J ぺったん餅つき (voxel three.js rhythm game)
-generated/*.js       base64 assets: NENGA_ASSETS (count images + hill profile), *_GLB (Blender models) — do not hand-edit
+generated/*.js       base64 assets: NENGA_ASSETS (count images + hill profile), NENGA_SFX (sound effects), NENGA_BGM (loops), *_GLB (Blender models) — do not hand-edit
+assets/sfx           Stable Audio 3 takes via the audio-studio MCP; picks.json = effect → take(s) + cut (a list = variants),
+                     bgm.json = demo → loop take + bpm/beats; candidates/ and bgm_candidates/ are git-ignored
 assets/source        original transparent PNGs supplied by the user (count scene + sheep parts)
 assets/count         processed WebP + meta.json (hill ridge profile)
 blender/*.py         bpy scripts that build the models; *.glb exports
@@ -47,7 +51,7 @@ docs/references/     reference images the user gave for recent redesigns
   exact versions). Stylesheets only from Google Fonts. Everything else (images, models) is inlined as base64.
   Free 3D-asset sites are unreachable → models are procedural or made in Blender.
 - three.js is **r128** (non-module `examples/js` GLTFLoader, `THREE.*` globals, no `roundRect` geometry helpers, etc.).
-- Keep page size reasonable (currently ~1.5 MB; mostly embedded models/images).
+- Keep page size reasonable (currently ~3.1 MB: ~1 MB music loops, ~0.5 MB effects, the rest models/images).
 - `dist/nenga2027.html` has no `<html>/<head>` (the artifact host wraps it). `preview.html` is the wrapped copy.
 - Yuji Syuku (brush font) is loaded with a `text=` subset in build.py → add any new brush-rendered characters to `BRUSH_TXT`.
 - Each demo root is `.scr` inside `.vp` (container `scr`). Pointer coords must be converted with the scale factor
@@ -62,6 +66,10 @@ docs/references/     reference images the user gave for recent redesigns
   (use `<svg class="bs-logo"><use href="#bs-logo"/></svg>`, colour via `currentColor`).
 - The user iterates visually and precisely: when given a reference image, first **list the details you see**, then implement.
 - Prefer real interaction feel: physics, springs, hit-stop, haptics (`navigator.vibrate`), sound (off by default, `.js-snd` toggle).
+  Sound = sampled one-shots: `NENGA.snd.play(name, {vol, rate, delay, offset, dur, exact})` / `NENGA.snd.sfx.*`; decoded on first sound-ON.
+  Every play picks a random take (never the same twice) with ±4% pitch / −15% volume unless `exact` (the mochi metronome).
+  Each demo has a background loop, played only for the demo filling the screen; `bgmDuck(id, k)` turns it down (mochi in play).
+  Demos without a sound button in their bar get the round `.snd-ico js-snd` toggle (top-right); all toggles share one setting.
 - Every interaction needs clear feedback; "tap anywhere" is preferred over tiny buttons, with a subtle cursor follower on PC.
 - Text must never overflow (see omikuji `fitSheet()` auto-shrink).
 

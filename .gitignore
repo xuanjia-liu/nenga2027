@@ -3,3 +3,6 @@ tests/out/
 __pycache__/
 .DS_Store
 *.blend1
+assets/sfx/candidates/
+assets/sfx/bgm_candidates/
+.claude/

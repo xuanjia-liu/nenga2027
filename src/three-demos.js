@@ -471,12 +471,13 @@ stage('#flock', (root, renderer, canvas) => {
   }
   btn.addEventListener('click', () => {
     cycling = !cycling;
+    play('hooves', { vol: .8 }); [0, .35, .8].forEach(d => sfx.bleat({ vol: .35, delay: d + Math.random() * .2 }));
     if (cycling) { shapeIx = -1; nextShape(); btn.textContent = '解散する'; btn.classList.add('sec'); nextBtn.hidden = false; }
     else { RC = .46; SCt = 1; sh.forEach(s => { s.mode = Math.random() < .5 ? 'graze' : 'wander'; s.t = rnd(0, 2); }); msg.classList.remove('show'); btn.textContent = 'ひつじを集合させる'; btn.classList.remove('sec'); nextBtn.hidden = true; shapeEl.textContent = ''; }
   });
   nextBtn.addEventListener('click', () => {
     if (!cycling) return;
-    nextShape(); popEl(nextBtn, 1.08);
+    nextShape(); popEl(nextBtn, 1.08); sfx.whoosh(); play('hooves', { vol: .5 });
   });
 
   /* ---------------- camera orbit ---------------- */
@@ -518,7 +519,7 @@ stage('#flock', (root, renderer, canvas) => {
     drag = null; canvas.style.cursor = '';
     if (!tap) return;
     if (!cycling) btn.click(); else { nextShape(); popEl(nextBtn, 1.08); }
-    if (SND.on) tone(cycling ? 660 : 520, .08, 'triangle', .05);
+    sfx.bleat();
   };
   canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', endDrag);
 
@@ -970,7 +971,11 @@ stage('#popup', (root, renderer, canvas) => {
   const prev = $('.js-prev', root), next = $('.js-next', root), pg = $('.js-pg', root), bm = $('.book-msg', root);
   let spread = 0, yaw = 0, pitch = 0, drag = null, aspect = 1;
   function go(s) {
-    spread = clamp(s, 0, LEAVES);
+    const to = clamp(s, 0, LEAVES);
+    if (to > spread) { play('page_flip', { vol: .8 }); play('paper_pop', { vol: .7, delay: .32 }); }
+    else if (to < spread && to === 0 && spread === LEAVES) { play('page_flip', { vol: .6, rate: .9 }); play('book_close', { vol: .9, delay: .45 }); }
+    else if (to < spread) play('page_flip', { vol: .7, rate: .92 });
+    spread = to;
     leaves.forEach((l, i) => { l.target = i < spread ? Math.PI : 0; });
     prev.disabled = spread === 0;
     next.textContent = spread === 0 ? '開く' : spread === LEAVES ? '閉じる' : '次のページ';
@@ -1056,41 +1061,8 @@ stage('#popup', (root, renderer, canvas) => {
 });
 
 /* ================= game feedback helpers (shared by the gacha and Mirai Post) ================= */
-const SND = { on: false, ac: null };
-function tone(f, dur, type = 'square', vol = .05, slide = 1, delay = 0) {
-  if (!SND.on) return;
-  try {
-    SND.ac = SND.ac || new (window.AudioContext || window.webkitAudioContext)();
-    const ac = SND.ac, t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
-    o.type = type; o.frequency.setValueAtTime(f, t);
-    if (slide !== 1) o.frequency.exponentialRampToValueAtTime(f * slide, t + dur);
-    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
-    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + .02);
-  } catch (e) { /* audio unavailable */ }
-}
-const sfx = {
-  tick: () => tone(1150, .035, 'square', .035),
-  key: () => tone(1500 + Math.random() * 300, .02, 'triangle', .025),
-  thud: () => tone(150, .18, 'sine', .16, .5),
-  rattle: () => { for (let k = 0; k < 6; k++) tone(500 + Math.random() * 500, .03, 'square', .025, 1, k * .05); },
-  crack: k => tone(420 + k * 180, .08, 'square', .05, 1.4),
-  pop: () => { tone(300, .18, 'sawtooth', .06, 3); tone(900, .14, 'triangle', .05, 1.5, .05); },
-  whoosh: () => tone(180, .5, 'sawtooth', .03, 5),
-  stamp: () => { tone(110, .2, 'sine', .18, .6); tone(2000, .05, 'square', .02); },
-  fanfare: (n = 4) => [523, 659, 784, 1047, 1319, 1568].slice(0, n).forEach((f, i) => tone(f, .24, 'triangle', .06, 1, i * .09)),
-  chime: () => { tone(1319, .3, 'sine', .05); tone(1760, .4, 'sine', .04, 1, .08); }
-};
-const buzz = ms => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* no haptics */ } };
-function soundButton(btn) {
-  const sync = () => { btn.textContent = SND.on ? 'サウンド ON' : 'サウンド OFF'; btn.setAttribute('aria-pressed', String(SND.on)); };
-  btn._sync = sync; sync();
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    SND.on = !SND.on;
-    document.querySelectorAll('.js-snd').forEach(b => b._sync && b._sync());
-    if (SND.on) sfx.chime();
-  });
-}
+// sound lives in src/sound.js (loaded first) — shared with the 2D demos
+const { SND, play, tone, sfx, soundButton, buzz } = window.NENGA.snd;
 const STD = (c, o = {}) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: .55 }, o));
 function roundedBox(w, h, d, r, mat) {
   const s = new T.Shape(), x = -w / 2, y = -h / 2, bv = Math.min(.06, d / 4);
@@ -1307,7 +1279,7 @@ stage('#gacha', (root, renderer, canvas) => {
   // the capsule counts as "over the machine" while it is in front of the body, below the globe
   const overMachine = p => Math.abs(p.x) < 1.2 && p.y < 2.0;
   function landHome() {
-    sfx.thud(); setTimeout(() => { tone(660, .09, 'triangle', .06); tone(990, .14, 'triangle', .06, 1, .08); }, 40); buzz(20);
+    sfx.thud(); sfx.chime({ vol: .4, rate: 1.2, delay: .05 }); buzz(20);
     fx.emit(TRAY.clone().add(new T.Vector3(0, .05, 0)), 30, [C.yellow, 0xffffff, C.sky], 1.6, { up: 1.2 });
     trayFlash = 1; ringT = 0; punch = 1;
     prize.top.position.y = 0; prize.top.material.emissive.setHex(RAR[pick.r].col).multiplyScalar(pick.r === 'N' ? 0 : .25);
@@ -1740,16 +1712,19 @@ stage('#post', (root, renderer, canvas) => {
     if (!focused && !typed) { g.setLineDash([14, 10]); g.strokeStyle = '#0066FF'; g.lineWidth = 4; g.strokeRect(16, TOP, w - 32, h - TOP - 50); g.setLineDash([]); }
   });
   const letter = new T.Mesh(new T.PlaneGeometry(EW * .84, EW * .62), new T.MeshStandardMaterial({ map: letterTex, side: T.DoubleSide }));
-  letter.position.set(0, .38, .015); ENV.add(letter);
+  const LET_UP = .42;                                   // letter sticks out of the open envelope while writing; ends centred inside (y 0)
+  letter.position.set(0, LET_UP, .015); ENV.add(letter);
   const pocketS = new T.Shape(); pocketS.moveTo(-EW / 2, -EH / 2); pocketS.lineTo(EW / 2, -EH / 2); pocketS.lineTo(EW / 2, EH * .12); pocketS.lineTo(0, -EH * .12); pocketS.lineTo(-EW / 2, EH * .12); pocketS.lineTo(-EW / 2, -EH / 2);
   const pocket = new T.Mesh(new T.ShapeGeometry(pocketS), STD(0xE6EAF0, { side: T.DoubleSide, roughness: .6 })); pocket.position.z = .03; ENV.add(pocket);
   const edge = new T.LineBasicMaterial({ color: 0x9AA3AF });
   const pocketLine = new T.Line(new T.BufferGeometry().setFromPoints([[-EW / 2, EH * .12], [0, -EH * .12], [EW / 2, EH * .12]].map(([x, y]) => new T.Vector3(x, y, .032))), edge); ENV.add(pocketLine);
   const flapP = new T.Group(); flapP.position.set(0, EH / 2, -.012); ENV.add(flapP);
-  const flapS = new T.Shape(); flapS.moveTo(-EW / 2, 0); flapS.lineTo(EW / 2, 0); flapS.lineTo(0, -EH * .55); flapS.lineTo(-EW / 2, 0);
+  // closed, the flap reaches down to the pocket's V (with a little overlap) so the letter is fully hidden
+  const FS = EH * .12 - EH / 2 - .012, FC = -EH * .12 - EH / 2 - .012;   // flap bottom at the sides / at the centre point
+  const flapS = new T.Shape(); flapS.moveTo(-EW / 2, 0); flapS.lineTo(EW / 2, 0); flapS.lineTo(EW / 2, FS); flapS.lineTo(0, FC); flapS.lineTo(-EW / 2, FS); flapS.lineTo(-EW / 2, 0);
   const flapM = new T.Mesh(new T.ShapeGeometry(flapS), STD(0xDCE2EB, { side: T.DoubleSide, roughness: .6 })); flapP.add(flapM);
-  flapP.add(new T.Line(new T.BufferGeometry().setFromPoints([[-EW / 2, 0], [0, -EH * .55], [EW / 2, 0]].map(([x, y]) => new T.Vector3(x, y, .002))), edge));
-  const seal = new T.Group(); seal.position.set(0, -EH * .5, .03); flapP.add(seal);
+  flapP.add(new T.Line(new T.BufferGeometry().setFromPoints([[-EW / 2, FS], [0, FC], [EW / 2, FS]].map(([x, y]) => new T.Vector3(x, y, .002))), edge));
+  const seal = new T.Group(); seal.position.set(0, FC + .07, .03); flapP.add(seal);
   const sealDisc = new T.Mesh(new T.CylinderGeometry(.12, .12, .03, 32), new T.MeshStandardMaterial({ color: C.blue, roughness: .35 }));
   sealDisc.rotation.x = Math.PI / 2; seal.add(sealDisc);
   const sealFace = new T.Mesh(new T.CircleGeometry(.1, 32), new T.MeshBasicMaterial({ map: canvasTex(128, 128, (g, w) => { g.fillStyle = '#0066FF'; g.fillRect(0, 0, w, w); g.fillStyle = '#fff'; g.font = `900 70px ${JP}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('未', w / 2, w / 2 + 4); }) }));
@@ -1879,7 +1854,7 @@ stage('#post', (root, renderer, canvas) => {
         if (flipT >= 1) { phase = 'ready'; setPrompt('投函する（封筒を上にスワイプでもOK）', true, doPost); }
       }
     }
-    letter.position.y = .38 - .52 * ease2(letterT);
+    letter.position.y = LET_UP * (1 - ease2(letterT));
     flapP.rotation.x = -Math.PI * (1 - ease2(flapT));
     flapP.position.z = flapT > 0 ? .036 : -.012;
     const ss = sealT <= 0 ? .001 : sealT < .6 ? 2.4 - 1.6 * (sealT / .6) : 1 + Math.sin((sealT - .6) / .4 * Math.PI) * .12;
@@ -1909,7 +1884,7 @@ stage('#post', (root, renderer, canvas) => {
       ENV.scale.setScalar((isPC() ? 1.45 : 1.15) * (1 - .55 * k));
       if (Math.random() < .6) fx.emit(p, 2, [C.yellow, 0xffffff, C.sky], .6, { g: .5, life: .7 });
       if (fly.t >= 1) {
-        fly = null; ENV.visible = false; phase = 'travel'; sfx.thud(); buzz(25); shakeEl(root, 6);
+        fly = null; ENV.visible = false; phase = 'travel'; sfx.postDrop(); buzz(25); shakeEl(root, 6);
         travel = { t: 0 }; odo.hidden = false; slotGlow.material.opacity = 1;
         fx.emit(PB.position.clone().add(new T.Vector3(0, BY + BH - .29, BD / 2 + .1)), 60, [C.yellow, 0xffffff], 2.5, { up: 1 });
         setPrompt('2027年12月へワープ中…', true);
@@ -2146,7 +2121,10 @@ stage('#dome', (root, renderer, canvas) => {
   const msg = $('.ov-msg', root), linesEl = $('.js-lines', root), sigEl = $('.js-sig', root), shakesEl = $('.js-shakes', root), btn = $('.js-shake', root), allBtn = $('.js-all', root);
   let offX = 0, offY = 0, offVX = 0, offVY = 0, prevRZ = 0, prevRX = 0;
   let shown = 1, wob = 0, wobV = 0, tiltX = 0, tiltZ = 0, drag = null, dragDist = 0, counted = false, aspect = 1, swirl = 0, lock = false;
+  let lastSlosh = 0;
   function shake(power) {
+    const now = performance.now();
+    if (now - lastSlosh > 380 || power >= 1) { lastSlosh = now; play('globe', { vol: Math.min(1, .35 + power * .65) }); }
     for (let i = 0; i < NP; i++) {
       rest[i] = 0;
       vel[i * 3] += (Math.random() - .5) * power * 2.4;
@@ -2173,7 +2151,7 @@ stage('#dome', (root, renderer, canvas) => {
   function reveal() {
     if (lock || shown >= LINES.length) return;
     lock = true;
-    setTimeout(() => { shown++; render(); lock = false; }, RM ? 0 : 300);
+    setTimeout(() => { shown++; render(); lock = false; sfx.chime({ vol: .35, rate: 1 + shown * .06 }); if (shown >= LINES.length) sfx.fanfare(4); }, RM ? 0 : 300);
   }
   btn.addEventListener('click', () => {
     if (shown >= LINES.length) { shown = 1; render(); return; }
@@ -2309,6 +2287,6 @@ stage('#dome', (root, renderer, canvas) => {
   fontsReady.then(() => { texPlate._redraw(); texSign._redraw(); });
   return { scene, camera, frame, resize, onMode() { resize(root.clientWidth, root.clientHeight); } };
 });
-window.NENGA.fx = { SND, tone, sfx, soundButton, buzz, shakeEl, popEl };
+window.NENGA.fx = { SND, tone, play, sfx, soundButton, buzz, shakeEl, popEl };
 window.NENGA.three = { stage, canvasTex, makeBurst, ndcOf };
 })();

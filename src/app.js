@@ -5,6 +5,7 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 window.NENGA = window.NENGA || {};
+const SNDX = window.NENGA.snd || { play: () => false, sfx: new Proxy({}, { get: () => () => {} }) };
 
 /* ---------- shared sheep art ---------- */
 const INK = '#161717';
@@ -177,20 +178,23 @@ function local(el, e) {
     const over = loose.filter(b => !b.fading).length - CAP();
     for (let k = 0, n = 0; k < loose.length && n < over; k++) if (!loose[k].fading) { loose[k].fading = true; n++; }
   }
+  let lastSnip = 0;
   function cutAlong(a, b) {
-    const R = pc() ? 30 : 20, dx = b.x - a.x, dy = b.y - a.y, L2 = dx * dx + dy * dy || 1;
+    const R = pc() ? 30 : 20, dx = b.x - a.x, dy = b.y - a.y, L2 = dx * dx + dy * dy || 1, before = removed;
     tufts.forEach(t => {
       if (!t.on) return;
       const u = Math.max(0, Math.min(1, ((t.x - a.x) * dx + (t.y - a.y) * dy) / L2));
       const px = a.x + dx * u, py = a.y + dy * u;
       if ((t.x - px) ** 2 + (t.y - py) ** 2 < (R + t.r * .35) ** 2) detach(t, dx, dy);
     });
+    const cut = removed - before, now = performance.now();
+    if (cut && now - lastSnip > 75) { lastSnip = now; SNDX.play('snip', { vol: Math.min(1, .45 + cut * .12) }); }
     progress();
   }
   function progress() {
     const p = Math.round(removed / tufts.length * 100);
     pct.textContent = done ? '刈り終わりました' : '刈った量 ' + p + '%';
-    if (!done && p >= 72) { done = true; sneezed = false; clearAt = 0; autoT = performance.now(); big.classList.add('done'); pct.textContent = '刈り終わりました'; }
+    if (!done && p >= 72) { SNDX.sfx.chime(); SNDX.sfx.bleat({ delay: .25 }); done = true; sneezed = false; clearAt = 0; autoT = performance.now(); big.classList.add('done'); pct.textContent = '刈り終わりました'; }
   }
   /* ---- the sneeze: a fluff tickles the nose → は…はっ… → ハックション! → the wind blows wool off the message ---- */
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -229,10 +233,10 @@ function local(el, e) {
     }
     const t2 = el - S.dur;
     if (S.stage === 0) { S.stage = 1; fluff = null; head.className = 'sh-head twitch'; say('ムズムズ…'); }
-    if (S.stage === 1 && t2 > 650) { S.stage = 2; head.className = 'sh-head inhale'; say('は…'); }
+    if (S.stage === 1 && t2 > 650) { S.stage = 2; head.className = 'sh-head inhale'; say('は…'); SNDX.play('inhale', { vol: .55, rate: 1, exact: true }); }
     if (S.stage === 2 && t2 > 1150) { S.stage = 3; say('はっ…'); }
-    if (S.stage === 3 && t2 > 1600) { S.stage = 4; head.className = 'sh-head sneeze'; say('ハックション！'); blow(n); }
-    if (S.stage === 4 && t2 > 2900) { S.stage = 5; head.className = 'sh-head'; say('メェ〜…すっきり'); sneezing = null; sneezed = true; cooldownUntil = performance.now() + 1500; pct.textContent = 'タップでもう一度くしゃみ'; }
+    if (S.stage === 3 && t2 > 1600) { S.stage = 4; head.className = 'sh-head sneeze'; say('ハックション！'); blow(n); SNDX.play('sneeze', { vol: 1 }); SNDX.play('gust', { vol: .8, delay: .08 }); }
+    if (S.stage === 4 && t2 > 2900) { S.stage = 5; head.className = 'sh-head'; say('メェ〜…すっきり'); SNDX.sfx.bleat(); sneezing = null; sneezed = true; cooldownUntil = performance.now() + 1500; pct.textContent = 'タップでもう一度くしゃみ'; }
   }
   function blow(n) {
     if (!RM) root.animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-5px,3px)' }, { transform: 'translate(4px,-2px)' }, { transform: 'translate(0,0)' }], { duration: 320 });
@@ -347,13 +351,14 @@ function local(el, e) {
     last = p;
   });
   const up = e => {
+    if (held && M) { SNDX.play('poof', { vol: .5 }); SNDX.sfx.whoosh(); }
     if (held && M) { const h = held.hist, a = h[0], z = h[h.length - 1], dtm = Math.max(16, z.t - a.t); M.Body.setVelocity(held.b, { x: clamp((z.x - a.x) / dtm * 16, -25, 25), y: clamp((z.y - a.y) / dtm * 16, -25, 25) }); }
     held = null; brush = null; last = null;
   };
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
   cv.addEventListener('pointerleave', () => { cursor = null; });
   // tap on loose wool in the pile to toss it
-  $('.js-reset', root).addEventListener('click', build);
+  $('.js-reset', root).addEventListener('click', () => { SNDX.play('poof', { vol: .7 }); SNDX.play('pon', { vol: .5, delay: .05 }); build(); });
   let bw = 0, bh = 0;
   new ResizeObserver(() => { if (Math.abs(cv.clientWidth - bw) > 2 || Math.abs(cv.clientHeight - bh) > 2) { bw = cv.clientWidth; bh = cv.clientHeight; build(); } }).observe(cv);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (!started) draw(performance.now()); });
@@ -478,8 +483,8 @@ function local(el, e) {
     tUp = (jx0 - xs) / (xe - xs); tDown = (jx1 - xs) / (xe - xs);
     const a = r.animate(kf, { duration: dur, easing: 'linear' });
     // airborne pose + dotted trail drawn behind the sheep
-    setTimeout(() => { r.classList.remove('run'); r.classList.add('air'); }, dur * tUp);
-    setTimeout(() => { r.classList.remove('air'); r.classList.add('run', 'land'); setTimeout(() => r.classList.remove('land'), 260); }, dur * tDown);
+    setTimeout(() => { r.classList.remove('run'); r.classList.add('air'); if (solo) SNDX.play('boing', { vol: .6 }); }, dur * tUp);
+    setTimeout(() => { if (solo) SNDX.play('poof', { vol: .55 }); r.classList.remove('air'); r.classList.add('run', 'land'); setTimeout(() => r.classList.remove('land'), 260); }, dur * tDown);
     if (solo && trail) {
       trail.innerHTML = ''; trail.style.opacity = 1; trail.style.transition = '';
       const dots = [], M = 26;
@@ -500,7 +505,9 @@ function local(el, e) {
     a.onfinish = () => r.remove();
     return dur * ((tUp + tDown) / 2);   // ms until the sheep is over the fence
   }
+  const PENTA = [0, 2, 4, 7, 9, 12, 14, 16];   // count notes climb a major pentatonic
   function bump(v) {
+    if (v < 2027) SNDX.play('pon', { vol: .7, rate: Math.pow(2, PENTA[(v - 1) % PENTA.length] / 12) });
     nEl.textContent = v.toLocaleString('ja-JP'); nEl.dataset.v = v; numEl.classList.add('on');
     if (!RM) {
       numEl.animate([{ transform: 'scale(.7) rotate(-6deg)' }, { transform: 'scale(1.12) rotate(2deg)', offset: .6 }, { transform: 'scale(1)' }], { duration: 380, easing: 'ease-out' });
@@ -534,7 +541,7 @@ function local(el, e) {
 
   /* --- physics rush: the remaining 2022 sheep pile up on the hill, roll and bump each other --- */
   const M = window.Matter;
-  let eng = null, raf = 0, W = 0, H = 0, dpr = 1, statics = [], sheep = [], fx = [], conf = [], spawned = 0, total = 0, t0 = 0, last = 0, acc = 0, lastMee = 0, shakeT = 0, finished = false;
+  let eng = null, raf = 0, W = 0, H = 0, dpr = 1, statics = [], sheep = [], fx = [], conf = [], spawned = 0, total = 0, t0 = 0, last = 0, acc = 0, lastMee = 0, lastPoof = 0, shakeT = 0, finished = false;
   function geom() { W = cv.clientWidth; H = cv.clientHeight; dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
   function buildStatics() {
     if (statics.length) M.Composite.remove(eng.world, statics);
@@ -566,7 +573,10 @@ function local(el, e) {
     spawned++;
   }
   function puff(x, y, k = 4) { if (RM) return; for (let q = 0; q < k; q++) fx.push({ type: 'p', x, y, vx: rand(-1.4, 1.4), vy: rand(-2.2, -.4), r: rand(2, 5) * (W > 700 ? 1.6 : 1), life: 1 }); }
-  function mee(x, y) { fx.push({ type: 't', x, y, vy: -.7, life: 1, txt: Math.random() < .5 ? 'メェ' : 'メェ〜！' }); }
+  let lastBleat = 0;
+  function mee(x, y) {
+    const now = performance.now(); if (now - lastBleat > 260) { lastBleat = now; SNDX.sfx.bleat({ vol: .4, rate: 1 + Math.random() * .25 }); }
+    fx.push({ type: 't', x, y, vy: -.7, life: 1, txt: Math.random() < .5 ? 'メェ' : 'メェ〜！' }); }
   function confetti() {
     if (RM) return;
     const cols = ['#FFD43B', '#0066FF', '#FFFFFF', '#3F9CFF', '#FFE89A'];
@@ -574,7 +584,8 @@ function local(el, e) {
   }
   function startRush() {
     if (!M) return fallbackRush();
-    phase = 'busy'; btn.disabled = true; finished = false;
+    phase = 'busy'; btn.disabled = true; finished = false; lastPoof = 0;
+    SNDX.play('hooves', { vol: .9 }); setTimeout(() => SNDX.play('hooves', { vol: .7 }), 1500); setTimeout(() => SNDX.play('hooves', { vol: .5 }), 3000);
     cv.classList.add('on'); root.classList.add('rushing'); geom();
     eng = M.Engine.create({ enableSleeping: true }); eng.gravity.y = 1.05;
     buildStatics();
@@ -584,6 +595,7 @@ function local(el, e) {
         const a = p.bodyA, b = p.bodyB, rel = Math.hypot(a.velocity.x - b.velocity.x, a.velocity.y - b.velocity.y);
         if (rel > 4.5 && p.collision && p.collision.supports && p.collision.supports[0]) {
           const s = p.collision.supports[0]; puff(s.x, s.y, rel > 9 ? 6 : 3);
+          if (now - lastPoof > 55) { lastPoof = now; SNDX.play('poof', { vol: Math.min(.8, rel / 14) }); }
           if (now - lastMee > 380 && rel > 7) { lastMee = now; mee(s.x, s.y - 10); }
           if ((a.isStatic || b.isStatic) && rel > 12) shakeT = Math.max(shakeT, .12);
         }
@@ -607,7 +619,7 @@ function local(el, e) {
     draw(now);
   }
   function finish() {
-    finished = true; n = 2027; bump(2027);
+    finished = true; n = 2027; bump(2027); SNDX.play('popper', { vol: .9 }); SNDX.sfx.fanfare(6);
     confetti(); shakeT = RM ? 0 : .5;
     paraEls[PARAS.length - 2].classList.add('gone');
     $$('.final', linesEl).forEach((e, ix) => setTimeout(() => e.classList.add('show'), 300 + ix * 500));
@@ -650,7 +662,7 @@ function local(el, e) {
     const p = local(cv, e), hit = M.Query.point(sheep, p);
     const list = hit.length ? hit : sheep.filter(b => Math.hypot(b.position.x - p.x, b.position.y - p.y) < b.r * 2.2);
     list.forEach(b => { M.Sleeping.set(b, false); M.Body.setVelocity(b, { x: (b.position.x - p.x) * .15 + rand(-1, 1), y: -rand(7, 11) * (W > 700 ? 1.4 : 1) }); M.Body.setAngularVelocity(b, rand(-.4, .4)); });
-    if (list.length) { puff(p.x, p.y, 6); mee(p.x, p.y - 14); }
+    if (list.length) { puff(p.x, p.y, 6); mee(p.x, p.y - 14); SNDX.play('boing', { vol: .6 }); }
   });
   new ResizeObserver(() => { if (!eng) return; geom(); buildStatics(); }).observe(cv);
   function stopRush() {

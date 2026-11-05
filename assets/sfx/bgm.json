@@ -1,0 +1,13 @@
+{
+  "_doc": "Background loops (Stable Audio 3 via audio-studio MCP) → tools/process_sfx.py → generated/bgm.js. len ≈ bars × beats × 60/bpm; the exact loop point is refined by matching the start against the end; xf = crossfade ms.",
+  "shear":   { "src": "bgm_shear_v1",   "bpm": 110, "beats": 32, "xf": 150 },
+  "count":   { "src": "bgm_count_v1",   "bpm": 72,  "beats": 20, "xf": 900 },
+  "gacha":   { "src": "bgm_gacha_v2",   "bpm": 120, "beats": 32, "xf": 120 },
+  "post":    { "src": "bgm_post_v2",    "bpm": 90,  "beats": 20, "xf": 300 },
+  "flock":   { "src": "bgm_flock_v1",   "bpm": 100, "beats": 28, "xf": 200 },
+  "popup":   { "src": "bgm_popup_v1",   "bpm": 84,  "beats": 20, "xf": 400 },
+  "dome":    { "src": "bgm_dome_v1",    "bpm": 80,  "beats": 21, "xf": 600 },
+  "omikuji": { "src": "bgm_omikuji_v2", "bpm": 70,  "beats": 20, "xf": 1500 },
+  "fuku":    { "src": "bgm_fuku_v2",    "bpm": 104, "beats": 28, "xf": 150 },
+  "mochi":   { "src": "bgm_mochi_v1",   "bpm": 130, "beats": 32, "xf": 120 }
+}

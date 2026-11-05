@@ -9,8 +9,9 @@ if (!T || !N3) return;
 const $ = (s, r = root) => r.querySelector(s), $$ = (s, r = root) => [...r.querySelectorAll(s)];
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const rand = (a, b) => a + Math.random() * (b - a), clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const tone = FX ? FX.tone : () => {}, buzz = FX ? FX.buzz : () => {}, snd = () => FX && FX.SND.on;
+const play = FX ? FX.play : () => false, sfx = FX ? FX.sfx : new Proxy({}, { get: () => () => {} }), buzz = FX ? FX.buzz : () => {}, snd = () => FX && FX.SND.on;
 if (FX) FX.soundButton($('.js-snd'));
+const duck = k => { const S = window.NENGA && window.NENGA.snd; if (S) S.bgmDuck('mochi', k); };
 const isPC = () => root.clientWidth >= 700;
 
 const btn = $('.js-act'), judgeEl = $('.mc-judge'), comboEl = $('.mc-combo'), comboN = $('.mc-combo b'), gaugeI = $('.mc-gauge i'), pctEl = $('.mc-pct');
@@ -262,6 +263,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
   const handIn = () => { if (state !== 'play' || now < t0 - period) return 0; const p = cyc(); return clamp((p - .16) / .05, 0, 1) * clamp((.5 - p) / .05, 0, 1); };
 
   function start() {
+    duck(.3);                                             // music steps back so the beat leads
     state = 'play'; missedUpTo = -1; prog = 0; combo = 0; maxCombo = 0; shown = 0; fever = false; root.classList.remove('fever', 'done');
     Object.keys(stats).forEach(k => stats[k] = 0);
     t0 = now + period * 1.6; lastBeat = -1; judgedBeat = -1; period = .92;
@@ -350,22 +352,22 @@ N3.stage('#mochi', (r, renderer, cv) => {
       kick(lambV, 0, .8, 0, 4, 2, 1.4, .5); armRecoil = 1; rebound = 1; shakeA = .3;
       judge('あぶない!', 'こひつじの手が！', 'danger', 1000); vignette('danger'); buzz([50, 40, 50]);
       fx2d('danger');
-      if (snd()) { tone(880, .12, 'square', .05, .5); tone(660, .16, 'square', .045, .6, .09); }
+      play('mc_danger', { vol: .7 });
       updHud(); return;
     }
     let gain = 0;
     if (q === 'perfect') { stats.perfect++; combo++; gain = 7; hitStop = .11; judge('ぺったん!', combo > 1 ? `PERFECT ・ ${combo} COMBO` : 'PERFECT', 'perfect', 900); flash('#FFFFFF', .5); buzz(35);
       burst(top, 34, fever ? [0xFFFFFF, 0xFFE94A, 0xFFB800] : [0xFFFFFF, 0xF3F1EA, 0x9FEAFF, 0x3FA0FF], 3.4, .13, 5.5); shock.material.opacity = 1; shock.scale.setScalar(.6); shockT = 0;
       zoomP = .09; starT = 0; starK = 1.2; sheepHop = 1; shakeA = .22; fx2d('perfect');
-      if (snd()) { tone(150, .18, 'sine', .25, .5); tone(1320, .09, 'triangle', .05, 1, .02); tone(1760, .12, 'triangle', .04, 1, .07); } }
+      play('mc_pound', { vol: 1 }); play('mc_kiran', { vol: .5, rate: lift() }); play('mc_good', { vol: .45, rate: 1.19 * lift(), delay: .03 }); }
     else if (q === 'good') { stats.good++; combo++; gain = 4.5; hitStop = .05; judge('いいね!', combo > 1 ? `GOOD ・ ${combo} COMBO` : 'GOOD', 'good', 750); buzz(20);
-      burst(top, 16, [0xFFFFFF, 0xF3F1EA, 0x9FEAFF], 2.4, .11, 3.8); zoomP = .045; starT = 0; starK = .7; fx2d('good'); if (snd()) { tone(140, .16, 'sine', .2, .55); tone(990, .07, 'triangle', .04, 1, .02); } }
+      burst(top, 16, [0xFFFFFF, 0xF3F1EA, 0x9FEAFF], 2.4, .11, 3.8); zoomP = .045; starT = 0; starK = .7; fx2d('good'); play('mc_pound', { vol: .85, rate: .98 }); play('mc_good', { vol: .55, rate: lift(), delay: .01 }); }
     else if (q === 'early' || q === 'late') { stats.weak++; combo = 0; gain = 1.5; judge(q === 'early' ? 'はやい' : 'おそい', q === 'early' ? '◀ EARLY' : 'LATE ▶', 'weak', 620); buzz(8);
-      burst(top, 5, [0xF3F1EA], 1.4, .08, 2); zoomP = .015; if (snd()) tone(120, .12, 'sine', .14, .7); }
-    else { gain = .5; if (snd()) tone(110, .08, 'sine', .1, .7); }
+      burst(top, 5, [0xF3F1EA], 1.4, .08, 2); zoomP = .015; play('mc_pound', { vol: .45, rate: 1.1 }); }
+    else { gain = .5; play('mc_pound', { vol: .3, rate: 1.2 }); }
     if (q !== 'perfect' && q !== 'good') { fever = false; root.classList.remove('fever'); }
-    if (combo >= 8 && !fever) { fever = true; root.classList.add('fever'); banner('FEVER!!', 'つき具合 ×1.5', 'fever'); if (snd()) [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, .16, 'triangle', .06, 1, i * .06)); }
-    else if (combo > 0 && combo % 5 === 0 && (q === 'perfect' || q === 'good')) { banner(`${combo} COMBO!`, combo >= 10 ? 'すごい！' : 'いい調子', 'combo'); if (snd()) [784, 988, 1175].forEach((f, i) => tone(f, .1, 'triangle', .04, 1, .1 + i * .05)); }
+    if (combo >= 8 && !fever) { fever = true; root.classList.add('fever'); banner('FEVER!!', 'つき具合 ×1.5', 'fever'); play('mc_fever', { vol: .6 }); }
+    else if (combo > 0 && combo % 5 === 0 && (q === 'perfect' || q === 'good')) { banner(`${combo} COMBO!`, combo >= 10 ? 'すごい！' : 'いい調子', 'combo'); play('mc_combo', { vol: .5, delay: .1 }); }
     if (gain >= 4) plus(`+${Math.round(gain * (fever ? 1.5 : 1))}`);
     maxCombo = Math.max(maxCombo, combo);
     prog = Math.min(100, prog + gain * (fever ? 1.5 : 1) * (1 + Math.min(combo, 10) * .03));
@@ -375,24 +377,27 @@ N3.stage('#mochi', (r, renderer, cv) => {
     updHud();
     if (prog >= 100) finish();
   }
+  // reward sparkles climb a little in pitch as the combo builds (up to ~a minor third at 10)
+  function lift() { return 1 + Math.min(combo, 10) * .019; }
   function showLine(i) {
     msgN.textContent = `${i + 1} / ${LINES.length}`; msgP.textContent = LINES[i]; msgEl.classList.add('on');
     msgEl.animate([{ opacity: 0, transform: 'translate(-50%,-12px) scale(.9)' }, { opacity: 1, transform: 'translate(-50%,0) scale(1.04)', offset: .6 }, { opacity: 1, transform: 'translate(-50%,0) scale(1)' }], { duration: 420, easing: 'ease-out' });
-    if (snd()) { tone(1047, .1, 'sine', .04); tone(1568, .16, 'sine', .035, 1, .06); }
+    sfx.chime({ vol: .4 });
   }
   function miss() {
     stats.miss++; combo = 0; fever = false; root.classList.remove('fever');
     judge('すかっ…', 'MISS', 'miss', 700); updHud(); vignette('miss');
-    if (snd()) tone(300, .2, 'sine', .03, .5);
+    play('mc_miss', { vol: .6 });
   }
   let shockT = 9, armRecoil = 0, rebound = 0, sheepHop = 0, zoomP = 0, starK = 1;
   function finish() {
+    duck(1);
     state = 'done'; doneT = 0; fever = false; root.classList.remove('fever'); root.classList.add('done');
     btn.textContent = 'もう一回つく';
     howEl.innerHTML = 'つきあがり！<br>鏡餅のできあがり';
     // mochi cubes regroup into kagami-mochi
     mochiV.cells.forEach((c, i) => { c.from = new T.Vector3(c.x, c.y, c.z); c.to = kagami[i] ? kagami[i].clone() : null; c.delay = rand(0, .35); });
-    if (snd()) [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => tone(f, .22, 'triangle', .06, 1, .4 + i * .08));
+    play('fanfare_l', { vol: .6, delay: .4 });
     buzz([30, 40, 60]);
     setTimeout(() => {
       finalEl.innerHTML = `<span class="k">MOCHITSUKI COMPLETE</span><h5>つきたての一年を。</h5><ol>${LINES.map(l => `<li>${l}</li>`).join('')}</ol><span class="sig">${SIG}</span>
@@ -423,15 +428,15 @@ N3.stage('#mochi', (r, renderer, cv) => {
       const n = Math.floor(phase() + .5);
       if (n !== lastBeat) {
         lastBeat = n;
-        if (snd()) tone(n % 4 === 0 ? 880 : 660, .03, 'triangle', .02);
+        play('mc_beat', n % 4 === 0 ? { vol: .45, rate: 1.25, exact: true } : { vol: .28, exact: true });
       }
       const passed = Math.floor(phase() - .17);            // beats whose window has closed
       if (passed >= 0 && passed > missedUpTo) { missedUpTo = passed; if (passed > judgedBeat) miss(); }
     }
     // rings + the swing (both follow the same cycle so the picture is consistent)
-    const play = state === 'play' && now >= t0 - period, p = cyc(), rr = ringR(p), trailing = p < .16;
-    const danger = play && handIn() > .15, closing = play && !trailing ? clamp(1 - (rr - 1) / 1.6, 0, 1) : 0;
-    const inZone = play && !danger && (trailing || rr < 1.24);
+    const playing = state === 'play' && now >= t0 - period, p = cyc(), rr = ringR(p), trailing = p < .16;
+    const danger = playing && handIn() > .15, closing = playing && !trailing ? clamp(1 - (rr - 1) / 1.6, 0, 1) : 0;
+    const inZone = playing && !danger && (trailing || rr < 1.24);
     // the sheep winds up as the ring closes in, then slams on the tap (and rebounds hard on あぶない)
     const RA = A0 + 1.0 + .22 * closing * closing;
     let ang;
@@ -447,7 +452,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     // the sheep leans into the swing and hops on a perfect hit
     sheepHop = Math.max(0, sheepHop - dt * 3);
     SH.rotation.z = -clamp((RA - ang) / 1.5, 0, 1) * .12;
-    SH.position.y = Math.sin(sheepHop * Math.PI) * .25 + (play ? Math.abs(Math.sin(t * Math.PI / period)) * .03 : Math.sin(t * 2) * .02);
+    SH.position.y = Math.sin(sheepHop * Math.PI) * .25 + (playing ? Math.abs(Math.sin(t * Math.PI / period)) * .03 : Math.sin(t * 2) * .02);
     sheepHead.rotation.z = Math.sin(t * 3) * .03 + (danger ? .08 : 0);
     // lamb hand: reaches in while the ring is big
     const hand = handIn() * (1 - armRecoil);
@@ -457,7 +462,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     arm.scale.set(.15 + (len / (9 * .14) - .15) * hand, 1, 1);
     LB.position.y = Math.abs(Math.sin(t * Math.PI / period + 1.2)) * .03 + Math.sin(Math.min(1, armRecoil * 1.2) * Math.PI) * .45;
     // ring visuals
-    approach.visible = approachGlow.visible = play;
+    approach.visible = approachGlow.visible = playing;
     approach.scale.setScalar(rr); approachGlow.scale.setScalar(rr);
     approach.material.color.setHex(danger ? 0xFF6B6B : inZone ? 0xFFFFFF : fever ? 0xFFE94A : 0x9FEAFF);
     approachGlow.material.color.setHex(danger ? 0xFF3B3B : fever ? 0xFFB800 : 0x3FA0FF);
@@ -465,7 +470,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     approachGlow.material.opacity = trailing ? (1 - p / .16) * .3 : .12 + .25 * closing;
     target.material.color.setHex(danger ? 0xFF8A8A : inZone ? 0xFFFFFF : fever ? 0xFFE94A : 0x7FE0FF);
     target.scale.setScalar(inZone ? 1.04 + Math.sin(t * 30) * .01 : 1); targetGlow.material.opacity = inZone ? .6 : .22;
-    zone.material.color.setHex(danger ? 0xFF5A5A : fever ? 0xFFD84A : 0x7FE0FF); zone.material.opacity = !play ? .1 : danger ? .14 : inZone ? .38 : .1 + .12 * closing;
+    zone.material.color.setHex(danger ? 0xFF5A5A : fever ? 0xFFD84A : 0x7FE0FF); zone.material.opacity = !playing ? .1 : danger ? .14 : inZone ? .38 : .1 + .12 * closing;
     target.visible = targetGlow.visible = zone.visible = state !== 'done';
     // impact star
     starT += dt; if (starT < .35) { const u = starT / .35; star.visible = true; star.scale.setScalar(.6 + u * 2.4 * starK); star.material.opacity = 1 - u; star.quaternion.copy(camera.quaternion); } else star.visible = false;
@@ -493,7 +498,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
         if (c.to) { c.x = c.from.x + (c.to.x - c.from.x) * e; c.y = c.from.y + (c.to.y - c.from.y) * e + Math.sin(e * Math.PI) * .8; c.z = c.from.z + (c.to.z - c.from.z) * e; }
         else mochiV.sc[i] = 1 - e;
       });
-      if (doneT > 1.4 && !mikanV.mesh.visible) { mikanV.mesh.visible = true; kick(mikanV, U.x, USU_TOP + .9, U.z, 3, 1, 1.5, .3); burst(new T.Vector3(U.x, USU_TOP + 1, U.z), 40, [0xFFE94A, 0x0066FF, 0xFFFFFF, 0xE5322D], 3.5, .12, 5); if (snd()) tone(1568, .2, 'triangle', .05); }
+      if (doneT > 1.4 && !mikanV.mesh.visible) { mikanV.mesh.visible = true; kick(mikanV, U.x, USU_TOP + .9, U.z, 3, 1, 1.5, .3); burst(new T.Vector3(U.x, USU_TOP + 1, U.z), 40, [0xFFE94A, 0x0066FF, 0xFFFFFF, 0xE5322D], 3.5, .12, 5); sfx.pop(); }
       if (Math.random() < .2) burst(new T.Vector3(rand(-3, 3), 4.5, rand(-2, 2)), 1, [0xFFE94A, 0x7FE0FF, 0xFFFFFF, 0xE5322D], .6, .1, -.2);
     }
     // steam rising from the mochi (more when the mochi is hot / fever)

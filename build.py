@@ -4,7 +4,7 @@
     python3 build.py            # → dist/nenga2027.html (artifact fragment, no <html>/<head> wrapper)
                                 #   dist/preview.html   (full HTML document for local preview / tests)
 
-Order matters: generated assets → app.js (2D demos + device frames) → 3D models → three-demos.js
+Order matters: generated assets (images, sound effects, music) → sound.js (NENGA.snd) → app.js (2D demos + device frames) → 3D models → three-demos.js
 (3D demos, exports NENGA.fx / NENGA.three) → jp.js → omikuji.js → mochi.js.
 """
 import pathlib, urllib.parse
@@ -34,7 +34,7 @@ CDN = '''
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
 '''
-SCRIPTS = [GEN / 'assets.js', SRC / 'app.js', GEN / 'gacha_glb.js', GEN / 'snowdome_glb.js', SRC / 'three-demos.js',
+SCRIPTS = [GEN / 'assets.js', GEN / 'sfx.js', GEN / 'bgm.js', SRC / 'sound.js', SRC / 'app.js', GEN / 'gacha_glb.js', GEN / 'snowdome_glb.js', SRC / 'three-demos.js',
            SRC / 'jp.js', GEN / 'omikuji_glb.js', SRC / 'omikuji.js', SRC / 'mochi.js']
 
 def main():

@@ -10,7 +10,7 @@ const rand = (a, b) => a + Math.random() * (b - a), pick = a => a[Math.floor(Mat
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const tone = FX ? FX.tone : () => {}, sfx = FX ? FX.sfx : new Proxy({}, { get: () => () => {} }), buzz = FX ? FX.buzz : () => {};
-const snd = () => FX && FX.SND.on;
+const snd = () => FX && FX.SND.on, play = FX ? FX.play : () => false;
 const isPC = () => root.clientWidth >= 700;
 const KNUM = n => { const d = '〇一二三四五六七八九'; if (n < 10) return d[n]; const t = Math.floor(n / 10), o = n % 10; return (t > 1 ? d[t] : '') + '十' + (o ? d[o] : ''); };
 
@@ -127,7 +127,7 @@ if (T && N3 && N3.stage) N3.stage('#omikuji', (r, renderer, cv) => {
     const p = worldAt(e);
     drag = { start: p.clone().sub(off), moved: 0, x: e.clientX, y: e.clientY, t: e.timeStamp };
     try { cv.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ } cv.classList.add('grab');
-    tone(300, .04, 'triangle', .03);
+    play('omi_clack', { vol: .3, rate: .8 });
   });
   cv.addEventListener('pointermove', e => {
     if (!drag) return;
@@ -148,7 +148,8 @@ if (T && N3 && N3.stage) N3.stage('#omikuji', (r, renderer, cv) => {
     if (tap && state === 'idle') { rotV += rand(-1, 1) < 0 ? -9 : 9; vel.y += 2.2; onShake(); }
   };
   cv.addEventListener('pointerup', release); cv.addEventListener('pointercancel', release);
-  function rattle(n = 6, v = .03) { if (!snd()) return; for (let k = 0; k < n; k++) tone(rand(900, 1700), .02, 'square', v * rand(.5, 1), 1, k * rand(.025, .05)); }
+  // a random slice of the recorded stick rattle; n ≈ how many clicks, v the loudness (0.03 = a full shake)
+  function rattle(n = 6, v = .03) { const d = .06 + n * .045; play('omi_rattle', { offset: rand(0, 1.3 - d), dur: d, vol: Math.min(1, v * 30), rate: rand(.92, 1.1) }); }
   function onShake() {
     if (state !== 'idle') return;
     shakes++; rattle(); buzz(14); rattleT = .4;
@@ -166,13 +167,21 @@ if (T && N3 && N3.stage) N3.stage('#omikuji', (r, renderer, cv) => {
     const r = .03, A = holeW.clone(), B = holeW.clone().add(new T.Vector3(0, -SL, 0));
     stickSim = { A, B, pA: A.clone().add(new T.Vector3(rand(-.004, .004), .01, 0)), pB: B.clone().add(new T.Vector3(rand(.006, .012) * (Math.random() < .5 ? -1 : 1), .01, 0)), r, hit: 0 };
   }
+  // ground sounds: the first end to touch down plays the full カラン…カラカラ drop, the other end slaps when the stick tips flat;
+  // later small bounces only tick. v = impact speed (units/s), so it does not depend on the frame rate.
+  function landed(end, v) {
+    const s = stickSim; if (v < .15 || s[end + 'Hit']) { if (v > .6 && s.hit < 6) { s.hit++; play('omi_clack', { vol: Math.min(.5, v * .2), rate: rand(.95, 1.15) }); } return; }
+    s[end + 'Hit'] = true; s.hit++;
+    if (s.hit === 1) { play('omi_drop', { vol: 1, rate: rand(.96, 1.05) }); buzz(14); }
+    else { play('omi_flat', { vol: clamp(.35 + v * .25, .35, .8), rate: rand(.95, 1.06) }); buzz(8); }
+  }
   function simStick(dt) {
     const s = stickSim, g = -9.8 * .55, sub = 4, h = dt / sub;
     for (let k = 0; k < sub; k++) {
       [['A', 'pA'], ['B', 'pB']].forEach(([p, q]) => {
         const cur = s[p], prev = s[q], vx = (cur.x - prev.x) * .999, vy = (cur.y - prev.y) * .999;
         prev.copy(cur); cur.x += vx; cur.y += vy + g * h * h;
-        if (cur.y < s.r) { const impact = vy; cur.y = s.r; prev.y = cur.y + vy * .32; prev.x = cur.x - vx * .7; if (impact < -.012 && s.hit < 5) { s.hit++; if (snd()) { tone(210, .09, 'triangle', .1, .7); tone(1400, .02, 'square', .03); } buzz(10); } }
+        if (cur.y < s.r) { cur.y = s.r; prev.y = cur.y + vy * .32; prev.x = cur.x - vx * .7; landed(p, -vy / h); }
       });
       for (let it = 0; it < 3; it++) {
         const d = s.A.clone().sub(s.B), L = d.length() || 1e-4, diff = (L - SL) / L / 2;
@@ -214,7 +223,7 @@ if (T && N3 && N3.stage) N3.stage('#omikuji', (r, renderer, cv) => {
         // the stick slides out of the hole a little at a time
         if (!stick.visible) { stick.visible = true; const n = Math.random() < .45 ? 27 : 1 + Math.floor(Math.random() * 30); numTxt = KNUM(n) + '番'; numTex = paintNum(numTxt); numPlane.material.map = numTex; numPlane.material.needsUpdate = true; api.no = `第${KNUM(n)}番`; setHint('出てきた…！'); }
         slideT = Math.min(1, slideT + dt * (RM ? 4 : .9) * (.6 + Math.random()));
-        if (snd() && Math.random() < .3) tone(rand(500, 800), .015, 'square', .02);
+        if (Math.random() < .3) play('omi_rattle', { offset: rand(0, 1.2), dur: .05, vol: .25, rate: rand(.8, 1) });
         if (slideT >= 1) { state = 'fall'; const hole = holeWorld(); dropStick(hole.add(new T.Vector3(0, -SL * .02, 0))); setTimeout(() => { if (state === 'fall' || state === 'settle') flip.back = 0; }, 350); }
       }
     }
@@ -277,7 +286,7 @@ async function reveal() {
   api.setState('reveal'); root.classList.add('reveal');
   noEl.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' });
   darkWipe(true);
-  if (snd()) { tone(196, 1.2, 'sine', .05); tone(294, 1.2, 'sine', .04, 1, .15); }
+  play('omi_bell', { vol: .8 });
   const rank = weighted();
   sheet.innerHTML = `<div class="no">${api.no}</div><div class="rank brushf">${rank}</div><div class="poem">${pick(POEMS).split('|').join('<br>')}</div><i class="sep"></i>`
     + Object.entries(ITEMS).map(([k, v]) => `<div class="it${k === '学問' ? ' opt' : ''}"><b>【${k}】</b><span>${pick(v)}</span></div>`).join('')
@@ -286,7 +295,7 @@ async function reveal() {
   await wait(RM ? 0 : 500);
   paper.hidden = false; fitSheet();
   const dur = RM ? 1 : 1300, t0 = performance.now();
-  if (snd()) tone(220, .9, 'sawtooth', .012, 2.5);
+  play('omi_unroll', { vol: .7 });
   await new Promise(res => {
     const st = t => {
       const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
@@ -314,7 +323,7 @@ async function tie() {
   await paper.animate([{ transform: 'none' }, { transform: 'scale(.1,.85) rotate(4deg)', offset: .45 }, { transform: `translate(${dx}px,${dy}px) scale(${kr.w / pr.w},${kr.h / pr.h})` }], { duration: RM ? 1 : 900, easing: 'cubic-bezier(.5,0,.3,1)' }).finished;
   paper.hidden = true; kn.style.visibility = '';
   kn.animate([{ transform: 'rotate(-16deg)' }, { transform: 'rotate(10deg)' }, { transform: 'rotate(-5deg)' }, { transform: 'rotate(0)' }], { duration: 700 });
-  sfx.stamp(); buzz(20);
+  play('omi_tie', { vol: .9 }); buzz(20);
   await wait(450);
   back('結べました。もう一度ひくこともできます');
 }

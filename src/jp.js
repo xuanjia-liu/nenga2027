@@ -13,7 +13,7 @@ const FX = (window.NENGA && window.NENGA.fx) || (() => {
   return { SND, tone, sfx: new Proxy({}, { get: () => noop }), buzz: noop, popEl: noop, shakeEl: noop,
     soundButton(b) { if (b) b.hidden = true; } };
 })();
-const { tone, sfx, buzz, popEl, shakeEl } = FX;
+const { sfx, buzz, popEl, shakeEl } = FX, play = FX.play || (() => false);
 const isPC = () => window.NENGA && window.NENGA.isPC && window.NENGA.isPC();
 // unscaled scale factor of a demo screen (PC mode scales the 1280×760 viewport down)
 const kOf = root => root.clientWidth / (root.getBoundingClientRect().width || 1);
@@ -102,7 +102,7 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
         place(o, nx, ny, o.p.tr + rand(-22, 22));
         setTimeout(() => { o.el.style.transition = ''; }, 260);
         o.el.classList.add('placed', 'blind');
-        tone(500 + placedCount() * 80, .07, 'triangle', .05); buzz(10);
+        play('stamp', { vol: .45, rate: .95 + placedCount() * .06 }); buzz(10);
         const left = PARTS.length - placedCount();
         act.disabled = false;
         setHint(left ? `あと${left}つ。置けたら「目かくしをとる」` : 'ぜんぶ置けました。「目かくしをとる」でごたいめん！');
@@ -131,7 +131,7 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
     const R = avg < .07 ? { k: '名人級', s: 'そっくりなひつじになりました', c: '#0066FF' } : avg < .15 ? { k: '福々しい', s: 'なかなか、いい顔です', c: '#D9332B' } : { k: '大わらい', s: 'これは…福がきました', c: '#D9332B' };
     setTimeout(() => {
       face.classList.add('laugh'); bubble.classList.add('show'); sfx.fanfare(4); buzz(40);
-      if (FX.SND.on) [0, .14, .28].forEach(d => tone(620, .12, 'triangle', .05, .7, d));
+      sfx.bleat && sfx.bleat();
       setHint(`そっくり度 ${Math.max(3, Math.round(100 - avg * 320))}%`);
     }, 650);
     setTimeout(() => {
