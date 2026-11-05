@@ -1044,10 +1044,6 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 .mc-btn{position:relative;width:100%;height:58px;border:0;border-radius:18px;background:linear-gradient(#FFFFFF,#E3EEFF);color:#0047C2;font-weight:900;font-size:22px;letter-spacing:.04em;cursor:pointer;
   box-shadow:0 6px 0 #9DBCF5,0 14px 24px -8px rgba(0,30,110,.6);transition:transform .06s,box-shadow .06s}
 .mc-btn:active,.mc-btn.press{transform:translateY(5px);box-shadow:0 1px 0 #9DBCF5,0 6px 12px -6px rgba(0,30,110,.6)}
-.mc-btn::after{content:"";position:absolute;right:-6px;top:-14px;width:34px;height:26px;background:
-  linear-gradient(115deg,transparent 46%,#fff 46% 54%,transparent 54%) 0 6px/12px 18px no-repeat,
-  linear-gradient(90deg,transparent 42%,#fff 42% 58%,transparent 58%) 11px 0/12px 18px no-repeat,
-  linear-gradient(65deg,transparent 46%,#fff 46% 54%,transparent 54%) 22px 6px/12px 18px no-repeat;opacity:.95}
 .mc-key{display:none}
 .mc-key kbd{font-family:inherit;font-weight:900;border:1.5px solid #fff;border-radius:6px;padding:1px 8px;margin-right:4px}
 /* final card */
@@ -1091,7 +1087,6 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
   .mc-cta{left:auto;right:56px;bottom:34px;width:330px;gap:16px}
   .mc-btn{height:104px;border-radius:30px;font-size:44px;box-shadow:0 10px 0 #9DBCF5,0 24px 40px -12px rgba(0,30,110,.6)}
   .mc-btn:active,.mc-btn.press{transform:translateY(8px);box-shadow:0 2px 0 #9DBCF5,0 10px 20px -8px rgba(0,30,110,.6)}
-  .mc-btn::after{right:-14px;top:-30px;transform:scale(1.8);transform-origin:0 100%}
   .mc-key{display:block;font-weight:900;font-size:19px;text-shadow:0 2px 0 rgba(0,40,140,.35)}
   .mc-final{left:318px;right:auto;top:128px;bottom:auto;width:440px;padding:28px 30px 24px;gap:10px}
   .mc-final .k{font-size:13px}
@@ -1147,3 +1142,51 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 .snd-ico:active{transform:scale(.92)}
 .snd-ico:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 @container scr (min-width:700px){.s-shear .pcbrand,.s-count .pcbrand,.s-omi .pcbrand,.s-fuku .pcbrand{right:84px}.snd-ico{top:18px;right:18px;width:44px;height:44px}.snd-ico::before{width:22px;height:22px}.snd-ico[aria-pressed="false"]::after{width:25px}}
+
+/* ---------- phone app layout (html.sp, set by app.js on phones): one full-screen page at a time ---------- */
+html.sp, html.sp body{height:100%;overflow:hidden;overscroll-behavior:none}
+html.sp body::before{display:none}
+html.sp body > :not(.sp-deck):not(.sp-bar):not(.sp-scrim):not(svg):not(script):not(style):not(link){display:none!important}
+.sp-deck,.sp-bar,.sp-scrim{display:none}
+html.sp .sp-deck{display:block;position:fixed;left:0;right:0;top:0;bottom:calc(60px + env(safe-area-inset-bottom,0px));background:var(--ink-strong)}
+html.sp .sp-page{display:none;position:absolute;inset:0}
+html.sp .sp-page.cur{display:block}
+/* intro / closing pages scroll on their own */
+html.sp .sp-text{overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--surface);padding-top:env(safe-area-inset-top,0px)}
+html.sp .sp-text .band{padding-block:40px}
+html.sp .sp-intro > .band:first-child{padding-top:16px;padding-bottom:0}
+html.sp .sp-intro .hero{margin-top:0}
+html.sp .ft{padding-bottom:32px}
+/* demos: the screen fills the page, no device frame */
+html.sp .demo.sp-page{gap:0;grid-template-columns:none}
+html.sp .demo.sp-page.cur{display:block}
+html.sp .demo .stage,html.sp .demo .dev,html.sp .demo .holder{height:100%}
+html.sp .demo .dev.phone{width:100%;max-width:none;border:0;border-radius:0;box-shadow:none;background:none}
+html.sp .demo .dev.phone .vp{aspect-ratio:auto;height:100%;width:100%}
+html.sp .demo .scr{padding-top:env(safe-area-inset-top,0px)}
+/* ⓘ notes: a bottom sheet over the demo */
+html.sp .demo .expl{display:none}
+html.sp .demo .expl.sp-open{display:grid;position:fixed;z-index:70;left:0;right:0;bottom:calc(60px + env(safe-area-inset-bottom,0px));max-height:min(72dvh,640px);overflow-y:auto;
+  background:var(--surface);border-radius:20px 20px 0 0;padding:28px 20px 24px;box-shadow:0 -12px 40px rgba(0,0,0,.25);animation:spSheet .28s cubic-bezier(.2,.9,.3,1)}
+@keyframes spSheet{from{transform:translateY(40px);opacity:0}}
+html.sp .expl .sp-close{position:sticky;top:-16px;justify-self:end;margin:-16px -6px -40px 0;z-index:1;width:36px;height:36px;border:0;border-radius:99px;background:var(--chip);display:grid;place-items:center;cursor:pointer}
+html.sp .expl .sp-close svg{width:18px;height:18px;fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round}
+html.sp .sp-scrim{position:fixed;inset:0;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:69;background:rgba(9,10,10,.45);opacity:0;pointer-events:none;transition:opacity .25s}
+html.sp.sp-sheet .sp-scrim{display:block;opacity:1;pointer-events:auto}
+/* bottom bar: ← [ⓘ title] → */
+html.sp .sp-bar{display:flex;align-items:center;gap:8px;position:fixed;z-index:80;left:0;right:0;bottom:0;height:calc(60px + env(safe-area-inset-bottom,0px));
+  padding:0 max(10px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(10px,env(safe-area-inset-left,0px));background:var(--ink-strong);color:#fff}
+.sp-bar button{border:0;cursor:pointer;display:grid;place-items:center;color:inherit;flex:none}
+.sp-bar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.sp-arrow{width:44px;height:44px;border-radius:99px;background:rgba(255,255,255,.12)}
+.sp-arrow:active{transform:scale(.92)}
+.sp-arrow:disabled{opacity:.25;cursor:default}
+.sp-next:not(:disabled){background:var(--blue)}
+.sp-mid{flex:1;min-width:0;display:flex;align-items:center;gap:10px}
+.sp-info{width:32px;height:32px;border-radius:99px;border:2px solid rgba(255,255,255,.8)!important;background:none}
+.sp-info svg{width:18px;height:18px;stroke-width:2.8}
+.sp-info[aria-expanded="true"]{background:#fff;color:var(--ink-strong)}
+.sp-info[hidden]{display:none}
+.sp-ttl{min-width:0;display:grid;line-height:1.25}
+.sp-ttl b{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-ttl small{font-family:var(--mono);font-size:11px;letter-spacing:.04em;opacity:.65}

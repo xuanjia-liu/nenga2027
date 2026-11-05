@@ -6,6 +6,9 @@ Owner: Tom (bravesoft, j.liu@bravesoft.co.jp). Copy is Japanese; code comments a
 
 The page is a **single self-contained HTML file** published as a claude.ai Artifact
 (https://claude.ai/artifact/CY872UEdM4MJmfU41mvcuy). Every demo has a **phone (9:17)** and a **PC (1280×760, scaled)** version.
+On an actual phone (width < 700 px or a coarse-pointer small screen, decided once at load; `?sp=1` / `?sp=0` force it) the page
+becomes an app (`html.sp`, app.js): intro page (hero, ネタ帳, ideas) → each demo full screen → closing page (CEO draft, memo, footer),
+switched with ← / → in a bottom bar; ⓘ opens the demo's `.expl` as a bottom sheet. Only the current page is displayed.
 
 ## Commands
 
@@ -36,7 +39,8 @@ src/jp.js            I ひつじ福笑い (DOM)
 src/omikuji.js       H ひつじみくじ (3D tube from Blender, shake → flip → stick drop → dark reveal)
 src/mochi.js         J ぺったん餅つき (voxel three.js rhythm game)
 generated/*.js       base64 assets: NENGA_ASSETS (count images + hill profile), NENGA_SFX (sound effects), NENGA_BGM (loops), *_GLB (Blender models) — do not hand-edit
-assets/sfx           Stable Audio 3 takes via the audio-studio MCP; picks.json = effect → take(s) + cut (a list = variants),
+assets/sfx           Stable Audio 3 takes via the audio-studio MCP, plus a few 効果音ラボ sounds (candidates/lab/*.mp3: free,
+                     commercial use OK, no credit; mochi pound/beat/danger); picks.json = effect → take(s) + cut (a list = variants),
                      bgm.json = demo → loop take + bpm/beats; candidates/ and bgm_candidates/ are git-ignored
 assets/source        original transparent PNGs supplied by the user (count scene + sheep parts)
 assets/count         processed WebP + meta.json (hill ridge profile)
@@ -87,7 +91,7 @@ docs/references/     reference images the user gave for recent redesigns
 | G `#dome` | ひつじスノードーム | Blender base/cottage/pines/gift; procedural sheep with smooth small-curl wool (`makeSheep({smooth:true})`), legs pivot at the hip; 5600 flakes carried by a water model (spin that fades to 0 at the glass + Hill's-vortex overturn + two-scale turbulence re-rolled per shake + per-flake jitter, all decaying) and sinks at per-flake speed with flutter, rests on colliders and slides/kicks off when they move; sheep + gift collide with footprints in `OBS` (`pushOut`), trees sway and shed snow when bumped |
 | H `#omikuji` | ひつじみくじ | Blender hex tube; grab & shake (spring + inertia), flip, verlet stick drop; circular dark wipe; notched fortune card |
 | I `#fuku` | ひつじ福笑い | blindfold (blue 豆絞り), place parts, reveal + score; art = user's sprite sheet (`window.NENGA_FUKU`, sheet units), part targets in `TARGET` in jp.js |
-| J `#mochi` | ぺったん餅つき | voxel stage; ring cycle: big red ring = lamb's hooves in (あぶない), shrinking yellow → green in zone → hit on the beat (solid rings with navy outline, pink in FEVER); helper lamb is a rig (hind legs / torso pivoting at the hip / head / front legs) that walks to the mortar, stands on its hind legs and puts its front hooves on the mochi; judgements PERFECT/GOOD/EARLY・LATE/MISS/DANGER with hit-stop then slow-mo (`slowmo(dur, min)`, visuals only — beat clock stays real-time), zoom punch, speed lines, cube springs, floor wave, combo banners, FEVER ×1.5; mochi cubes regroup into 鏡餅 |
+| J `#mochi` | ぺったん餅つき | voxel stage; beat 1.2 s → 1.0 s as the mochi smooths (`setPeriod` re-anchors t0 so the phase never jumps); ring cycle (`TRAIL/APP0/HAND1`): after a hit the target holds green through the slow-mo, then a big red ring = lamb's hooves in (あぶない), then yellow easing into the target → green zone (~0.35 of a beat) → hit on the beat (windows: perfect ±80 ms, good −200/+150 ms; solid rings with navy outline, pink in FEVER); helper lamb is a rig (hind legs / torso pivoting at the hip / head / front legs) that walks to the mortar, stands on its hind legs and puts its front hooves on the mochi; judgements PERFECT/GOOD/EARLY・LATE/MISS/DANGER with hit-stop then slow-mo (`slowmo(dur, min)`, visuals only — beat clock stays real-time), zoom punch, speed lines, cube springs, floor wave, combo banners, FEVER ×1.5; mochi cubes regroup into 鏡餅 |
 
 Removed at the user's request (don't bring back): 社長から通知が届く, 2027.1.1 アップデート, 全員ひつじ化 集合写真, 返し年賀状メーカー, ひつじ書き初め.
 

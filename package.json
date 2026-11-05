@@ -6,7 +6,8 @@
     "build": "python3 build.py",
     "embed": "python3 tools/embed_assets.py",
     "test": "python3 build.py && node tests/smoke.js",
-    "serve": "python3 -m http.server 8027 --directory dist"
+    "serve": "python3 -m http.server 8027 --directory dist",
+    "audition": "python3 -m http.server 8028 --directory assets/sfx/candidates/audition"
   },
   "devDependencies": {
     "playwright": "^1.47.0"

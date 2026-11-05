@@ -4,6 +4,7 @@
     python3 tools/process_sfx.py
 
 assets/sfx/candidates/*.wav       raw Stable Audio 3 SFX takes (audio-studio MCP, 44.1 kHz 24-bit; git-ignored)
+assets/sfx/candidates/lab/*.mp3   downloaded 効果音ラボ sounds (free, commercial use OK, no credit; git-ignored) — src with an extension
 assets/sfx/bgm_candidates/*.wav   raw music takes (git-ignored)
 assets/sfx/picks.json             effect → take + time range; a list = several takes (random variation at play time)
 assets/sfx/bgm.json               demo → music take + tempo/length of the loop
@@ -22,6 +23,9 @@ CAND, BCAND, BOUT = SFX / 'candidates', SFX / 'bgm_candidates', SFX / 'bgm'
 
 
 def load(p):
+    if p.suffix != '.wav':                  # downloaded library sounds (e.g. 効果音ラボ mp3) are decoded with ffmpeg
+        raw = subprocess.run(['ffmpeg', '-loglevel', 'error', '-i', str(p), '-f', 's16le', '-ac', '1', '-ar', '44100', '-'], capture_output=True, check=True).stdout
+        return np.frombuffer(raw, '<i2') / 32768.0, 44100
     w = wave.open(str(p)); n, ch, sw, sr = w.getnframes(), w.getnchannels(), w.getsampwidth(), w.getframerate()
     raw = np.frombuffer(w.readframes(n), np.uint8).reshape(-1, sw)
     if sw == 3:
@@ -80,7 +84,7 @@ def main():
     for name, takes in picks.items():
         for i, p in enumerate(takes if isinstance(takes, list) else [takes]):
             key = name if i == 0 else f'{name}~{i + 1}'
-            x, sr = load(CAND / f"{p['src']}.wav")
+            src = p['src']; x, sr = load(CAND / (src if pathlib.PurePath(src).suffix else src + '.wav'))
             y = clean(x, sr, p['cut'], p.get('keepHead', False))
             out[key] = enc(y, sr, SFX / f'{key}.mp3')
     (GEN / 'sfx.js').write_text('window.NENGA_SFX = ' + json.dumps(out) + ';\n')

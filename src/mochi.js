@@ -291,23 +291,30 @@ N3.stage('#mochi', (r, renderer, cv) => {
   }
 
   /* ---------- game state ---------- */
-  let missedUpTo = -1, state = 'idle', t0 = 0, now = 0, period = .92, prog = 0, combo = 0, maxCombo = 0, shown = 0, lastBeat = -1, judgedBeat = -1;
+  let lastTap = -9, missedUpTo = -1, state = 'idle', t0 = 0, now = 0, period = 1.2, prog = 0, combo = 0, maxCombo = 0, shown = 0, lastBeat = -1, judgedBeat = -1;
   let swingT = 9, hitStop = 0, slowT = 0, slowDur = 1, slowMin = 1, slowAmt = 0, shakeA = 0, squashV = 0, squashY = 0, flashT = 0, doneT = 0, fever = false;
   const stats = { perfect: 0, good: 0, weak: 0, miss: 0, danger: 0 };
   const beatAt = n => t0 + n * period;
   const phase = () => (now - t0) / period;                         // beat n happens at integer phases
-  // one cycle per beat (p: 0 → 1). p 0–.16: the ring that just hit shrinks inside the target and fades (late window);
-  // p .16: the next ring appears big; it shrinks steadily and meets the target at p = 1 (the beat).
-  // While the ring is big (p .16–.5) the lamb's hand is in the mortar → red ring, tapping then is あぶない.
+  // one cycle per beat (p: 0 → 1):
+  //   p 0–TRAIL     the ring that just hit shrinks inside the target and fades (late window)
+  //   p TRAIL–APP0  quiet: after a good hit the target stays green through the slow-mo
+  //   p APP0        the next ring appears big; the lamb's hooves are in the mortar until HAND1 → red ring, tapping is あぶない
+  //   p APP0–1      it shrinks and slows down as it nears the target (ease-out), so it sits in the green zone longer;
+  //                 it meets the target at p = 1 (the beat)
+  const TRAIL = .12, APP0 = .45, HAND1 = .66, ZONE_R = 1.15;
   const cyc = () => ((phase() % 1) + 1) % 1;
-  const ringR = p => p < .16 ? 1 - p / .16 * .32 : 1 + 1.6 * (1 - (p - .16) / .84);
-  const handIn = () => { if (state !== 'play' || now < t0 - period) return 0; const p = cyc(); return clamp((p - .16) / .05, 0, 1) * clamp((.5 - p) / .05, 0, 1); };
+  const ringR = p => p < TRAIL ? 1 - p / TRAIL * .32 : p < APP0 ? 2.6 : 1 + 1.6 * Math.pow(1 - (p - APP0) / (1 - APP0), 2.2);
+  const handIn = () => { if (state !== 'play' || now < t0 - period) return 0; const p = cyc(); return clamp((p - APP0) / .04, 0, 1) * clamp((HAND1 - p) / .04, 0, 1); };
+  // the beat slows down at the start and quickens a little as the mochi gets smoother; re-anchor t0 so the phase never jumps
+  const PERIOD0 = 1.2, PERIOD1 = 1.0;
+  const setPeriod = v => { const ph = phase(); period = v; t0 = now - ph * period; };
 
   function start() {
     duck(.3);                                             // music steps back so the beat leads
     state = 'play'; missedUpTo = -1; prog = 0; combo = 0; maxCombo = 0; shown = 0; fever = false; root.classList.remove('fever', 'done');
     Object.keys(stats).forEach(k => stats[k] = 0);
-    t0 = now + period * 1.6; lastBeat = -1; judgedBeat = -1; period = .92;
+    period = PERIOD0; t0 = now + period * 1.6; lastBeat = -1; judgedBeat = -1;
     finalEl.hidden = true; msgEl.classList.remove('on'); updHud();
     mikanV.mesh.visible = false; mochiV.cells.forEach((c, i) => { mochiV.sc[i] = 1; c.x = c.bx; c.y = c.by; c.z = c.bz; });
     setMochiLook(0);
@@ -366,14 +373,16 @@ N3.stage('#mochi', (r, renderer, cv) => {
   function tap() {
     press();
     if (state === 'idle' || state === 'done') { if (state === 'done' && doneT < 1.2) return; start(); return; }
-    if (state !== 'play' || swingT < .14) return;
+    if (state !== 'play' || now - lastTap < .14) return;   // real-time lockout (the swing itself may be in slow-mo)
     if (now < t0 - period * .5) return;
-    swingT = 0;                                          // the sheep swings
+    lastTap = now; swingT = 0;                            // the sheep swings
     const ph = phase(), n = cyc() >= .5 ? Math.floor(ph) + 1 : Math.floor(ph), off = (ph - n) * period;
-    if (handIn() > .3) { setTimeout(() => impact('danger', 0), 60); return; }
+    const held = hitStop > 0 || slowT > 0;                // the green hold after a good hit: the hooves don't count
+    if (handIn() > .3 && !held) { setTimeout(() => impact('danger', 0), 60); return; }
     if (n === judgedBeat) { setTimeout(() => impact('extra', 0), 70); return; }   // double tap on one beat
+    // windows in seconds: a little wider on the early side, where the ring is visibly sitting in the green zone
     let q;
-    if (Math.abs(off) < .065) q = 'perfect'; else if (Math.abs(off) < .13) q = 'good'; else if (off < 0 && cyc() > .62) q = 'early'; else if (off > 0) q = 'late'; else q = 'extra';
+    if (Math.abs(off) < .08) q = 'perfect'; else if (off > -.2 && off < .15) q = 'good'; else if (off < 0 && cyc() > HAND1) q = 'early'; else if (off > 0) q = 'late'; else q = 'extra';
     if (q !== 'extra') judgedBeat = n;
     setTimeout(() => impact(q, off), 60);
   }
@@ -413,7 +422,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     maxCombo = Math.max(maxCombo, combo);
     prog = Math.min(100, prog + gain * (fever ? 1.5 : 1) * (1 + Math.min(combo, 10) * .03));
     setMochiLook(prog / 100);
-    period = .92 - .16 * (prog / 100);                   // the rhythm quickens as the mochi gets smoother
+    setPeriod(PERIOD0 - (PERIOD0 - PERIOD1) * (prog / 100));   // the rhythm quickens a little as the mochi gets smoother
     while (shown < Math.min(LINES.length, Math.floor(prog / 20 + 1e-6))) showLine(shown++);
     updHud();
     if (prog >= 100) finish();
@@ -421,7 +430,11 @@ N3.stage('#mochi', (r, renderer, cv) => {
   // slow motion after a solid hit: animation time drops to `min` and eases back to full speed over `dur` seconds.
   // Only the picture slows down (cube springs, particles, squash, the swing, the camera punch) — the beat clock,
   // the rings and the judgement windows keep real time, so the rhythm never drifts.
-  function slowmo(dur, min) { slowDur = slowT = dur; slowMin = min; }
+  function slowmo(dur, min) {
+    slowDur = slowT = dur; slowMin = min;
+    // the slow-mo swell (3 takes, picked at random); cut off with the slow-mo so it never piles up over the next beat
+    play('mc_slowmo', { vol: min < .3 ? .5 : .35, rate: .96 + Math.random() * .06, dur: dur + .45 });
+  }
   // reward sparkles climb a little in pitch as the combo builds (up to ~a minor third at 10)
   function lift() { return 1 + Math.min(combo, 10) * .019; }
   function showLine(i) {
@@ -483,9 +496,11 @@ N3.stage('#mochi', (r, renderer, cv) => {
       if (passed >= 0 && passed > missedUpTo) { missedUpTo = passed; if (passed > judgedBeat) miss(); }
     }
     // rings + the swing (both follow the same cycle so the picture is consistent)
-    const playing = state === 'play' && now >= t0 - period, p = cyc(), rr = ringR(p), trailing = p < .16;
-    const danger = playing && handIn() > .15, closing = playing && !trailing ? clamp(1 - (rr - 1) / 1.6, 0, 1) : 0;
-    const inZone = playing && !danger && (trailing || rr < 1.24);
+    const playing = state === 'play' && now >= t0 - period, p = cyc(), rr = ringR(p), trailing = p < TRAIL, quiet = p >= TRAIL && p < APP0;
+    // hold: right after a PERFECT/GOOD (freeze + slow-mo) the target stays green — never flips to red under the slow-mo
+    const hold = playing && (hitStop > 0 || slowT > 0) && judgedBeat >= Math.floor(phase());
+    const danger = playing && !hold && handIn() > .15, closing = playing && !trailing && !quiet ? clamp(1 - (rr - 1) / 1.6, 0, 1) : 0;
+    const inZone = playing && !danger && (hold || trailing || (!quiet && rr < ZONE_R));
     // the sheep winds up as the ring closes in, then slams on the tap (and rebounds hard on あぶない)
     const RA = A0 + 1.0 + .22 * closing * closing;
     let ang;
@@ -529,12 +544,12 @@ N3.stage('#mochi', (r, renderer, cv) => {
     });
     // ring visuals
     const ringC = danger ? RC.danger : inZone ? RC.hit : fever ? RC.fever : RC.idle;
-    approach.visible = approachGlow.visible = approachLine.visible = playing;
+    approach.visible = approachGlow.visible = approachLine.visible = playing && !quiet && !(hold && !trailing);
     approach.scale.setScalar(rr); approachGlow.scale.setScalar(rr); approachLine.scale.setScalar(rr);
     approach.material.color.setHex(ringC); approachGlow.material.color.setHex(ringC);
-    approach.material.opacity = trailing ? (1 - p / .16) : .55 + .45 * closing;
+    approach.material.opacity = trailing ? (1 - p / TRAIL) : .55 + .45 * closing;
     approachLine.material.opacity = approach.material.opacity * .6;
-    approachGlow.material.opacity = trailing ? (1 - p / .16) * .3 : .12 + .25 * closing;
+    approachGlow.material.opacity = trailing ? (1 - p / TRAIL) * .3 : .12 + .25 * closing;
     target.material.color.setHex(danger ? RC.danger : inZone ? RC.hit : fever ? RC.fever : RC.base);
     targetGlow.material.color.setHex(danger ? RC.danger : inZone ? RC.hit : fever ? RC.fever : RC.idle);
     const ts = inZone ? 1.04 + Math.sin(t * 30) * .01 : 1; target.scale.setScalar(ts); targetLine.scale.setScalar(ts);
@@ -588,7 +603,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     shakeA = Math.max(0, shakeA - dt * .6);
     world.position.set(rand(-1, 1) * shakeA, rand(-1, 1) * shakeA * .6, 0);
   }
-  root._mc = { hit: q => { swingT = 0; impact(q, 0); }, setProg: v => { prog = v; }, get state() { return state; }, get beat() { return { t0, period, now }; }, get lamb() { return { ready, pitch: torso.rotation.z, hand: handIn() }; }, set testHand(v) { testHand = v; }, get legs() { return legs.map((l, k) => ({ tip: l.g.localToWorld(new T.Vector3(0, -LEG, 0)).toArray().map(v => +v.toFixed(2)), hoof: HOOF[k].toArray().map(v => +v.toFixed(2)), rot: +l.g.rotation.z.toFixed(2), sy: +l.g.scale.y.toFixed(2) })); }, get lambPos() { return { lb: LB.position.toArray().map(v => +v.toFixed(2)), yaw: +LB.rotation.y.toFixed(2), U: [U.x, U.z] }; } };   // test hook
+  root._mc = { hit: q => { swingT = 0; judgedBeat = Math.round(phase()); impact(q, 0); }, get ring() { return { p: cyc(), hold: hitStop > 0 || slowT > 0, hand: handIn(), color: target.material.color.getHexString(), approach: approach.visible }; }, setProg: v => { prog = v; }, get state() { return state; }, get beat() { return { t0, period, now }; }, get lamb() { return { ready, pitch: torso.rotation.z, hand: handIn() }; }, set testHand(v) { testHand = v; }, get legs() { return legs.map((l, k) => ({ tip: l.g.localToWorld(new T.Vector3(0, -LEG, 0)).toArray().map(v => +v.toFixed(2)), hoof: HOOF[k].toArray().map(v => +v.toFixed(2)), rot: +l.g.rotation.z.toFixed(2), sy: +l.g.scale.y.toFixed(2) })); }, get lambPos() { return { lb: LB.position.toArray().map(v => +v.toFixed(2)), yaw: +LB.rotation.y.toFixed(2), U: [U.x, U.z] }; } };   // test hook
   resize(root.clientWidth || 322, root.clientHeight || 608);
   return { scene, camera, frame, resize, onMode() { resize(root.clientWidth, root.clientHeight); updHud(); } };
 });

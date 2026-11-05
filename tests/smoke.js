@@ -27,6 +27,8 @@ const only = process.argv.slice(2);
     for (const id of DEMOS.filter(d => !only.length || only.includes(d))) {
       const dev = await page.$(`.dev:has(#${id})`);
       if (!dev) { console.log(`✗ ${mode} #${id} not found`); failed++; continue; }
+      // phone width = the app layout (one page at a time): switch to the demo's page instead of scrolling to it
+      await page.evaluate(id => { const N = window.NENGA; if (N && N.sp && N.spGo) N.spGo([...document.querySelectorAll('.sp-page')].findIndex(p => p.querySelector('#' + id))); }, id);
       await dev.scrollIntoViewIfNeeded(); await page.waitForTimeout(2500);
       await dev.screenshot({ path: path.join(OUT, `${mode}_${id}.png`), timeout: 150000 });
       console.log(`✓ ${mode} #${id}`);

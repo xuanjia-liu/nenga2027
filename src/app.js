@@ -49,7 +49,11 @@ devs.forEach(dev => {
   dev.append(chrome, holder);
   dev._holder = holder; dev._vp = vp;
 });
-let mode = store.get('nenga-mode') || (innerWidth >= 900 ? 'pc' : 'phone');
+// On a phone the page becomes an app: one full-screen page at a time (see "phone app layout" below).
+// Decided once at load, so rotating the phone never reshuffles the page. ?sp=1 / ?sp=0 force it for testing.
+const spQ = new URLSearchParams(location.search).get('sp');
+const SP = spQ != null ? spQ === '1' : (innerWidth < 700 || (matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600));
+let mode = SP ? 'phone' : (store.get('nenga-mode') || (innerWidth >= 900 ? 'pc' : 'phone'));
 function fit(dev) {
   if (mode === 'pc') {
     const s = dev._holder.clientWidth / PC_W || 1;
@@ -71,6 +75,92 @@ const ro = new ResizeObserver(es => es.forEach(e => fit(e.target.closest('.dev')
 devs.forEach(d => ro.observe(d._holder));
 applyMode();
 NENGA.isPC = () => mode === 'pc';
+NENGA.sp = SP;
+
+/* ---------- phone app layout: intro page → each demo full screen → closing page ----------
+   Pages switch with the two arrows in the bottom bar; ⓘ opens the demo's notes as a bottom sheet.
+   Only the current page is displayed, so the other demos stop rendering (their observers see them leave). */
+if (SP) (() => {
+  const html = document.documentElement; html.classList.add('sp');
+  const deck = document.createElement('div'); deck.className = 'sp-deck';
+  const page = (cls, nodes) => { const p = document.createElement('div'); p.className = 'sp-page sp-text ' + cls; nodes.filter(Boolean).forEach(n => p.appendChild(n)); return p; };
+  const intro = page('sp-intro', [$('.hero') && $('.hero').closest('.band'), $('.neta') && $('.neta').closest('section'), $('#ideas')]);
+  const outro = page('sp-outro', [$('.letter') && $('.letter').closest('section'), $('#memo'), $('footer.ft')]);
+  intro.dataset.title = 'はじめに'; intro.dataset.hash = 'top';
+  outro.dataset.title = '企画・制作メモ'; outro.dataset.hash = 'memo';
+  const demos = $$('.demo');
+  let sheet = () => {};
+  deck.appendChild(intro);
+  demos.forEach((d, i) => {
+    d.classList.add('sp-page');
+    const ttl = $('.expl h3', d), code = $('.expl .mono', d);
+    d.dataset.title = ttl ? ttl.textContent : '';
+    d.dataset.code = code ? code.textContent.replace('DEMO', '').split('/')[0].trim() : String.fromCharCode(65 + i);
+    d.dataset.hash = d.id;
+    const ex = $('.expl', d);
+    if (ex) {
+      const x = document.createElement('button'); x.type = 'button'; x.className = 'sp-close'; x.setAttribute('aria-label', '詳細を閉じる');
+      x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+      x.addEventListener('click', () => sheet(false)); ex.prepend(x);
+    }
+    deck.appendChild(d);
+  });
+  deck.appendChild(outro);
+  const scrim = document.createElement('div'); scrim.className = 'sp-scrim'; scrim.addEventListener('click', () => sheet(false));
+  const ico = d => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
+  const bar = document.createElement('nav'); bar.className = 'sp-bar'; bar.setAttribute('aria-label', 'ページ切り替え');
+  bar.innerHTML = `<button type="button" class="sp-arrow sp-prev" aria-label="前へ">${ico('M15 5l-7 7 7 7')}</button>
+    <div class="sp-mid"><button type="button" class="sp-info" aria-label="このデモの詳細" aria-expanded="false">${ico('M12 11v6M12 7.5v.01')}</button>
+      <span class="sp-ttl"><b></b><small></small></span></div>
+    <button type="button" class="sp-arrow sp-next" aria-label="次へ">${ico('M9 5l7 7-7 7')}</button>`;
+  deck.appendChild(scrim);   // inside the deck (a fixed element = its own stacking context) so the sheet can sit above it
+  document.body.append(deck, bar);
+  const pages = [intro, ...demos, outro];
+  const prev = $('.sp-prev', bar), next = $('.sp-next', bar), info = $('.sp-info', bar), tB = $('.sp-ttl b', bar), tS = $('.sp-ttl small', bar);
+  let cur = -1;
+  sheet = on => {
+    const p = pages[cur], ex = p && $('.expl', p);
+    on = !!(on && ex);
+    html.classList.toggle('sp-sheet', on); info.setAttribute('aria-expanded', String(on));
+    if (ex) { ex.classList.toggle('sp-open', on); if (on) ex.scrollTop = 0; }
+  };
+  function go(i, push = true) {
+    i = Math.max(0, Math.min(pages.length - 1, i)); if (i === cur) return;
+    sheet(false);
+    pages.forEach((p, k) => p.classList.toggle('cur', k === i)); cur = i;
+    const p = pages[i], isDemo = p.classList.contains('demo');
+    tB.textContent = isDemo ? `${p.dataset.code}  ${p.dataset.title}` : p.dataset.title;
+    tS.textContent = isDemo ? `デモ ${i} / ${demos.length}` : (i === 0 ? '→ でデモへ' : 'おわり');
+    prev.disabled = i === 0; next.disabled = i === pages.length - 1;
+    info.hidden = !isDemo;
+    if (!isDemo) p.scrollTop = 0;
+    if (push) history.replaceState(null, '', '#' + p.dataset.hash);
+    window.dispatchEvent(new Event('resize'));
+  }
+  prev.addEventListener('click', () => go(cur - 1));
+  next.addEventListener('click', () => go(cur + 1));
+  info.addEventListener('click', () => sheet(!html.classList.contains('sp-sheet')));
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('input, textarea, [contenteditable]')) return;
+    if (e.key === 'ArrowRight') go(cur + 1); else if (e.key === 'ArrowLeft') go(cur - 1); else if (e.key === 'Escape') sheet(false);
+  });
+  // in-page links (hero buttons, idea cards) jump to the matching page
+  const target = id => {
+    if (!id || id === 'top') return 0;
+    const map = { demos: 'demo-shear', demos3d: 'demo-flock', demoswa: 'demo-omikuji' };
+    const el = document.getElementById(map[id] || id); if (!el) return -1;
+    return pages.findIndex(p => p === el || p.contains(el));
+  };
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]'); if (!a) return;
+    const id = a.getAttribute('href').slice(1), i = target(id); if (i < 0) return;
+    e.preventDefault(); go(i);
+    const el = document.getElementById(id); if (i === 0 && el && intro.contains(el)) el.scrollIntoView({ block: 'start' });
+  });
+  const start = target(location.hash.slice(1));
+  go(start < 0 ? 0 : start, false);
+  NENGA.spGo = go;   // test hook
+})();
 
 /* local (unscaled) pointer coordinates inside an element */
 function local(el, e) {
