@@ -3,6 +3,8 @@
 社外向けデジタル年賀状（2027年・未年）の企画ページと、10案ぶんの動くデモ（スマホ版・PC版）。
 1枚の HTML にすべてを埋め込んで claude.ai の Artifact として公開しています。
 
+**公開ページ:** https://xuanjia-liu.github.io/nenga2027/ （`main` に push すると GitHub Actions が自動でビルドして GitHub Pages に反映します）
+
 ## はじめかた
 
 ```bash
