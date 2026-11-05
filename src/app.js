@@ -668,7 +668,7 @@ function local(el, e) {
     M.Composite.add(eng.world, statics);
   }
   function addSheep() {
-    const pc = W > 700, r = pc ? rand(18, 27) : rand(10, 14);
+    const pc = W > 700, r = pc ? rand(28, 40) : rand(16, 22);   // big enough to read as sheep (sprite size follows the circle)
     const fromSky = spawned % 3 === 2;
     const x = fromSky ? rand(r * 2, W - r * 2) : -r * 1.5;
     const y = fromSky ? -r * 2 - rand(0, 80) : G.hy(0) - rand(40, H * .35);
@@ -710,7 +710,7 @@ function local(el, e) {
         }
       });
     });
-    total = RM ? 40 : (W > 700 ? 150 : 70);
+    total = RM ? 30 : (W > 700 ? 110 : 55);   // fewer, larger sheep: the pile still fills the hill without burying the message
     spawned = 0; sheep = []; fx = []; conf = [];
     t0 = last = performance.now(); acc = 0;
     raf = requestAnimationFrame(loop);
