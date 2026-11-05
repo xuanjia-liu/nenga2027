@@ -1,0 +1,14 @@
+{
+  "name": "nenga2027",
+  "private": true,
+  "description": "bravesoft 2027 未年 digital New Year card — concept page with playable demos",
+  "scripts": {
+    "build": "python3 build.py",
+    "embed": "python3 tools/embed_assets.py",
+    "test": "python3 build.py && node tests/smoke.js",
+    "serve": "python3 -m http.server 8027 --directory dist"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}
