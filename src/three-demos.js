@@ -466,14 +466,14 @@ stage('#flock', (root, renderer, canvas) => {
     let mx = 0, mz = 0; pts.forEach(([x, z]) => { mx = Math.max(mx, Math.abs(x)); mz = Math.max(mz, Math.abs(z)); });
     extent = [mx * 2 + 4, mz * 2 + 4];
     RC = Math.min(.46, SP * .45); SCt = clamp(SP / 1.05, .62, 1); msg.classList.remove('show');
-    assign(pts); holdT = 0; shapeT = 0;
+    assign(pts); holdT = 0; shapeT = 0; shotChange(shapeIx === 0 ? 2.6 : 2.1);
     shapeEl.textContent = `かたち ${shapeIx + 1} / ${SHAPES.length}　${sh0.name}`;
   }
   btn.addEventListener('click', () => {
     cycling = !cycling;
     play('hooves', { vol: .8 }); [0, .35, .8].forEach(d => sfx.bleat({ vol: .35, delay: d + Math.random() * .2 }));
     if (cycling) { shapeIx = -1; nextShape(); btn.textContent = '解散する'; btn.classList.add('sec'); nextBtn.hidden = false; }
-    else { RC = .46; SCt = 1; sh.forEach(s => { s.mode = Math.random() < .5 ? 'graze' : 'wander'; s.t = rnd(0, 2); }); msg.classList.remove('show'); btn.textContent = 'ひつじを集合させる'; btn.classList.remove('sec'); nextBtn.hidden = true; shapeEl.textContent = ''; }
+    else { shotChange(2.4); RC = .46; SCt = 1; sh.forEach(s => { s.mode = Math.random() < .5 ? 'graze' : 'wander'; s.t = rnd(0, 2); }); msg.classList.remove('show'); btn.textContent = 'ひつじを集合させる'; btn.classList.remove('sec'); nextBtn.hidden = true; shapeEl.textContent = ''; }
   });
   nextBtn.addEventListener('click', () => {
     if (!cycling) return;
@@ -481,7 +481,7 @@ stage('#flock', (root, renderer, canvas) => {
   });
 
   /* ---------------- camera orbit ---------------- */
-  let az = 0, tiltOff = 0, camT = 0, drag = null, aspect = 1;
+  let az = 0, tiltOff = 0, drag = null, aspect = 1;
   // drag = orbit the camera; a tap (barely moved, short) = 集合 / 次のかたち
   canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, d: 0, t: e.timeStamp }; canvas.setPointerCapture(e.pointerId); canvas.style.cursor = 'grabbing'; });
   canvas.addEventListener('pointermove', e => {
@@ -518,10 +518,139 @@ stage('#flock', (root, renderer, canvas) => {
     if (cur) cur.classList.remove('drag');
     drag = null; canvas.style.cursor = '';
     if (!tap) return;
+    // touch has no hover: the tapped spot gets a random poke too
+    if (e.pointerType !== 'mouse' && groundAt(e)) pokeAt(hit.x, hit.z, pick(['scatter', 'wave', 'mixed', 'domino']));
     if (!cycling) btn.click(); else { nextShape(); popEl(nextBtn, 1.08); }
     sfx.bleat();
   };
   canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', endDrag);
+
+  /* ---------------- camera shots: every change is an eased swoop, never a cut ---------------- */
+  // `cam` is what is rendered; the live target (fit distance, tilt, azimuth, look-at) is recomputed each frame.
+  // shotChange() tweens from wherever the camera is to the new target along an arc: it pulls back, swings
+  // sideways and banks a little in the middle of the move, then settles (ease in-out).
+  const cam = { d: 0, polar: 1.25, a: 0, lz: 0 };
+  let camTw = null, camRoll = 0;
+  const easeIO = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  function shotChange(dur) {
+    if (!cam.d) return;
+    camTw = { from: Object.assign({}, cam), t: 0, dur: RM ? .8 : dur, swing: RM ? 0 : (Math.random() < .5 ? -1 : 1) * rnd(.22, .42), lift: RM ? 0 : rnd(.1, .2) };
+  }
+
+  /* ---------------- hover: the flock reacts to the mouse, in changing moods ---------------- */
+  // the cursor is projected onto the meadow; sheep near it react. The mood changes every few seconds
+  // (and each time the mouse comes back), so the same gesture never gives the same result twice:
+  //   scatter — they start and run away, the formation parts like water, then they trot back
+  //   wave    — a stadium wave of hops spreads out from the cursor
+  //   curious — heads (and bodies) turn to follow the cursor; free sheep walk over to it
+  //   domino  — one sheep faints, the ones around it topple over in a ring, then they all get up
+  //   mixed   — every sheep picks its own reaction: hop-hop, spin, faint, wool shake, boing, baa
+  const ray = new T.Raycaster(), ndc = new T.Vector2(), hit = new T.Vector3(), GROUND = new T.Plane(new T.Vector3(0, 1, 0), 0);
+  const hov = { on: false, ok: false, x: 0, z: 0, mood: 'mixed', moodT: 0, waveT: 0, sndT: 0, bubT: 0 };
+  const pick = a => a[(Math.random() * a.length) | 0];
+  const MOODS = [['mixed', 3], ['scatter', 2], ['wave', 2], ['curious', 1.5], ['domino', 1.5]];
+  function pickMood() {
+    const pool = MOODS.filter(m => m[0] !== hov.mood), tot = pool.reduce((a, m) => a + m[1], 0);
+    let r = Math.random() * tot; hov.mood = pool.find(m => (r -= m[1]) < 0)[0];
+    hov.moodT = rnd(3.5, 6);
+  }
+  const groundAt = e => {
+    const r = canvas.getBoundingClientRect();
+    ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera); return ray.ray.intersectPlane(GROUND, hit);
+  };
+  canvas.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse') return;
+    const r = canvas.getBoundingClientRect();
+    ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    if (!hov.on) pickMood();
+    hov.on = !(drag && drag.d > 8);
+  });
+  canvas.addEventListener('pointerleave', () => { hov.on = false; });
+  // speech bubbles (メェ〜, ばたん, くるっ …) pinned above a sheep's head
+  const bubbles = [], BV = new T.Vector3();
+  function bubble(s, txt, force) {
+    if (!force && (hov.bubT > 0 || Math.random() < .35)) return;
+    hov.bubT = .14;
+    if (bubbles.length >= 7) bubbles.shift().el.remove();
+    const el = document.createElement('span'); el.className = 'fl-baa'; el.textContent = txt; root.appendChild(el);
+    bubbles.push({ el, s, t: 0 });
+  }
+  function noise(name, o) { if (hov.sndT > 0) return; hov.sndT = .16; if (name === 'bleat') sfx.bleat(Object.assign({ vol: .3 }, o)); else play(name, Object.assign({ vol: .35, rate: rnd(.9, 1.15) }, o)); }
+  const busy = s => s.rx && s.rx.k !== 'look';
+  const rx = (k, d, delay = 0, o) => Object.assign({ k, d, delay, t: 0, go: false, dir: Math.random() < .5 ? -1 : 1 }, o);
+  // a sheep's local +z (its right side) in world space is (sin yaw, cos yaw): roll that way = fall away from (x, z)
+  const fallDir = (s, x, z) => Math.sign((s.x - x) * Math.sin(s.yaw) + (s.z - z) * Math.cos(s.yaw)) || 1;
+  const DUR = { hop: 1.05, spin: .95, flop: 2.6, shake: .85, boing: 1, baa: 1.1 };
+  const SAY = { hop: ['ぴょん', 'ぴょんぴょん', '対応完了メェ！', '打てる球は全部打つメェ'], spin: ['くるっ', 'くるりん'], flop: ['ばたん', 'きゅう…', '工数調整メェ…', '取り急ぎメェ〜'], shake: ['ぶるぶる', 'もふもふ'], boing: ['ぽよん', 'ぼよーん', '対応完了メェ！', '打てる球は全部打つメェ'], baa: ['メェ〜', 'メェッ！', 'メ〜', '承知しメェした', '助かりメェす'] };
+  function near(x, z, R, fn) {
+    const R2 = R * R, seen = new Set();
+    for (let cx = Math.floor(x - R); cx <= Math.floor(x + R); cx++) for (let cz = Math.floor(z - R); cz <= Math.floor(z + R); cz++) {
+      const b = grid.get((cx * 73856093) ^ (cz * 19349663)); if (!b) continue;
+      for (const i of b) { if (seen.has(i)) continue; seen.add(i); const s = sh[i], d2 = (s.x - x) ** 2 + (s.z - z) ** 2; if (d2 < R2) fn(s, Math.sqrt(d2)); }
+    }
+  }
+  function pokeAt(x, z, mood) {
+    if (mood === 'scatter') {
+      near(x, z, 2.7, (s, d) => {
+        if (s.cool > 0 || busy(s)) return;
+        const l = d || 1;
+        s.rx = rx('flee', rnd(.55, .95), rnd(0, .08), { fx: (s.x - x) / l, fz: (s.z - z) / l, pow: rnd(5.5, 8.5) * (1.15 - d / 2.7 * .5) });
+        s.hv = rnd(1.8, 3.2); s.cool = rnd(2.2, 3.6);
+        bubble(s, pick(['！', '！？', 'わっ', 'ひゃっ', '連投メェ〜', '念のためメェ'])); noise('bleat', { rate: rnd(1.1, 1.3) });
+      });
+    } else if (mood === 'wave') {
+      let ready = false; near(x, z, 1.3, s => { if (s.cool <= 0 && !busy(s)) ready = true; });
+      if (!ready || hov.waveT > 0) return;
+      hov.waveT = 1.7; let first = null;
+      near(x, z, 9, (s, d) => {
+        if (busy(s)) return;
+        s.rx = rx('hop', .8, d * .075, { hops: d < 1.6 ? 2 : 1, h: rnd(3.6, 4.6) * (1 - d / 9 * .35), say: false }); s.cool = 2.6;
+        if (!first || d < first[1]) first = [s, d];
+      });
+      if (first) bubble(first[0], pick(['♪', 'それっ', 'ウェーブ！', 'よろしくメェ〜', 'おつかれメェ！']), true);
+      noise('pon', { vol: .4 });
+    } else if (mood === 'domino') {
+      let seed = null; near(x, z, 1.2, (s, d) => { if (s.cool <= 0 && !busy(s) && (!seed || d < seed[1])) seed = [s, d]; });
+      if (!seed) return;
+      const [s0] = seed;
+      near(s0.x, s0.z, 4.2, (s, d) => {
+        if (busy(s) || Math.random() < d / 4.2 * .45) return;
+        s.rx = rx('flop', DUR.flop + rnd(-.2, .4), d * .13, { dir: fallDir(s, s0.x, s0.z), say: false }); s.cool = DUR.flop + rnd(1.5, 3);
+      });
+      bubble(s0, pick(['ばたん', 'きゅう…', 'バタバタ', '工数調整メェ…', '取り急ぎメェ〜']), true); noise('poof', { vol: .5 });
+    } else if (mood === 'curious') {
+      near(x, z, 5.5, s => {
+        if (busy(s)) return;
+        if (s.rx) { s.rx.t = Math.min(s.rx.t, .2); return; }
+        s.rx = rx('look', 1.4, rnd(0, .35));
+        if (Math.random() < .05) bubble(s, pick(['？', 'なに？', 'じーっ', 'なるほどメェ〜', 'これでOKメェ？']));
+      });
+    } else {
+      near(x, z, 2, s => {
+        if (s.cool > 0 || busy(s)) return;
+        const k = pick(['hop', 'hop', 'spin', 'spin', 'flop', 'shake', 'boing', 'boing', 'baa', 'baa']);
+        s.rx = rx(k, DUR[k] * rnd(.9, 1.15), rnd(0, .18), { hops: 2, h: rnd(3.8, 4.8) }); s.cool = rnd(3, 5.5);
+      });
+    }
+  }
+  // a reaction's first frame (after its delay): sounds, bubbles, hops
+  function startRx(s, r) {
+    if (r.k === 'hop') { s.hv = r.h; if (r.say !== false) bubble(s, pick(SAY.hop)); }
+    else if (r.k === 'boing') { s.hv = 3.2; bubble(s, pick(SAY.boing)); noise('boing'); }
+    else if (r.k === 'baa') { bubble(s, pick(SAY.baa), true); noise('bleat'); }
+    else if (r.k === 'flop') { if (r.say !== false) bubble(s, pick(SAY.flop)); noise('thud', { vol: .22, rate: rnd(1.2, 1.5) }); }
+    else if (r.k in SAY) bubble(s, pick(SAY[r.k]));
+  }
+  function hoverStep(dt) {
+    hov.waveT -= dt; hov.sndT -= dt; hov.bubT -= dt;
+    if (!hov.on) return;
+    hov.moodT -= dt; if (hov.moodT <= 0) pickMood();
+    ray.setFromCamera(ndc, camera); hov.ok = !!ray.ray.intersectPlane(GROUND, hit);
+    if (!hov.ok) return;
+    hov.x = hit.x; hov.z = hit.z;
+    pokeAt(hov.x, hov.z, hov.mood);
+  }
 
   /* ---------------- simulation ---------------- */
   let SP = 1.05, RC = .46, SC = 1, SCt = 1;   // spacing, soft collision radius (smaller than the wool so neighbours squish), sheep scale
@@ -534,7 +663,7 @@ stage('#flock', (root, renderer, canvas) => {
     for (let i = 0; i < n; i++) {
       const s = sh[i];
       let dvx = 0, dvz = 0, maxV = 1;
-      s.t -= dt;
+      s.t -= dt; if (s.cool > 0) s.cool -= dt;
       if (s.mode === 'graze' || s.mode === 'wander') {
         if (s.t <= 0) {
           if (s.mode === 'graze') { s.mode = 'wander'; const a = rnd(0, 6.28), r = Math.sqrt(Math.random()) * WANDER_R; s.wx = Math.cos(a) * r; s.wz = Math.sin(a) * r; s.t = rnd(4, 9); }
@@ -567,6 +696,24 @@ stage('#flock', (root, renderer, canvas) => {
           maxV = run + 1;
         }
       }
+      // hover reactions: timers, extra hops, running away, walking over to look, lying still after a faint
+      const r = s.rx;
+      if (r) {
+        if (r.delay > 0) r.delay -= dt;
+        else {
+          if (!r.go) { r.go = true; startRx(s, r); }
+          r.t += dt;
+          if (r.k === 'hop' && r.hops > 1 && r.t > .15 && s.hop === 0 && s.hv === 0) { r.hops--; s.hv = r.h * .8; }
+          if (r.k === 'flee') { const f = Math.max(0, 1 - r.t / r.d); dvx += r.fx * r.pow * f; dvz += r.fz * r.pow * f; maxV = Math.max(maxV, r.pow); s.hpT = -.1; }
+          else if (r.k === 'flop' || r.k === 'shake') { dvx = dvz = 0; }
+          else if (r.k === 'look' && hov.on && (s.mode === 'graze' || s.mode === 'wander')) {
+            const dx = hov.x - s.x, dz = hov.z - s.z, d = Math.hypot(dx, dz) || 1;
+            if (d > 1.8) { dvx = dx / d * 1.4 * s.speed; dvz = dz / d * 1.4 * s.speed; maxV = Math.max(maxV, 1.6); } else { dvx = dvz = 0; }
+            s.t = Math.max(s.t, .5);
+          }
+          if (r.t >= r.d) s.rx = null;
+        }
+      }
       // accelerate toward the desired velocity
       const k = Math.min(1, dt * 4);
       s.vx += (dvx - s.vx) * k; s.vz += (dvz - s.vz) * k;
@@ -594,6 +741,7 @@ stage('#flock', (root, renderer, canvas) => {
       for (const [ox, oz, r] of OB) { const dx = a.x - ox, dz = a.z - oz, d = Math.hypot(dx, dz), rr = r + RC; if (d < rr && d > 1e-4) { a.x = ox + dx / d * rr; a.z = oz + dz / d * rr; } }
       const dc = Math.hypot(a.x, a.z); if (dc > FR - 1.2) { a.x *= (FR - 1.2) / dc; a.z *= (FR - 1.2) / dc; }
     }
+    hoverStep(dt);
     return arrived;
   }
   function frame(dt, t) {
@@ -605,17 +753,33 @@ stage('#flock', (root, renderer, canvas) => {
     const n = count;
     for (let i = 0; i < n; i++) {
       const s = sh[i], spd = Math.hypot(s.vx, s.vz);
+      const r = s.rx && s.rx.go ? s.rx : null, u = r ? clamp(r.t / r.d, 0, 1) : 0;
+      const looking = r && r.k === 'look' && hov.ok;
       if (spd > .2) { const want = Math.atan2(-s.vz, s.vx); let dy = want - s.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); s.yaw += dy * Math.min(1, dt * 7); }
+      else if (looking && s.mode === 'formed') { let dy = Math.atan2(-(hov.z - s.z), hov.x - s.x) - s.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); s.yaw += clamp(dy, -.9, .9) * Math.min(1, dt * 3); }
       else if (s.mode === 'formed') { let dy = (-Math.PI / 2 + Math.sin(s.ph) * .35) - s.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); s.yaw += dy * Math.min(1, dt * 1.5); }
       s.ph += dt * (2 + spd * 2.2);
       // hop (gallop bounce when running fast, occasional happy hop)
       if (s.hv) { s.hop += s.hv * dt; s.hv -= 12 * dt; if (s.hop <= 0) { s.hop = 0; s.hv = 0; } }
       const gallop = spd > 4 ? Math.abs(Math.sin(s.ph)) * .28 : Math.abs(Math.sin(s.ph)) * .05 * Math.min(1, spd);
-      s.headP += (s.hpT - s.headP) * Math.min(1, dt * 3); s.headY += (s.hyT - s.headY) * Math.min(1, dt * 2.5);
-      if (s.mode !== 'formed' && s.mode !== 'go') s.hyT = Math.sin(t * .7 + s.ph) * .3;
-      Q.setFromAxisAngle(Y, s.yaw); V.set(s.x, s.hop + gallop, s.z);
+      // reaction poses: head targets, spin, faint (roll onto the back, legs kicking), wool shake, squash & stretch
+      let spin = 0, roll = 0, sx = 1, sy = 1, kick = 0;
+      if (looking) { let rel = Math.atan2(-(hov.z - s.z), hov.x - s.x) - s.yaw; rel = Math.atan2(Math.sin(rel), Math.cos(rel)); s.hyT = clamp(rel, -1.1, 1.1); s.hpT = -.18; }
+      else if (r) {
+        if (r.k === 'spin') spin = easeIO(u) * Math.PI * 2 * r.dir;
+        else if (r.k === 'flop') {
+          const f = u < .13 ? (u / .13) ** 2 : u < .24 ? 1 - Math.sin((u - .13) / .11 * Math.PI) * .12 : u < .8 ? 1 : 1 - easeIO((u - .8) / .2);
+          roll = f * 2.75 * r.dir; kick = u > .2 && u < .8 ? 1 : 0; s.hpT = 0;
+        } else if (r.k === 'shake') { roll = Math.sin(r.t * 40) * .24 * (1 - u); s.hyT = Math.sin(r.t * 40 + 1) * .5 * (1 - u); }
+        else if (r.k === 'boing') { const w = Math.sin(u * Math.PI * 3.5) * (1 - u) * .38; sy = 1 + w; sx = 1 - w * .45; }
+        else if (r.k === 'baa') { s.hpT = u < .75 ? -.55 : 0; s.hyT = Math.sin(r.t * 22) * .12 * (u < .75 ? 1 : 0); }
+      }
+      s.headP += (s.hpT - s.headP) * Math.min(1, dt * (r ? 8 : 3)); s.headY += (s.hyT - s.headY) * Math.min(1, dt * (r ? 9 : 2.5));
+      if (s.mode !== 'formed' && s.mode !== 'go' && !looking && !r) s.hyT = Math.sin(t * .7 + s.ph) * .3;
+      Q.setFromAxisAngle(Y, s.yaw + spin); V.set(s.x, s.hop + gallop, s.z);
       const lean = spd > 4 ? Math.sin(s.ph * 2) * .06 : 0;
-      M.compose(V, Q, ONE.set(SC, SC, SC)); if (lean) M.multiply(T1.makeRotationZ(lean));
+      M.compose(V, Q, ONE.set(SC * sx, SC * sy, SC * sx)); if (lean) M.multiply(T1.makeRotationZ(lean));
+      if (roll) M.multiply(T1.makeTranslation(0, .85, 0)).multiply(T2.makeRotationX(roll)).multiply(T1.makeTranslation(0, -.85, 0));
       // head: pitch down to graze / yaw to look around, pivoting at the neck
       E.set(0, s.headY, -s.headP); Qh.setFromEuler(E);
       Mh.copy(M).multiply(T1.makeTranslation(NECK.x, NECK.y, NECK.z)).multiply(T2.makeRotationFromQuaternion(Qh)).multiply(T1.makeTranslation(-NECK.x, -NECK.y, -NECK.z));
@@ -628,7 +792,7 @@ stage('#flock', (root, renderer, canvas) => {
       // legs swing from the hip; diagonal pairs move together
       const amp = Math.min(.7, spd * .16 + (s.hop > 0 ? .4 : 0));
       for (let j = 0; j < mL.length; j++) {
-        const p = P_LEG[j], sw = Math.sin(s.ph * 1.6 + (j === 0 || j === 3 ? 0 : Math.PI)) * amp;
+        const p = P_LEG[j], sw = kick ? Math.sin(t * 17 + j * 1.9) * .55 : Math.sin(s.ph * 1.6 + (j === 0 || j === 3 ? 0 : Math.PI)) * amp;
         Ml.copy(M).multiply(T1.makeTranslation(p[0], HIPY, p[2])).multiply(T2.makeRotationZ(sw)).multiply(T1.makeTranslation(-p[0], -HIPY, -p[2]));
         iLeg.setMatrixAt(i * mL.length + j, tmp.multiplyMatrices(Ml, mL[j]));
       }
@@ -649,19 +813,45 @@ stage('#flock', (root, renderer, canvas) => {
     clouds.forEach((c, k) => { c.position.x += dt * (.6 + k * .1); if (c.position.x > 90) c.position.x = -90; });
     for (let i = 0; i < SN; i++) { sp[i * 3 + 1] -= sv[i] * dt; sp[i * 3] += Math.sin(t * .5 + i) * .4 * dt; if (sp[i * 3 + 1] < 0) { sp[i * 3 + 1] = 30; sp[i * 3] = rnd(-45, 45); sp[i * 3 + 2] = rnd(-45, 45); } }
     sg.attributes.position.needsUpdate = true; snow.material.uniforms.time.value = t;
-    // camera
-    camT += ((cycling ? 1 : 0) - camT) * Math.min(1, (dt || .016) * 1.4);
+    // camera: live target for the current shot, reached through the swoop tween after every change
     const fovT = Math.tan(T.MathUtils.degToRad(camera.fov / 2));
     const ew = cycling ? extent[0] : (isPC() ? 50 : 28), eh = cycling ? extent[1] : 30;
-    const fitD = Math.max(ew / 2 / (fovT * aspect), eh / 2 / fovT) * 1.12;
-    const polar = clamp(T.MathUtils.lerp(1.25, .42, camT) + tiltOff, .25, 1.4);
-    const a = az + (cycling ? 0 : Math.sin(t * .07) * .3);
-    camera.position.set(Math.sin(a) * Math.sin(polar) * fitD, Math.cos(polar) * fitD + 1, Math.cos(a) * Math.sin(polar) * fitD);
-    camera.lookAt(0, 0, (isPC() ? 2 : 4) * (1 - camT));
+    const tgt = {
+      d: Math.max(ew / 2 / (fovT * aspect), eh / 2 / fovT) * 1.12,
+      polar: clamp((cycling ? .42 : 1.25) + tiltOff, .25, 1.4),
+      a: az + (cycling ? 0 : Math.sin(t * .07) * .3),
+      lz: cycling ? 0 : (isPC() ? 2 : 4)
+    };
+    camRoll = 0;
+    if (!cam.d || !camTw) Object.assign(cam, tgt);
+    else {
+      camTw.t += dt;
+      const u = clamp(camTw.t / camTw.dur, 0, 1), e = easeIO(u), arc = Math.sin(Math.PI * u);
+      for (const k in tgt) cam[k] = camTw.from[k] + (tgt[k] - camTw.from[k]) * e;
+      cam.d *= 1 + arc * camTw.lift; cam.a += arc * camTw.swing; camRoll = arc * camTw.swing * -.1;
+      if (u >= 1) camTw = null;
+    }
+    const sp_ = Math.sin(cam.polar);
+    camera.position.set(Math.sin(cam.a) * sp_ * cam.d, Math.cos(cam.polar) * cam.d + 1, Math.cos(cam.a) * sp_ * cam.d);
+    camera.lookAt(0, 0, cam.lz);
+    if (camRoll) camera.rotateZ(camRoll);
+    // speech bubbles follow their sheep on screen: pop in, float up a little, fade out
+    for (let k = bubbles.length - 1; k >= 0; k--) {
+      const b = bubbles[k]; b.t += dt;
+      const u = b.t / 1.15;
+      if (u >= 1) { b.el.remove(); bubbles.splice(k, 1); continue; }
+      BV.set(b.s.x, 1.75 * SC + b.s.hop, b.s.z).project(camera);
+      if (BV.z > 1) { b.el.style.opacity = 0; continue; }
+      const x = (BV.x + 1) / 2 * root.clientWidth, y = (1 - BV.y) / 2 * root.clientHeight - u * 16;
+      const sc = u < .16 ? 1 + 2.70158 * Math.pow(u / .16 - 1, 3) + 1.70158 * Math.pow(u / .16 - 1, 2) : 1;
+      b.el.style.opacity = u > .72 ? 1 - (u - .72) / .28 : 1;
+      b.el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) translate(-50%,-100%) scale(${Math.max(0, sc).toFixed(3)})`;
+    }
   }
   function resize(w, h) { aspect = w / h; camera.aspect = aspect; camera.updateProjectionMatrix(); snow.fit(renderer, camera, h); }
   setCount(N());
   for (let k = 0; k < 30; k++) step(1 / 30, k / 30);
+  root._fl = { camera, cam, hov, pokeAt, tween: () => camTw };   // test hook
   return { scene, camera, frame, resize, onMode() { setCount(N()); if (cycling) { shapeIx--; nextShape(); } } };
 });
 
@@ -1223,10 +1413,13 @@ stage('#gacha', (root, renderer, canvas) => {
   // capsules inside the globe (simple sphere physics)
   const CR = .21, NC = 20, PAL = [C.blue, C.yellow, 0x00BBFF, 0xffffff, C.sky, C.strong];
   const halfTop = new T.SphereGeometry(CR, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), halfBot = new T.SphereGeometry(CR, 20, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
-  const clearM = new T.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: .85, shininess: 90 });
+  // shells are open hemispheres: draw both sides so an opened capsule shows its inside, and give each cut edge a lip
+  const clearM = new T.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: .85, shininess: 90, side: T.DoubleSide });
+  const lipGeo = new T.RingGeometry(CR * .9, CR * 1.002, 24), lipM = new T.MeshPhongMaterial({ color: 0xffffff, shininess: 40, side: T.DoubleSide });
   function capsule(color) {
     const g = new T.Group();
-    const t = new T.Mesh(halfTop, new T.MeshPhongMaterial({ color, shininess: 80 })), b = new T.Mesh(halfBot, clearM), band = new T.Mesh(new T.TorusGeometry(CR, .012, 6, 24), STD(0xffffff)); band.rotation.x = Math.PI / 2;
+    const t = new T.Mesh(halfTop, new T.MeshPhongMaterial({ color, shininess: 80, side: T.DoubleSide })), b = new T.Mesh(halfBot, clearM), band = new T.Mesh(new T.TorusGeometry(CR, .012, 6, 24), STD(0xffffff)); band.rotation.x = Math.PI / 2;
+    [t, b].forEach(h => { const lip = new T.Mesh(lipGeo, lipM); lip.rotation.x = Math.PI / 2; h.add(lip); });
     t.castShadow = b.castShadow = true; g.add(t, b, band); g.top = t; g.bot = b; g.band = band; return g;
   }
   const globe = new T.Group(); globe.position.y = GY; mach.add(globe);
@@ -1711,18 +1904,39 @@ stage('#post', (root, renderer, canvas) => {
     g.font = `500 22px ${MONO}`; g.fillStyle = '#979C9E'; g.textAlign = 'right'; g.fillText(`${typed.length} / 60`, w - 30, h - 20); g.textAlign = 'left';
     if (!focused && !typed) { g.setLineDash([14, 10]); g.strokeStyle = '#0066FF'; g.lineWidth = 4; g.strokeRect(16, TOP, w - 32, h - TOP - 50); g.setLineDash([]); }
   });
-  const letter = new T.Mesh(new T.PlaneGeometry(EW * .84, EW * .62), new T.MeshStandardMaterial({ map: letterTex, side: T.DoubleSide }));
+  // the letter is a sheet of card with a visible paper edge, standing a little off the envelope's back so it casts a soft shadow on it
+  const LW = EW * .84, LH = EW * .62, LT = .012, LET_Z = .036;   // size, thickness, centre depth (back of the envelope is at z .01)
+  const paperEdge = STD(0xE9E2CF, { roughness: .9 }), paperBack = STD(0xFBF8F0, { roughness: .9 });
+  const letter = new T.Mesh(new T.BoxGeometry(LW, LH, LT), [paperEdge, paperEdge, paperEdge, paperEdge, new T.MeshStandardMaterial({ map: letterTex, roughness: .85 }), paperBack]);
+  letter.castShadow = true;
   const LET_UP = .42;                                   // letter sticks out of the open envelope while writing; ends centred inside (y 0)
-  letter.position.set(0, LET_UP, .015); ENV.add(letter);
+  letter.position.set(0, LET_UP, LET_Z); ENV.add(letter);
+  // its soft shadow: a blurred card (drawn as the canvas shadow of an off-canvas rect, which every browser supports),
+  // laid on the envelope back and on the open flap behind it. The shapes clip the shadow to the paper; the texture slides with the letter.
+  const SPAD = .09, SW = LW + SPAD * 2, SH = LH + SPAD * 2;
+  const shTex = canvasTex(256, Math.round(256 * SH / SW), (g, w, h) => {
+    const m = SPAD * w / SW;
+    g.shadowColor = 'rgba(11,28,63,.6)'; g.shadowBlur = m * .85; g.shadowOffsetX = w * 2;
+    g.fillStyle = '#000'; g.fillRect(m - w * 2, m, w - m * 2, h - m * 2);
+  });
+  const shTexF = shTex.clone(); shTexF.needsUpdate = true;
+  const shMat = tex => new T.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  const backS = new T.Shape(); backS.moveTo(-EW / 2, -EH / 2); backS.lineTo(EW / 2, -EH / 2); backS.lineTo(EW / 2, EH / 2); backS.lineTo(-EW / 2, EH / 2); backS.lineTo(-EW / 2, -EH / 2);
+  const letShB = new T.Mesh(new T.ShapeGeometry(backS), shMat(shTex)); letShB.position.z = .0105; ENV.add(letShB);   // ShapeGeometry uv = local x,y
   const pocketS = new T.Shape(); pocketS.moveTo(-EW / 2, -EH / 2); pocketS.lineTo(EW / 2, -EH / 2); pocketS.lineTo(EW / 2, EH * .12); pocketS.lineTo(0, -EH * .12); pocketS.lineTo(-EW / 2, EH * .12); pocketS.lineTo(-EW / 2, -EH / 2);
-  const pocket = new T.Mesh(new T.ShapeGeometry(pocketS), STD(0xE6EAF0, { side: T.DoubleSide, roughness: .6 })); pocket.position.z = .03; ENV.add(pocket);
+  const pocket = new T.Mesh(new T.ShapeGeometry(pocketS), STD(0xE6EAF0, { side: T.DoubleSide, roughness: .6 })); pocket.position.z = .052; pocket.castShadow = true; ENV.add(pocket);
+  // the pocket stands off the back now, so close its sides and bottom with thin gussets
+  { const gm = STD(0xDCE2EB, { roughness: .6 }), gd = .052 - .01, gh = EH / 2 + EH * .12;
+    [-1, 1].forEach(sd => { const w = new T.Mesh(new T.BoxGeometry(.004, gh, gd), gm); w.position.set(sd * (EW / 2 - .002), -EH / 2 + gh / 2, .01 + gd / 2); ENV.add(w); });
+    const b = new T.Mesh(new T.BoxGeometry(EW, .004, gd), gm); b.position.set(0, -EH / 2 + .002, .01 + gd / 2); ENV.add(b); }
   const edge = new T.LineBasicMaterial({ color: 0x9AA3AF });
-  const pocketLine = new T.Line(new T.BufferGeometry().setFromPoints([[-EW / 2, EH * .12], [0, -EH * .12], [EW / 2, EH * .12]].map(([x, y]) => new T.Vector3(x, y, .032))), edge); ENV.add(pocketLine);
+  const pocketLine = new T.Line(new T.BufferGeometry().setFromPoints([[-EW / 2, EH * .12], [0, -EH * .12], [EW / 2, EH * .12]].map(([x, y]) => new T.Vector3(x, y, .054))), edge); ENV.add(pocketLine);
   const flapP = new T.Group(); flapP.position.set(0, EH / 2, -.012); ENV.add(flapP);
   // closed, the flap reaches down to the pocket's V (with a little overlap) so the letter is fully hidden
   const FS = EH * .12 - EH / 2 - .012, FC = -EH * .12 - EH / 2 - .012;   // flap bottom at the sides / at the centre point
   const flapS = new T.Shape(); flapS.moveTo(-EW / 2, 0); flapS.lineTo(EW / 2, 0); flapS.lineTo(EW / 2, FS); flapS.lineTo(0, FC); flapS.lineTo(-EW / 2, FS); flapS.lineTo(-EW / 2, 0);
   const flapM = new T.Mesh(new T.ShapeGeometry(flapS), STD(0xDCE2EB, { side: T.DoubleSide, roughness: .6 })); flapP.add(flapM);
+  const letShF = new T.Mesh(new T.ShapeGeometry(flapS), shMat(shTexF)); letShF.position.z = -.003; flapP.add(letShF);   // open, local -z faces the camera
   flapP.add(new T.Line(new T.BufferGeometry().setFromPoints([[-EW / 2, FS], [0, FC], [EW / 2, FS]].map(([x, y]) => new T.Vector3(x, y, .002))), edge));
   const seal = new T.Group(); seal.position.set(0, FC + .07, .03); flapP.add(seal);
   const sealDisc = new T.Mesh(new T.CylinderGeometry(.12, .12, .03, 32), new T.MeshStandardMaterial({ color: C.blue, roughness: .35 }));
@@ -1851,12 +2065,19 @@ stage('#post', (root, renderer, canvas) => {
       }
       if (sealT >= 1) {
         flipT = Math.min(1, flipT + dt * 1.8);
-        if (flipT >= 1) { phase = 'ready'; setPrompt('投函する（封筒を上にスワイプでもOK）', true, doPost); }
+        if (flipT >= 1) { phase = 'ready'; setPrompt('投函する', true, doPost); prompt.setAttribute('aria-label', '投函する（封筒を上にスワイプでもOK）'); }
       }
     }
     letter.position.y = LET_UP * (1 - ease2(letterT));
     flapP.rotation.x = -Math.PI * (1 - ease2(flapT));
-    flapP.position.z = flapT > 0 ? .036 : -.012;
+    flapP.position.z = flapT > 0 ? .058 : -.012;
+    // letter shadow: the key light is upper-left/front, so it falls down-right, further (and fainter) on the flap, which is further back
+    { const ly = letter.position.y, gB = LET_Z - LT / 2 - .01, gF = LET_Z - LT / 2 + .009;
+      const cxB = gB * 1.2, cyB = ly - gB * 2, cxF = gF * 1.2, cyF = ly - gF * 2;
+      shTex.repeat.set(1 / SW, 1 / SH); shTex.offset.set(-(cxB - SW / 2) / SW, -(cyB - SH / 2) / SH);
+      // the open flap is turned over (local y points down), so v runs the other way
+      shTexF.repeat.set(1 / SW, -1 / SH); shTexF.offset.set(-(cxF - SW / 2) / SW, (EH / 2 - cyF + SH / 2) / SH);
+      letShB.material.opacity = .75; letShF.material.opacity = .6 * Math.max(0, 1 - flapT * 3); letShF.visible = flapT < .34; }
     const ss = sealT <= 0 ? .001 : sealT < .6 ? 2.4 - 1.6 * (sealT / .6) : 1 + Math.sin((sealT - .6) / .4 * Math.PI) * .12;
     seal.scale.setScalar(ss);
     // envelope placement / idle float
@@ -1970,8 +2191,8 @@ stage('#dome', (root, renderer, canvas) => {
   colSphere(.55, lamb.position.y + .31, .62, .26); const lambCol = COL[COL.length - 1];
   // the two sheep wander around their spot and react when the dome is shaken
   const critters = [
-    { o: sheep, col: sheepCol, hx: -.05, hz: .2, roam: .45, yOff: -.1, colY: .53, sp: .16, x: -.05, z: .2 },
-    { o: lamb, col: lambCol, hx: .55, hz: .62, roam: .3, yOff: -.05, colY: .31, sp: .22, x: .55, z: .62 }
+    { o: sheep, col: sheepCol, hx: -.05, hz: .2, roam: .45, yOff: -.1, colY: .53, sp: .16, x: -.05, z: .2, fr: .3, mass: 1 },
+    { o: lamb, col: lambCol, hx: .55, hz: .62, roam: .3, yOff: -.05, colY: .31, sp: .22, x: .55, z: .62, fr: .18, mass: .45 }
   ].map(c => Object.assign(c, { tx: c.x, tz: c.z, wait: Math.random() * 2, hop: 0, hv: 0, tilt: 0, tiltV: 0, roll: 0, rollV: 0, ph: 0, vx: 0, vz: 0, legs: c.o.legs }));
 
   // little house with a glowing window
@@ -2005,7 +2226,7 @@ stage('#dome', (root, renderer, canvas) => {
   const eyeG = new T.SphereGeometry(.018, 8, 6), eyeM = std(C.ink);
   const e1 = new T.Mesh(eyeG, eyeM); e1.position.set(-.045, .49, .115); const e2 = e1.clone(); e2.position.x = .045;
   snowman.add(b1, b2, scarf, tail, hatG, nose, e1, e2);
-  colSphere(sx, sb - .03 + .18, sz, .2); colSphere(sx, sb - .03 + .45, sz, .13); colBox(sx, sz, .12, .12, sb - .03 + .55); colBox(sx, sz, .075, .075, sb - .03 + .66);
+  colSphere(sx, sb - .03 + .18, sz, .2); colSphere(sx, sb - .03 + .45, sz, .13); colBox(sx, sz, .12, .12, sb - .03 + .55); colBox(sx, sz, .075, .075, sb - .03 + .66); const hatCol = COL[COL.length - 1], hatTop = hatCol.top;
 
   // gift box
   const gx = -.6, gz = .82, gb = floorH(gx, gz), gs = .13;
@@ -2038,6 +2259,39 @@ stage('#dome', (root, renderer, canvas) => {
     t.add(c1, c2, tr);
     colCone(x, z, .3 * s, b - .02 + .1 * s, .35 * s); colCone(x, z, .22 * s, b - .02 + .42 * s, .4 * s);
   });
+
+  // footprints on the snow floor that the sheep and the present bump into (inner-local):
+  // circles {x,z,r} and rotated boxes {x,z,hx,hz} (same rotation convention as colBox); h = height, so a hop can clear low ones
+  const OBS = [];
+  const obC = (x, z, r, h, tag, o) => OBS.push(Object.assign({ k: 'c', x, z, r, h, tag }, o));
+  const obB = (x, z, hx_, hz_, ry, h, tag) => OBS.push({ k: 'b', x, z, hx: hx_, hz: hz_, c: Math.cos(ry), s: Math.sin(ry), h, tag });
+  obB(hx, hz, hw + .03, hd + .03, hry, 9, 'house');
+  obC(sx, sz, .21, .6, 'snowman');
+  obC(signX, signZ, .045, 9, 'sign'); obB(signX, signZ, .28, .03, -.3, 9, 'sign');
+  [[-1.1, .28, .95], [.08, -1.12, .8], [1.05, -.62, .62], [1.12, .62, .5]].forEach(([x, z, s], k) => obC(x, z, .25 * s, 9, 'tree', { tree: domeTrees[k], w: 0, wv: 0 }));
+  // push a circle (x, z, r) out of every obstacle it overlaps → { x, z, nx, nz, hit } (n = outward normal of the last hit)
+  function pushOut(x, z, r, hop) {
+    let hit = null, nx = 0, nz = 0;
+    for (const o of OBS) {
+      if (hop > o.h) continue;
+      const dx = x - o.x, dz = z - o.z;
+      if (o.k === 'c') {
+        const d = Math.hypot(dx, dz), m = o.r + r;
+        if (d < m) { const ux = d > 1e-5 ? dx / d : 1, uz = d > 1e-5 ? dz / d : 0; x = o.x + ux * m; z = o.z + uz * m; nx = ux; nz = uz; hit = o; }
+      } else {
+        const lx = dx * o.c - dz * o.s, lz = dx * o.s + dz * o.c;
+        const qx = clamp(lx, -o.hx, o.hx), qz = clamp(lz, -o.hz, o.hz), ex = lx - qx, ez = lz - qz, d = Math.hypot(ex, ez);
+        if (d >= r) continue;
+        let ux, uz, nlx, nlz;
+        if (d > 1e-5) { ux = ex / d; uz = ez / d; nlx = qx + ux * r; nlz = qz + uz * r; }
+        else if (o.hx - Math.abs(lx) < o.hz - Math.abs(lz)) { ux = Math.sign(lx) || 1; uz = 0; nlx = ux * (o.hx + r); nlz = lz; }   // centre inside: leave by the nearest face
+        else { ux = 0; uz = Math.sign(lz) || 1; nlx = lx; nlz = uz * (o.hz + r); }
+        x = o.x + nlx * o.c + nlz * o.s; z = o.z - nlx * o.s + nlz * o.c;
+        nx = ux * o.c + uz * o.s; nz = -ux * o.s + uz * o.c; hit = o;
+      }
+    }
+    return { x, z, nx, nz, hit };
+  }
 
   // props modelled in Blender (snowdome.glb): turned lacquer base, cottage, pines, gift.
   // The simple shapes above stay as the fallback; colliders and animation targets are unchanged.
@@ -2105,7 +2359,7 @@ stage('#dome', (root, renderer, canvas) => {
   lip.rotation.x = Math.PI / 2; lip.position.y = .03; dome.add(lip);
 
   // snow particles (in dome local space, center at y=.45)
-  const NP = 700, pos = new Float32Array(NP * 3), vel = new Float32Array(NP * 3);
+  const NP = 5600, pos = new Float32Array(NP * 3), vel = new Float32Array(NP * 3);   // 8× the original 700
   const CY = .45, RIN = R - .1;
   const rest = new Uint8Array(NP);
   for (let i = 0; i < NP; i++) {
@@ -2116,22 +2370,40 @@ stage('#dome', (root, renderer, canvas) => {
   const pg = new T.BufferGeometry(); pg.setAttribute('position', new T.BufferAttribute(pos, 3));
   const snow = makeSnow(pg, NP, .035, .15);
   inner.add(snow);
+  // each flake sinks at its own speed (big ones faster, soft fluffy ones slower) and flutters side to side as it falls
+  const vt = new Float32Array(NP), flF = new Float32Array(NP), flP = new Float32Array(NP);
+  { const sz = pg.attributes.size.array, vr = pg.attributes.variant.array;
+    for (let i = 0; i < NP; i++) { vt[i] = (.1 + sz[i] * 1.25) * (.8 + Math.random() * .4) * (vr[i] >= 12 ? .75 : 1); flF[i] = 1.4 + Math.random() * 2.2; flP[i] = Math.random() * 6.28; } }
+  // the water: flakes are carried by it. W = its spin relative to the glass (angular velocity, local axes) + turbulence;
+  // both die down over a couple of seconds like a real globe
+  // + two turbulence modes whose phases and scales are re-rolled on every big shake, so each shake swirls differently
+  // + a ring-shaped overturn (Hill's vortex: up through the middle, out over the top, down along the glass) that lifts the snow
+  const W = { x: 0, y: 0, z: 0, turb: 0, up: 0, k1: 1, k2: 2.2, p: [0, 1, 2, 3, 4, 5] };
+  const rerollWater = () => { W.k1 = .8 + Math.random() * .7; W.k2 = 1.9 + Math.random() * 1.2; for (let k = 0; k < 6; k++) W.p[k] = Math.random() * 6.28; };
+  let pOX = 0, pOY = 0, pVX = 0, pVY = 0, pWZ = 0, pWX = 0, bumpSnd = 0, snowFC = 0;
 
   const LINES = ['あけましておめでとうございます。', '2027年は未年。「未」は「未来」の「未」です。', '雪がとけたら、新しいことが芽吹く季節。', '今年も皆さまと一緒に、あしたをオモシロク。'];
   const msg = $('.ov-msg', root), linesEl = $('.js-lines', root), sigEl = $('.js-sig', root), shakesEl = $('.js-shakes', root), btn = $('.js-shake', root), allBtn = $('.js-all', root);
   let offX = 0, offY = 0, offVX = 0, offVY = 0, prevRZ = 0, prevRX = 0;
-  let shown = 1, wob = 0, wobV = 0, tiltX = 0, tiltZ = 0, drag = null, dragDist = 0, counted = false, aspect = 1, swirl = 0, lock = false;
+  let shown = 1, wob = 0, wobV = 0, tiltX = 0, tiltZ = 0, drag = null, dragDist = 0, counted = false, aspect = 1, lock = false;
   let lastSlosh = 0;
   function shake(power) {
     const now = performance.now();
     if (now - lastSlosh > 380 || power >= 1) { lastSlosh = now; play('globe', { vol: Math.min(1, .35 + power * .65) }); }
+    // stir the water (a spin around a random axis + turbulence); the flakes on the floor are swept up by it
+    const sgn = Math.random() < .5 ? -1 : 1;
+    W.x += (Math.random() - .5) * power * 2.4; W.y += sgn * power * (1.4 + Math.random()); W.z += (Math.random() - .5) * power * 2.4;
+    if (power > .5 || W.turb < .2) rerollWater();
+    W.turb = Math.min(1.1, W.turb + power * 1.0); W.up = Math.min(1.3, W.up + power * 1.1);
+    // flakes are thrown every which way (mostly up), so they fill the globe instead of rising as one sheet
     for (let i = 0; i < NP; i++) {
+      if (rest[i] && Math.random() > .25 + power * .7) continue;
       rest[i] = 0;
-      vel[i * 3] += (Math.random() - .5) * power * 2.4;
-      vel[i * 3 + 1] += (Math.random() * .9 + .4) * power * 2.6;
-      vel[i * 3 + 2] += (Math.random() - .5) * power * 2.4;
+      vel[i * 3] += (Math.random() - .5) * power * 1.6;
+      vel[i * 3 + 1] += (.3 + Math.random() * 1.6) * power;
+      vel[i * 3 + 2] += (Math.random() - .5) * power * 1.6;
     }
-    wobV += power * 4 * (Math.random() < .5 ? -1 : 1); swirl = power * 2;
+    wobV += power * 4 * sgn;
     critters.forEach(c => { c.hv += power * (1.2 + Math.random() * 1.2); c.tiltV += (Math.random() - .5) * power * 14; c.rollV += (Math.random() - .5) * power * 10; c.wait = 0; });
     giftS.hv += power * (1 + Math.random()); giftS.tiltV += (Math.random() - .5) * power * 16; giftS.spin += (Math.random() - .5) * power * 3;
     hatS.hv += power * (1.4 + Math.random() * .8); hatS.tiltV += (Math.random() - .5) * power * 18;
@@ -2175,8 +2447,21 @@ stage('#dome', (root, renderer, canvas) => {
   canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', () => { drag = null; canvas.style.cursor = ''; });
   render();
 
+  const GIFT_R = gs * 1.25;
+  // what happens when something runs into an obstacle: the sheep wobbles, a tree shakes its snow off,
+  // the snowman's hat jumps, the cottage roof sheds a little
+  function bumped(c, o, speed) {
+    if (c) { c.tiltV += (Math.random() - .5) * speed * 14; c.rollV += (Math.random() - .5) * speed * 10; c.hv += speed * .5; }
+    if (o.tag === 'tree') o.wv += speed * (Math.random() < .5 ? -6 : 6);
+    if (o.tag === 'snowman') { hatS.hv += speed * 1.2; hatS.tiltV += (Math.random() - .5) * speed * 20; }
+    const rad = o.tag === 'tree' ? o.r * 1.6 : o.tag === 'house' ? .45 : .3, share = o.tag === 'house' ? .3 : 1;
+    for (let i = 0; i < NP; i++) if (rest[i] && Math.random() < share) { const ex = pos[i * 3] - o.x, ez = pos[i * 3 + 2] - o.z; if (ex * ex + ez * ez < rad * rad && pos[i * 3 + 1] > floorH(pos[i * 3], pos[i * 3 + 2]) + .05) { rest[i] = 0; vel[i * 3 + 1] = .1 + Math.random() * .3 * speed; vel[i * 3] = (Math.random() - .5) * .3; vel[i * 3 + 2] = (Math.random() - .5) * .3; } }
+    const now = performance.now(); if (now - bumpSnd > 280) { bumpSnd = now; play('thud', { vol: Math.min(.4, .12 + speed * .3), rate: 1.3 + Math.random() * .3 }); }
+  }
   function frame(dt, t) {
     dt = dt || .016;
+    // trees that were bumped sway back on a spring
+    OBS.forEach(o => { if (!o.tree) return; o.wv += (-o.w * 70 - o.wv * 5) * dt; o.w += o.wv * dt; o.tree.rotation.z = o.w * .12; o.tree.rotation.x = o.w * .06; });
     // wobble spring
     wobV += (-wob * 30 - wobV * 4) * dt; wob += wobV * dt;
     if (!drag) {
@@ -2187,17 +2472,29 @@ stage('#dome', (root, renderer, canvas) => {
     dome.position.x = offX; dome.position.y = offY;
     dome.rotation.z = wob * .25 + tiltZ + offVX * .02; dome.rotation.x = tiltX * .6;
     inner.rotation.y = Math.sin(t * .3) * .12;
-    swirl *= .97;
-    // how much the globe turned this frame: the water (and snow) lags behind the glass
+    // how much the globe turned this frame
     const dRZ = dome.rotation.z - prevRZ, dRX = dome.rotation.x - prevRX; prevRZ = dome.rotation.z; prevRX = dome.rotation.x;
-    const turn = Math.abs(dRZ) + Math.abs(dRX), slosh = .8 / Math.max(dt, .008);
-    const gx = -Math.sin(dome.rotation.z) * .55, gy = -Math.cos(dome.rotation.z) * Math.cos(dome.rotation.x) * .55, gz = Math.sin(dome.rotation.x) * .55;
-    if (turn > .02) for (let i = 0; i < NP; i++) if (rest[i] && Math.random() < turn * 6) { rest[i] = 0; vel[i * 3 + 1] += .2; }
+    // "down" inside the globe follows its tilt
+    const gx = -Math.sin(dome.rotation.z), gy = -Math.cos(dome.rotation.z) * Math.cos(dome.rotation.x), gz = Math.sin(dome.rotation.x);
+    // the water: when the glass changes its spin, the water keeps going (so relative to the glass it spins the other way);
+    // when the globe is jerked sideways the water sloshes into a swirl. Viscosity brings it back to rest.
+    { const ide = 1 / Math.max(dt, .008), wz = dRZ * ide, wx = dRX * ide;
+      W.z -= (wz - pWZ) * 1.3; W.x -= (wx - pWX) * 1.3; pWZ = wz; pWX = wx;
+      const vX = (offX - pOX) * ide, vY = (offY - pOY) * ide, aX = vX - pVX, aY = vY - pVY; pOX = offX; pOY = offY; pVX = vX; pVY = vY;
+      W.z += aX * .9; W.x -= aY * .5; W.turb = Math.min(.9, W.turb + (Math.abs(aX) + Math.abs(aY)) * .25);
+      // the flakes are a touch heavier than water, so they lag behind a jerk of the glass
+      if (Math.abs(aX) + Math.abs(aY) > .01) for (let i = 0; i < NP; i++) if (!rest[i]) { vel[i * 3] -= aX * .35; vel[i * 3 + 1] -= aY * .35; }
+      const wd = Math.exp(-dt / 1.7); W.x *= wd; W.y *= wd; W.z *= wd; W.turb *= Math.exp(-dt / 1.4); W.up *= Math.exp(-dt / 1.5);
+      const lim = 3.2, wm = Math.hypot(W.x, W.y, W.z); if (wm > lim) { W.x *= lim / wm; W.y *= lim / wm; W.z *= lim / wm; } }
+    hatCol.top = hatTop + hatS.h;
     // the sheep stroll, hop when shaken, wobble, and settle again
     critters.forEach(c => {
-      const ox = c.x, oz = c.z;
       c.wait -= dt;
-      if (c.wait <= 0 && Math.hypot(c.tx - c.x, c.tz - c.z) < .03) { const a = Math.random() * 6.28, r = Math.random() * c.roam; c.tx = c.hx + Math.cos(a) * r; c.tz = c.hz + Math.sin(a) * r; c.wait = 1.5 + Math.random() * 3; }
+      if (c.wait <= 0 && Math.hypot(c.tx - c.x, c.tz - c.z) < .03) {
+        // next spot to stroll to: somewhere free (not inside the cottage, a tree, the snowman…)
+        for (let k = 0; k < 8; k++) { const a = Math.random() * 6.28, r = Math.random() * c.roam, tx = c.hx + Math.cos(a) * r, tz = c.hz + Math.sin(a) * r; if (!pushOut(tx, tz, c.fr, 0).hit) { c.tx = tx; c.tz = tz; break; } }
+        c.wait = 1.5 + Math.random() * 3;
+      }
       const dx = c.tx - c.x, dz = c.tz - c.z, d = Math.hypot(dx, dz);
       const v = c.wait > 0 && d < .03 ? 0 : c.sp;
       c.vx += ((d > .01 ? dx / d * v : 0) - c.vx) * Math.min(1, dt * 4); c.vz += ((d > .01 ? dz / d * v : 0) - c.vz) * Math.min(1, dt * 4);
@@ -2207,6 +2504,36 @@ stage('#dome', (root, renderer, canvas) => {
       // inertia: when the globe turns, the sheep slide the other way a little
       c.vx += -dRZ * 1.8 / Math.max(dt, .008) * dt; c.vz += dRX * 1.2 / Math.max(dt, .008) * dt;
       c.x += c.vx * dt; c.z += c.vz * dt;
+      // bump into the cottage, trees, snowman and sign
+      const P = pushOut(c.x, c.z, c.fr, c.hop);
+      if (P.hit) {
+        c.x = P.x; c.z = P.z;
+        const vn = c.vx * P.nx + c.vz * P.nz;
+        if (vn < 0) { c.vx -= vn * P.nx * 1.35; c.vz -= vn * P.nz * 1.35; }        // stop, bounce back a little
+        if (vn < -.2) bumped(c, P.hit, -vn);
+        // walking into it: give up on that spot, look around, pick another
+        if ((c.tx - c.x) * P.nx + (c.tz - c.z) * P.nz < -.02) { c.tx = c.x; c.tz = c.z; c.wait = Math.max(c.wait, .5); }
+      }
+      // ewe and lamb jostle (the lamb gives way more)
+      critters.forEach(o => {
+        if (o === c || Math.abs(o.hop - c.hop) > .3) return;
+        const dx = c.x - o.x, dz = c.z - o.z, d = Math.hypot(dx, dz), m = c.fr + o.fr;
+        if (d >= m || d < 1e-5) return;
+        const ux = dx / d, uz = dz / d, k = o.mass / (o.mass + c.mass);
+        c.x += ux * (m - d) * k; c.z += uz * (m - d) * k;
+        const rv = (c.vx - o.vx) * ux + (c.vz - o.vz) * uz;
+        if (rv < 0) { c.vx -= rv * ux * k * 1.4; c.vz -= rv * uz * k * 1.4; if (rv < -.3) { c.tiltV += (Math.random() - .5) * 8; c.rollV += (Math.random() - .5) * 6; } }
+      });
+      // nudge the present: it is light, so it slides away and the sheep barely slows down
+      if (c.hop < .2 + giftS.h) {
+        const dx = giftS.x - c.x, dz = giftS.z - c.z, d = Math.hypot(dx, dz), m = c.fr + GIFT_R;
+        if (d < m && d > 1e-5) {
+          const ux = dx / d, uz = dz / d, p = m - d;
+          giftS.x += ux * p * .8; giftS.z += uz * p * .8; c.x -= ux * p * .2; c.z -= uz * p * .2;
+          const rv = (c.vx - giftS.vx) * ux + (c.vz - giftS.vz) * uz;
+          if (rv > 0) { giftS.vx += ux * rv * 1.5; giftS.vz += uz * rv * 1.5; if (rv > .25) { giftS.tiltV += (Math.random() - .5) * rv * 20; giftS.hv += rv * .6; } }
+        }
+      }
       const rr = Math.hypot(c.x, c.z); if (rr > 1.35) { c.x *= 1.35 / rr; c.z *= 1.35 / rr; }
       c.hv -= 9 * dt; c.hop += c.hv * dt; if (c.hop < 0) { c.hop = 0; c.hv = Math.abs(c.hv) > 1 ? -c.hv * .3 : 0; }
       c.tiltV += (-c.tilt * 60 - c.tiltV * 5) * dt; c.tilt += c.tiltV * dt;
@@ -2226,8 +2553,6 @@ stage('#dome', (root, renderer, canvas) => {
       c.o.position.set(c.x, floorH(c.x, c.z) + c.yOff + c.hop + Math.abs(Math.sin(c.ph)) * .01, c.z);
       c.o.rotation.x = c.roll; c.o.rotation.z = c.tilt;
       c.col.x = c.x; c.col.z = c.z; c.col.y = c.o.position.y + c.colY;
-      // snow sitting on a sheep that moved slides off
-      if (Math.abs(c.x - ox) + Math.abs(c.z - oz) > .002 || c.hop > 0) for (let i = 0; i < NP; i++) if (rest[i]) { const ex = pos[i * 3] - c.x, ez = pos[i * 3 + 2] - c.z; if (ex * ex + ez * ez < c.col.r * c.col.r && pos[i * 3 + 1] > floorH(pos[i * 3], pos[i * 3 + 2]) + .03) rest[i] = 0; }
     });
     // the gift box hops and the snowman's hat pops up
     giftS.hv -= 9 * dt; giftS.h += giftS.hv * dt; if (giftS.h < 0) { giftS.h = 0; giftS.hv = Math.abs(giftS.hv) > .8 ? -giftS.hv * .35 : 0; }
@@ -2240,8 +2565,14 @@ stage('#dome', (root, renderer, canvas) => {
       giftS.vx *= Math.pow(.15, dt); giftS.vz *= Math.pow(.15, dt);
       giftS.x += giftS.vx * dt; giftS.z += giftS.vz * dt;
       const gr = Math.hypot(giftS.x, giftS.z); if (gr > 1.45) { giftS.x *= 1.45 / gr; giftS.z *= 1.45 / gr; giftS.vx *= -.3; giftS.vz *= -.3; }
-      // bump the sheep
-      critters.forEach(c => { const dx = giftS.x - c.x, dz = giftS.z - c.z, d = Math.hypot(dx, dz), m = c.col.r + .2; if (d < m && d > 1e-4) { giftS.x = c.x + dx / d * m; giftS.z = c.z + dz / d * m; } });
+      // the present bumps into the cottage, trees, snowman, sign and the sheep
+      const P = pushOut(giftS.x, giftS.z, GIFT_R, giftS.h);
+      if (P.hit) {
+        giftS.x = P.x; giftS.z = P.z;
+        const vn = giftS.vx * P.nx + giftS.vz * P.nz;
+        if (vn < 0) { giftS.vx -= vn * P.nx * 1.4; giftS.vz -= vn * P.nz * 1.4; if (vn < -.25) { giftS.tiltV += (Math.random() - .5) * -vn * 18; bumped(null, P.hit, -vn * .6); } }
+      }
+      critters.forEach(c => { if (c.hop > .2 + giftS.h) return; const dx = giftS.x - c.x, dz = giftS.z - c.z, d = Math.hypot(dx, dz), m = c.fr + GIFT_R; if (d < m && d > 1e-4) { giftS.x = c.x + dx / d * m; giftS.z = c.z + dz / d * m; } });
       gift.position.x = giftS.x; gift.position.z = giftS.z; giftS.base = floorH(giftS.x, giftS.z) - .01;
       giftCol.x = giftS.x; giftCol.z = giftS.z; giftCol.top = giftS.base + gs * 1.6 + giftS.h; }
     gift.position.y = giftS.base + giftS.h; gift.rotation.z = giftS.tilt; gift.rotation.y += giftS.spin * dt;
@@ -2249,25 +2580,70 @@ stage('#dome', (root, renderer, canvas) => {
     hatS.tiltV += (-hatS.tilt * 50 - hatS.tiltV * 4) * dt; hatS.tilt += hatS.tiltV * dt;
     hatS.h = Math.min(hatS.h, .45); if (hatS.h >= .45 && hatS.hv > 0) hatS.hv = -hatS.hv * .3;
     hatG.position.y = .54 + hatS.h; hatG.rotation.z = hatS.tilt; hatG.rotation.x = hatS.tilt * .6;
+    // flakes: each one relaxes toward (water velocity + its own sinking speed + flutter); they settle on whatever is below,
+    // slide off when what held them moves away, get kicked up when something moves into them and are swept up again by fast water
+    const relax = 1 - Math.exp(-dt / .2), tiltS = Math.hypot(gx, gz);
+    // each flake also drifts a little on its own (more while the water is stirred), so neighbours don't stay in lock-step
+    const wSpin = Math.hypot(W.x, W.y, W.z), jit = (.03 + .35 * W.turb + .08 * wSpin) * Math.sqrt(dt) * 3.4, RIN2 = RIN * RIN;
+    const k1 = W.k1, k2 = W.k2, P = W.p;
+    // settled flakes are checked on every 3rd frame only (a third of them each frame), which keeps 5600 flakes cheap
+    snowFC = (snowFC + 1) % 3; const rdt = dt * 3;
     for (let i = 0; i < NP; i++) {
+      if (rest[i] && (i + snowFC) % 3) continue;
       const ix = i * 3;
       let x = pos[ix], y = pos[ix + 1], z = pos[ix + 2];
       let vx = vel[ix], vy = vel[ix + 1], vz = vel[ix + 2];
-      if (!rest[i]) {
-        // gravity follows the tilt of the globe, and turning the globe sloshes the snow the other way
-        vx += gx * dt; vy += gy * dt; vz += gz * dt;
-        vx += (dRZ * (y - CY)) * slosh * .35; vy += (-dRZ * x + dRX * z) * slosh * .35; vz += (-dRX * (y - CY)) * slosh * .35;
-        const drg = Math.pow(.25, dt); vx *= drg; vy *= drg; vz *= drg;
-        vx += -z * swirl * dt; vz += x * swirl * dt;
-        vx += Math.sin(t * 1.3 + i) * .02 * dt; vz += Math.cos(t * 1.1 + i) * .02 * dt;
-        const py = y;
-        x += vx * dt; y += vy * dt; z += vz * dt;
-        const ry = y - CY, rr = Math.sqrt(x * x + ry * ry + z * z);
-        if (rr > RIN) { const k = RIN / rr; x *= k; z *= k; y = CY + ry * k; vx *= -.3; vy *= -.3; vz *= -.3; }
-        // land on whatever is below: roofs, the sheep's back, tree tops, the snowman's hat, or the floor
+      const ry0 = y - CY;
+      // water velocity here: spin (W × r), fading to zero at the glass (water clings to the wall, so flakes are not
+      // flung into one stream along it) + a two-scale divergence-free wobble (each component ignores its own axis)
+      const tb = W.turb, ns = Math.max(0, 1 - (x * x + ry0 * ry0 + z * z) / RIN2) * 1.4;
+      const ux = (W.y * z - W.z * ry0) * ns + tb * (.65 * Math.sin(k1 * (1.7 * ry0 + 2.1 * z) + P[0] + t * 1.1) + .35 * Math.sin(k2 * (1.3 * ry0 - 1.6 * z) + P[3] + t * 1.7));
+      const uy = (W.z * x - W.x * z) * ns + tb * .8 * (.65 * Math.sin(k1 * (1.9 * z + 1.3 * x) + P[1] + t * .9) + .35 * Math.sin(k2 * (1.5 * x - 1.2 * z) + P[4] + t * 1.5));
+      const uz = (W.x * ry0 - W.y * x) * ns + tb * (.65 * Math.sin(k1 * (1.5 * x + 1.8 * ry0) + P[2] + t * 1.3) + .35 * Math.sin(k2 * (1.4 * ry0 - 1.7 * x) + P[5] + t * 1.9));
+      if (rest[i]) {
         const h = surfaceH(x, z);
-        if (vy <= 0 && y <= h && (py >= h - .02 || h - y < .06 || h <= floorH(x, z) + .001)) { y = h + .006; vx = vy = vz = 0; rest[i] = 1; }
-        else if (y < floorH(x, z)) { y = floorH(x, z) + .006; vx = vy = vz = 0; rest[i] = 1; }
+        if (y > h + .03) rest[i] = 0;                                                     // its support moved away: fall
+        else if (y < h - .015) {
+          // something moved into it. A sheep walking through floor snow ploughs it aside (now and then a little puff);
+          // anything else (the present hopping, the hat landing) tosses it up
+          const c = y < floorH(x, z) + .03 && critters.find(c => (x - c.x) ** 2 + (z - c.z) ** 2 < (c.fr + .15) ** 2);
+          if (c) {
+            const dx = x - c.x, dz = z - c.z, d = Math.hypot(dx, dz) || 1, m = c.fr + .03;
+            x = c.x + dx / d * m; z = c.z + dz / d * m; y = floorH(x, z) + .006;
+            if (Math.random() < .12) { rest[i] = 0; vy = .12 + Math.random() * .15; vx = dx / d * .2; vz = dz / d * .2; }
+          } else { y = h + .01; rest[i] = 0; vy = .2 + Math.random() * .3; vx = (Math.random() - .5) * .25; vz = (Math.random() - .5) * .25; }
+        }
+        else if (Math.hypot(ux, uy, uz) > .3 + vt[i] && Math.random() < rdt * 6) { rest[i] = 0; vy = .15; }   // swept up by the water
+        else if (tiltS > .3 && Math.random() < (tiltS - .3) * rdt * 3) { rest[i] = 0; }   // steep tilt: it slides
+        if (rest[i]) { pos[ix] = x; pos[ix + 1] = y; pos[ix + 2] = z; continue; }
+      }
+      const fa = vt[i] * .7, fs = Math.sin(t * flF[i] + flP[i]) * fa, fc = Math.cos(t * flF[i] * .77 + flP[i] * 1.3) * fa;
+      // overturn: u_ρ = A·ρ·h/R², u_y = A·(1 − (2ρ² + h²)/R²) — divergence-free and tangent to the glass
+      const A = W.up, ho = A * ry0 / RIN2, uyo = A * (1 - (2 * (x * x + z * z) + ry0 * ry0) / RIN2);
+      vx += (ux + x * ho + gx * vt[i] + fs - vx) * relax;
+      vy += (uy + uyo + gy * vt[i] - vy) * relax;
+      vz += (uz + z * ho + gz * vt[i] + fc - vz) * relax;
+      vx += (Math.random() - .5) * jit; vy += (Math.random() - .5) * jit * .6; vz += (Math.random() - .5) * jit;
+      const px = x, py = y, pz = z;
+      x += vx * dt; y += vy * dt; z += vz * dt;
+      // glass: stay inside, lose the outward part of the velocity, slide along the wall with a little friction
+      const ry = y - CY, rr = Math.sqrt(x * x + ry * ry + z * z);
+      if (rr > RIN) {
+        const nx = x / rr, ny = ry / rr, nz = z / rr; x = nx * RIN; y = CY + ny * RIN; z = nz * RIN;
+        const vn = vx * nx + vy * ny + vz * nz; if (vn > 0) { vx -= vn * nx * 1.15; vy -= vn * ny * 1.15; vz -= vn * nz * 1.15; }
+        vx *= .85; vy *= .85; vz *= .85;
+      }
+      // a thin layer of still water at the glass nudges flakes back into the open
+      { const wall = rr - (RIN - .12); if (wall > 0) { const k = wall * 3.5 / (rr || 1); vx -= x * k; vy -= ry * k; vz -= z * k; } }
+      // land on whatever is below: roofs, the sheep's back, tree tops, the snowman's hat, the present, or the floor
+      const fh = floorH(x, z), h = surfaceH(x, z);
+      if (y <= h) {
+        if (h <= fh + .001 || ((py >= h - .02 || h - y < .05) && vy <= .05)) { y = h + .006; vx = vy = vz = 0; rest[i] = 1; }
+        else {
+          // came in from the side: bounce off the wall instead of passing through
+          x = px; z = pz; vx *= -.25; vz *= -.25;
+          const h2 = surfaceH(x, z); if (y < h2) { y = h2 + .006; vx = vy = vz = 0; rest[i] = 1; }
+        }
       }
       pos[ix] = x; pos[ix + 1] = y; pos[ix + 2] = z; vel[ix] = vx; vel[ix + 1] = vy; vel[ix + 2] = vz;
     }
@@ -2285,6 +2661,7 @@ stage('#dome', (root, renderer, canvas) => {
     camera.updateProjectionMatrix(); snow.fit(renderer, camera, h);
   }
   fontsReady.then(() => { texPlate._redraw(); texSign._redraw(); });
+  root._dm = { pos, rest, W, critters, giftS, OBS, pushOut, surfaceH, shake };   // test hook
   return { scene, camera, frame, resize, onMode() { resize(root.clientWidth, root.clientHeight); } };
 });
 window.NENGA.fx = { SND, tone, play, sfx, soundButton, buzz, shakeEl, popEl };

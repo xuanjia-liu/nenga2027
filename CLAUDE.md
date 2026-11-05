@@ -16,6 +16,7 @@ npm test -- mochi omikuji     # only some demos (ids: shear count gacha post flo
 python3 tools/embed_assets.py # after changing assets/count/*.webp or blender/*.glb
 python3 tools/process_sfx.py # picks.json + bgm.json + candidates (audio-studio MCP takes) → assets/sfx/*.mp3, bgm/*.mp3, generated/sfx.js + bgm.js
 python3 tools/process_count_assets.py   # re-crop/grade the 「ひつじを数えて」 painted PNGs (Pillow + numpy)
+python3 tools/fuku_art.py     # split assets/source/fukuwarai.svg (user's sprite sheet) → generated/fuku_art.js (head + 6 parts)
 PYBPY=python3 tools/blender_export.sh   # re-export Blender models (bpy module) — or plain `blender` on PATH
 npm run serve                 # http://localhost:8027/preview.html
 ```
@@ -69,7 +70,7 @@ docs/references/     reference images the user gave for recent redesigns
   Sound = sampled one-shots: `NENGA.snd.play(name, {vol, rate, delay, offset, dur, exact})` / `NENGA.snd.sfx.*`; decoded on first sound-ON.
   Every play picks a random take (never the same twice) with ±4% pitch / −15% volume unless `exact` (the mochi metronome).
   Each demo has a background loop, played only for the demo filling the screen; `bgmDuck(id, k)` turns it down (mochi in play).
-  Demos without a sound button in their bar get the round `.snd-ico js-snd` toggle (top-right); all toggles share one setting.
+  Every demo uses the same round `.snd-ico js-snd` toggle, top-right (first child of the `.scr` root); all toggles share one setting. PC `.pcbrand` / `.mc-ny` labels sit at `right:84px` to clear it.
 - Every interaction needs clear feedback; "tap anywhere" is preferred over tiny buttons, with a subtle cursor follower on PC.
 - Text must never overflow (see omikuji `fitSheet()` auto-shrink).
 
@@ -77,23 +78,25 @@ docs/references/     reference images the user gave for recent redesigns
 
 | id | Demo | Notes |
 |---|---|---|
-| A `#shear` | 社長のメェ〜ッセージ | shear wool tufts (Matter.js), sneeze sequence blows wool off the message |
+| A `#shear` | 社長のメェ〜ッセージ | shear wool tufts (Matter.js), sneeze sequence blows wool off the message; a sneeze also strips the attached fleece near the head (any time, tap the face to sneeze) |
 | B `#count` | ひつじを数えて、2027匹 (本命) | painted assets (sky/moon/hill/fence) + sheep **rig of parts** (body/head/4 legs, CSS-animated, hip pivots); 2022-sheep Matter.js finale on the hill ridge; message paragraphs with navy text-shadow |
 | C `#gacha` | 「羊＋大＝美」漢字ガチャ | Blender machine (clear-coat blue, chrome, gold, ram horns); draggable capsules; rarity reveal modal |
 | D `#post` | 未来ポスト | Japanese red post box, light-grey envelope, type directly on the 3D letter (ghost textarea) |
-| E `#flock` | 群れで描く「2027」 | ~480 instanced sheep form 2027 → bravesoft mark → eventos ロゴ; tap = next shape; green 新春 pasture |
+| E `#flock` | 群れで描く「2027」 | ~480 instanced sheep form 2027 → bravesoft mark → eventos ロゴ; tap = next shape; green 新春 pasture; every camera change is an eased swoop (`shotChange`); mouse hover reactions in random moods (scatter / wave / curious / domino / mixed: hop, spin, faint, shake, boing, baa) with speech bubbles; touch = poke at the tap |
 | F `#popup` | 飛び出すひつじカード | 5-spread pop-up book |
-| G `#dome` | ひつじスノードーム | Blender base/cottage/pines/gift; procedural sheep with smooth small-curl wool (`makeSheep({smooth:true})`), legs pivot at the hip |
+| G `#dome` | ひつじスノードーム | Blender base/cottage/pines/gift; procedural sheep with smooth small-curl wool (`makeSheep({smooth:true})`), legs pivot at the hip; 5600 flakes carried by a water model (spin that fades to 0 at the glass + Hill's-vortex overturn + two-scale turbulence re-rolled per shake + per-flake jitter, all decaying) and sinks at per-flake speed with flutter, rests on colliders and slides/kicks off when they move; sheep + gift collide with footprints in `OBS` (`pushOut`), trees sway and shed snow when bumped |
 | H `#omikuji` | ひつじみくじ | Blender hex tube; grab & shake (spring + inertia), flip, verlet stick drop; circular dark wipe; notched fortune card |
-| I `#fuku` | ひつじ福笑い | blindfold (blue 豆絞り), place parts, reveal + score |
-| J `#mochi` | ぺったん餅つき | voxel stage; ring cycle: big red ring = lamb's hand in (あぶない), shrinking blue → white in zone → hit on the beat; judgements PERFECT/GOOD/EARLY・LATE/MISS/DANGER with hit-stop, zoom punch, speed lines, cube springs, floor wave, combo banners, FEVER ×1.5; mochi cubes regroup into 鏡餅 |
+| I `#fuku` | ひつじ福笑い | blindfold (blue 豆絞り), place parts, reveal + score; art = user's sprite sheet (`window.NENGA_FUKU`, sheet units), part targets in `TARGET` in jp.js |
+| J `#mochi` | ぺったん餅つき | voxel stage; ring cycle: big red ring = lamb's hooves in (あぶない), shrinking yellow → green in zone → hit on the beat (solid rings with navy outline, pink in FEVER); helper lamb is a rig (hind legs / torso pivoting at the hip / head / front legs) that walks to the mortar, stands on its hind legs and puts its front hooves on the mochi; judgements PERFECT/GOOD/EARLY・LATE/MISS/DANGER with hit-stop then slow-mo (`slowmo(dur, min)`, visuals only — beat clock stays real-time), zoom punch, speed lines, cube springs, floor wave, combo banners, FEVER ×1.5; mochi cubes regroup into 鏡餅 |
 
 Removed at the user's request (don't bring back): 社長から通知が届く, 2027.1.1 アップデート, 全員ひつじ化 集合写真, 返し年賀状メーカー, ひつじ書き初め.
 
 ## Testing notes
 
 - Headless Chromium uses SwiftShader: WebGL runs at ~1–5 fps. Screenshots are fine; rhythm timing, physics feel, sound and
-  haptics must be checked on a real device. `#mochi` exposes a test hook `root._mc` (`hit(q)`, `setProg(v)`, `beat`).
+  haptics must be checked on a real device. `#mochi` exposes a test hook `root._mc` (`hit(q)`, `setProg(v)`, `beat`, `lamb`, `legs`, `testHand = 0..1`).
+- `#dome` test hook `root._dm` (`pos`, `rest`, `W`, `critters`, `OBS`, `pushOut`, `surfaceH`, `shake`).
+- `#flock` test hook `root._fl` (`pokeAt(x, z, mood)`, `cam`, `tween()`, `hov`).
 - Pause WAAPI animations (`document.getAnimations().forEach(a => a.pause())`) before screenshotting transient effects.
 
 ## Open ideas / TODO

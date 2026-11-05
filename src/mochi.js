@@ -182,27 +182,68 @@ N3.stage('#mochi', (r, renderer, cv) => {
   [[-.02, .13], [.24, -.13]].forEach(([x, z]) => kineCells.push({ x, y: 0, z, s: .22, c: hex(DARK) }));   // hooves on the grip
   const kineV = vox(kineCells, kine, { k: 240, d: 12 });
 
-  /* ---------- the helper lamb (four legs, like the reference) who turns the mochi between beats ---------- */
-  const LB = new T.Group(); LB.position.set(2.7, 0, -1.25); LB.rotation.y = -1.85; world.add(LB); LB.updateMatrixWorld(true);
-  const lambCells = [], CL = .15;
-  [[-.24, -.16], [-.24, .16], [.22, -.16], [.22, .16]].forEach(([x, z]) => [0, 1].forEach(y => lambCells.push({ x, y: .075 + y * CL, z, s: CL, c: hex(DARK) })));
-  roundBox(lambCells, 0, .62, 0, .5, .36, .38, CL);
-  [[.0, -.08], [.12, .08], [-.1, .06]].forEach(([x, z]) => lambCells.push({ x, y: 1.0, z, s: .16, c: hex(0xFFFFFF) }));
-  makeHead(LB, .5, .92, 0, .46, .44, .5);
-  [-1, 1].forEach(s => lambCells.push({ x: .4, y: .98, z: s * .32, s: .14, c: hex(DARK) }));
-  const lambV = vox(lambCells, LB, { k: 160, d: 10 });
-  // arm: dark cubes with a white tenugui-wrapped hoof, from the lamb's shoulder toward the mochi
-  const arm = new T.Group(); world.add(arm);
-  const armCells = []; for (let k = 0; k < 9; k++) armCells.push({ x: k * .14, y: 0, z: 0, s: .15, c: hex(k > 6 ? 0xFFFFFF : DARK) });
-  const armV = vox(armCells, arm, { k: 200, d: 12 });
-  const SHOULDER = LB.localToWorld(new T.Vector3(.36, .7, 0)), REACH = new T.Vector3(U.x + .1, MOCHI_TOP - .05, U.z - .05);
-  arm.position.copy(SHOULDER);
+  /* ---------- the helper lamb who turns the mochi between beats ----------
+     Built from parts so it can move like an animal: hind legs stay planted, the torso (body, wool, head, front legs)
+     pivots at the hip. While the game runs it walks up to the mortar and stands on its hind legs; on each beat's
+     "hand in" window it leans over the rim and puts both front hooves (wrapped in white tenugui) on the mochi. */
+  const LS = 1.3, CL = .15;                                  // lamb scale, cube size
+  const LB = new T.Group(); LB.scale.setScalar(LS); world.add(LB);
+  const LB_HOME = new T.Vector3(2.7, 0, -1.25), LB_YAW0 = -1.85;
+  // it works from the mortar's right-hand side, so the camera sees it side-on (front legs and hooves against the mochi)
+  const toLamb = new T.Vector3(1, 0, -.3).normalize();
+  const LB_YAW1 = Math.atan2(toLamb.z, -toLamb.x);        // facing the mortar (local +x → toward its centre)
+  const HIP = new T.Vector3(-.24, .45, 0), SHO = new T.Vector3(.22, .45, 0), NECK = new T.Vector3(.36, .8, 0), LEG = .45;
+  const HIP_D = 1.5;                                          // hip's distance from the mortar's axis while standing beside it
+  const LB_NEAR = new T.Vector3(U.x, 0, U.z).addScaledVector(toLamb, HIP_D + HIP.x * LS);   // origin there (hip is behind the origin)
+  // hind legs (planted)
+  const hindCells = [];
+  [-.16, .16].forEach(z => [0, 1, 2].forEach(y => hindCells.push({ x: HIP.x, y: .075 + y * CL, z, s: CL, c: hex(DARK) })));
+  const hindV = vox(hindCells, LB, { k: 160, d: 10 });
+  // torso: pivots at the hip; cells are relative to the hip
+  const torso = new T.Group(); torso.position.copy(HIP); LB.add(torso);
+  const torsoCells = [];
+  roundBox(torsoCells, -HIP.x, .62 - HIP.y, 0, .5, .36, .38, CL);
+  [[.0, -.08], [.12, .08], [-.1, .06]].forEach(([x, z]) => torsoCells.push({ x: x - HIP.x, y: 1.0 - HIP.y, z, s: .16, c: hex(0xFFFFFF) }));
+  const torsoV = vox(torsoCells, torso, { k: 160, d: 10 });
+  // head: pivots at the neck so it can keep looking at the mochi while the body rears up
+  const headG = new T.Group(); headG.position.copy(NECK).sub(HIP); torso.add(headG);
+  makeHead(headG, .5 - NECK.x, .92 - NECK.y, 0, .46, .44, .5);
+  const headV = vox([-1, 1].map(s => ({ x: .4 - NECK.x, y: .98 - NECK.y, z: s * .32, s: .14, c: hex(DARK) })), headG, { k: 160, d: 10 });
+  // front legs: pivot at the shoulder, hang along local -y; a white tenugui band above the dark hoof
+  const legs = [-.16, .16].map(z => {
+    const g = new T.Group(); g.position.set(SHO.x - HIP.x, SHO.y - HIP.y, z); torso.add(g);
+    const v = vox([0, 1, 2].map(k => ({ x: 0, y: -.075 - k * CL, z: 0, s: CL, c: hex(k === 1 ? 0xFFFFFF : DARK) })), g, { k: 200, d: 12 });
+    return { g, v, z };
+  });
+  // where the hooves go: on the mochi just inside the rim, on the lamb's side (world), one per leg
+  const hoofAt = (r, side) => { const perp = new T.Vector3(-toLamb.z, 0, toLamb.x);
+    return new T.Vector3(U.x, MOCHI_Y + MR * .62 * Math.sqrt(Math.max(0, 1 - (r / MR) ** 2)) - .02, U.z).addScaledVector(toLamb, r).addScaledVector(perp, side * .3); };
+  const HOOF = legs.map(l => hoofAt(.66, -Math.sign(l.z)));   // local +z points to -perp in world
+  // stance helpers: torso pitch while standing up (waiting) and while reaching (solved so the legs just reach the hooves' spot)
+  const PITCH_UP = 1.3;
+  let PITCH_REACH = 1.0;
+  { // with the lamb at LB_NEAR, pick the pitch whose shoulder→hoof distance is closest to the leg length
+    const tgtD = (HIP_D - .66) / LS, tgtY = (HOOF[0].y) / LS - HIP.y;   // hoof relative to the hip, in lamb units (x toward the mortar)
+    let best = 1e9;
+    for (let ph = 1.05; ph <= 1.5; ph += .01) {   // never lean further than this: the front legs reach, the face stays back from the mortar
+      const sx = (SHO.x - HIP.x) * Math.cos(ph), sy = (SHO.x - HIP.x) * Math.sin(ph), d = Math.abs(Math.hypot(tgtD - sx, tgtY - sy) - LEG);
+      if (d < best) { best = d; PITCH_REACH = ph; }
+    }
+  }
+  let ready = 0, testHand = null;   // testHand: test hook override for the lamb's reach (0–1)
+  const _v = new T.Vector3();
 
   /* ---------- rings, steam, debris ---------- */
-  const ringMat = c => new T.MeshBasicMaterial({ color: c, transparent: true, opacity: .9, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide });
-  const target = new T.Mesh(new T.RingGeometry(.93, 1.0, 64), ringMat(0x7FE0FF)); target.rotation.x = -Math.PI / 2; target.position.set(U.x, MOCHI_TOP + .03, U.z); world.add(target);
+  // ring colours are picked to stand out from the blue floor and the white mochi: solid (not additive) strokes with a
+  // navy outline underneath; yellow while closing in, green = tap now, red = あぶない, pink in FEVER
+  const RC = { idle: 0xFFE14A, hit: 0x22E07A, danger: 0xFF3344, fever: 0xFF5FD2, base: 0xFFFFFF, line: 0x0B1C3F };
+  const ringMat = (c, add = true) => new T.MeshBasicMaterial({ color: c, transparent: true, opacity: .9, blending: add ? T.AdditiveBlending : T.NormalBlending, depthWrite: false, side: T.DoubleSide });
+  const flat = (m, y = 0) => { m.rotation.x = -Math.PI / 2; m.position.set(U.x, MOCHI_TOP + .03 + y, U.z); world.add(m); return m; };
+  const targetLine = flat(new T.Mesh(new T.RingGeometry(.9, 1.03, 64), ringMat(RC.line, false)), -.003); targetLine.material.opacity = .6;
+  const approachLine = flat(new T.Mesh(new T.RingGeometry(.92, 1.07, 64), ringMat(RC.line, false)), -.002); approachLine.material.opacity = .6;
+  const target = new T.Mesh(new T.RingGeometry(.93, 1.0, 64), ringMat(RC.base, false)); target.rotation.x = -Math.PI / 2; target.position.set(U.x, MOCHI_TOP + .03, U.z); world.add(target);
   const targetGlow = new T.Mesh(new T.RingGeometry(.86, 1.08, 64), ringMat(0x3FA0FF)); targetGlow.rotation.x = -Math.PI / 2; targetGlow.position.copy(target.position); targetGlow.material.opacity = .25; world.add(targetGlow);
-  const approach = new T.Mesh(new T.RingGeometry(.95, 1.04, 64), ringMat(0x9FEAFF)); approach.rotation.x = -Math.PI / 2; approach.position.copy(target.position); world.add(approach);
+  const approach = new T.Mesh(new T.RingGeometry(.95, 1.04, 64), ringMat(RC.idle, false)); approach.rotation.x = -Math.PI / 2; approach.position.copy(target.position); world.add(approach);
   const approachGlow = new T.Mesh(new T.RingGeometry(.88, 1.12, 64), ringMat(0x3FA0FF)); approachGlow.rotation.x = -Math.PI / 2; approachGlow.position.copy(target.position); approachGlow.material.opacity = .2; world.add(approachGlow);
   const zone = new T.Mesh(new T.RingGeometry(.86, 1.24, 64), ringMat(0x7FE0FF)); zone.rotation.x = -Math.PI / 2; zone.position.copy(target.position); zone.position.y -= .005; zone.material.opacity = .12; world.add(zone);
   const starTex2 = N3.canvasTex(256, 256, (g, w) => { const c = w / 2; const gr = g.createRadialGradient(c, c, 0, c, c, c); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.25, 'rgba(200,240,255,.6)'); gr.addColorStop(1, 'rgba(120,200,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, w);
@@ -251,7 +292,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
 
   /* ---------- game state ---------- */
   let missedUpTo = -1, state = 'idle', t0 = 0, now = 0, period = .92, prog = 0, combo = 0, maxCombo = 0, shown = 0, lastBeat = -1, judgedBeat = -1;
-  let swingT = 9, hitStop = 0, shakeA = 0, squashV = 0, squashY = 0, flashT = 0, doneT = 0, fever = false;
+  let swingT = 9, hitStop = 0, slowT = 0, slowDur = 1, slowMin = 1, slowAmt = 0, shakeA = 0, squashV = 0, squashY = 0, flashT = 0, doneT = 0, fever = false;
   const stats = { perfect: 0, good: 0, weak: 0, miss: 0, danger: 0 };
   const beatAt = n => t0 + n * period;
   const phase = () => (now - t0) / period;                         // beat n happens at integer phases
@@ -270,7 +311,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     finalEl.hidden = true; msgEl.classList.remove('on'); updHud();
     mikanV.mesh.visible = false; mochiV.cells.forEach((c, i) => { mochiV.sc[i] = 1; c.x = c.bx; c.y = c.by; c.z = c.bz; });
     setMochiLook(0);
-    btn.textContent = 'ぺったん!'; howEl.innerHTML = '<b>青い輪</b>が重なった<br>瞬間にタップ';
+    btn.textContent = 'ぺったん!'; howEl.innerHTML = '<b>黄色い輪</b>が重なった<br>瞬間にタップ';
     judge('よーい…', '', 'weak', 900);
   }
   function updHud() {
@@ -349,18 +390,18 @@ N3.stage('#mochi', (r, renderer, cv) => {
     shakeA = Math.max(shakeA, .12 * P);
     if (q === 'danger') {
       stats.danger++; combo = 0; fever = false; root.classList.remove('fever');
-      kick(lambV, 0, .8, 0, 4, 2, 1.4, .5); armRecoil = 1; rebound = 1; shakeA = .3;
+      kick(torsoV, .3, .3, 0, 4, 2, 1.4, .5); armRecoil = 1; rebound = 1; shakeA = .3;
       judge('あぶない!', 'こひつじの手が！', 'danger', 1000); vignette('danger'); buzz([50, 40, 50]);
       fx2d('danger');
       play('mc_danger', { vol: .7 });
       updHud(); return;
     }
     let gain = 0;
-    if (q === 'perfect') { stats.perfect++; combo++; gain = 7; hitStop = .11; judge('ぺったん!', combo > 1 ? `PERFECT ・ ${combo} COMBO` : 'PERFECT', 'perfect', 900); flash('#FFFFFF', .5); buzz(35);
+    if (q === 'perfect') { stats.perfect++; combo++; gain = 7; hitStop = .11; slowmo(.5, .2); judge('ぺったん!', combo > 1 ? `PERFECT ・ ${combo} COMBO` : 'PERFECT', 'perfect', 900); flash('#FFFFFF', .5); buzz(35);
       burst(top, 34, fever ? [0xFFFFFF, 0xFFE94A, 0xFFB800] : [0xFFFFFF, 0xF3F1EA, 0x9FEAFF, 0x3FA0FF], 3.4, .13, 5.5); shock.material.opacity = 1; shock.scale.setScalar(.6); shockT = 0;
       zoomP = .09; starT = 0; starK = 1.2; sheepHop = 1; shakeA = .22; fx2d('perfect');
       play('mc_pound', { vol: 1 }); play('mc_kiran', { vol: .5, rate: lift() }); play('mc_good', { vol: .45, rate: 1.19 * lift(), delay: .03 }); }
-    else if (q === 'good') { stats.good++; combo++; gain = 4.5; hitStop = .05; judge('いいね!', combo > 1 ? `GOOD ・ ${combo} COMBO` : 'GOOD', 'good', 750); buzz(20);
+    else if (q === 'good') { stats.good++; combo++; gain = 4.5; hitStop = .05; slowmo(.34, .4); judge('いいね!', combo > 1 ? `GOOD ・ ${combo} COMBO` : 'GOOD', 'good', 750); buzz(20);
       burst(top, 16, [0xFFFFFF, 0xF3F1EA, 0x9FEAFF], 2.4, .11, 3.8); zoomP = .045; starT = 0; starK = .7; fx2d('good'); play('mc_pound', { vol: .85, rate: .98 }); play('mc_good', { vol: .55, rate: lift(), delay: .01 }); }
     else if (q === 'early' || q === 'late') { stats.weak++; combo = 0; gain = 1.5; judge(q === 'early' ? 'はやい' : 'おそい', q === 'early' ? '◀ EARLY' : 'LATE ▶', 'weak', 620); buzz(8);
       burst(top, 5, [0xF3F1EA], 1.4, .08, 2); zoomP = .015; play('mc_pound', { vol: .45, rate: 1.1 }); }
@@ -377,6 +418,10 @@ N3.stage('#mochi', (r, renderer, cv) => {
     updHud();
     if (prog >= 100) finish();
   }
+  // slow motion after a solid hit: animation time drops to `min` and eases back to full speed over `dur` seconds.
+  // Only the picture slows down (cube springs, particles, squash, the swing, the camera punch) — the beat clock,
+  // the rings and the judgement windows keep real time, so the rhythm never drifts.
+  function slowmo(dur, min) { slowDur = slowT = dur; slowMin = min; }
   // reward sparkles climb a little in pitch as the combo builds (up to ~a minor third at 10)
   function lift() { return 1 + Math.min(combo, 10) * .019; }
   function showLine(i) {
@@ -422,7 +467,11 @@ N3.stage('#mochi', (r, renderer, cv) => {
   let lastT = 0;
   function frame(dt, t) {
     dt = dt || 0; now = t; if (!lastT) lastT = t;
-    if (hitStop > 0) { hitStop -= dt; dt *= .05; }     // brief freeze-frame on a solid hit
+    if (hitStop > 0) { hitStop -= dt; dt *= .05; slowAmt = 1; }     // brief freeze-frame on a solid hit…
+    else if (slowT > 0) {                                             // …then slow motion easing back to normal speed
+      slowT = Math.max(0, slowT - dt); const u = 1 - slowT / slowDur;
+      dt *= slowMin + (1 - slowMin) * u * u; slowAmt = 1 - u;
+    } else slowAmt = 0;
     // beats: tick + miss detection
     if (state === 'play' && now >= t0 - .001) {
       const n = Math.floor(phase() + .5);
@@ -454,28 +503,48 @@ N3.stage('#mochi', (r, renderer, cv) => {
     SH.rotation.z = -clamp((RA - ang) / 1.5, 0, 1) * .12;
     SH.position.y = Math.sin(sheepHop * Math.PI) * .25 + (playing ? Math.abs(Math.sin(t * Math.PI / period)) * .03 : Math.sin(t * 2) * .02);
     sheepHead.rotation.z = Math.sin(t * 3) * .03 + (danger ? .08 : 0);
-    // lamb hand: reaches in while the ring is big
-    const hand = handIn() * (1 - armRecoil);
+    // the lamb: walks up to the mortar and stands on its hind legs while the game runs; on each "hand in" window it
+    // leans over the rim and puts both front hooves on the mochi. あぶない → it jerks its hooves back and hops.
+    const hand = (testHand == null ? handIn() : testHand) * (1 - armRecoil);
     armRecoil = Math.max(0, armRecoil - dt * 2.5);
-    const dir = REACH.clone().sub(SHOULDER), len = dir.length();
-    arm.quaternion.setFromUnitVectors(new T.Vector3(1, 0, 0), dir.normalize());
-    arm.scale.set(.15 + (len / (9 * .14) - .15) * hand, 1, 1);
-    LB.position.y = Math.abs(Math.sin(t * Math.PI / period + 1.2)) * .03 + Math.sin(Math.min(1, armRecoil * 1.2) * Math.PI) * .45;
+    ready += ((state === 'play' ? 1 : 0) - ready) * Math.min(1, dt * 2.2);
+    const rear = clamp(ready * 1.7, 0, 1), walk = clamp((ready - .25) / .75, 0, 1), ew = walk * walk * (3 - 2 * walk);
+    LB.position.lerpVectors(LB_HOME, LB_NEAR, ew);
+    LB.rotation.y = LB_YAW0 + (LB_YAW1 - LB_YAW0) * clamp(ready * 1.4, 0, 1);
+    const stepBob = ready > .02 && ready < .98 ? Math.abs(Math.sin(t * 14)) * .05 : 0;
+    LB.position.y = stepBob + Math.abs(Math.sin(t * Math.PI / period + 1.2)) * .02 + Math.sin(Math.min(1, armRecoil * 1.2) * Math.PI) * .4;
+    const eh = hand * hand * (3 - 2 * hand);
+    const pitch = rear * (PITCH_UP + (PITCH_REACH - PITCH_UP) * eh) + Math.sin(t * 2.4) * .03 * rear;
+    torso.rotation.z = pitch;
+    headG.rotation.z = -pitch * .75 + Math.sin(t * 3) * .04;                // keep looking at the mochi
+    LB.updateMatrixWorld(true);
+    legs.forEach((l, k) => {
+      // rest: hanging along the torso (standing on four legs it is straight down; reared up it is a "begging" paw)
+      // reach: aim the leg at its hoof spot; length follows the distance (only a few % either way)
+      _v.copy(HOOF[k]); l.g.parent.worldToLocal(_v); _v.sub(l.g.position);
+      const aim = Math.atan2(_v.x, -_v.y), len = clamp(Math.hypot(_v.x, _v.y) / LEG, .8, 1.2);
+      const beg = rear * (.35 + Math.sin(t * 5 + k) * .06);
+      l.g.rotation.z = beg + (aim - beg) * eh;
+      l.g.scale.y = 1 + (len - 1) * eh;
+    });
     // ring visuals
-    approach.visible = approachGlow.visible = playing;
-    approach.scale.setScalar(rr); approachGlow.scale.setScalar(rr);
-    approach.material.color.setHex(danger ? 0xFF6B6B : inZone ? 0xFFFFFF : fever ? 0xFFE94A : 0x9FEAFF);
-    approachGlow.material.color.setHex(danger ? 0xFF3B3B : fever ? 0xFFB800 : 0x3FA0FF);
-    approach.material.opacity = trailing ? (1 - p / .16) * .9 : .4 + .55 * closing;
+    const ringC = danger ? RC.danger : inZone ? RC.hit : fever ? RC.fever : RC.idle;
+    approach.visible = approachGlow.visible = approachLine.visible = playing;
+    approach.scale.setScalar(rr); approachGlow.scale.setScalar(rr); approachLine.scale.setScalar(rr);
+    approach.material.color.setHex(ringC); approachGlow.material.color.setHex(ringC);
+    approach.material.opacity = trailing ? (1 - p / .16) : .55 + .45 * closing;
+    approachLine.material.opacity = approach.material.opacity * .6;
     approachGlow.material.opacity = trailing ? (1 - p / .16) * .3 : .12 + .25 * closing;
-    target.material.color.setHex(danger ? 0xFF8A8A : inZone ? 0xFFFFFF : fever ? 0xFFE94A : 0x7FE0FF);
-    target.scale.setScalar(inZone ? 1.04 + Math.sin(t * 30) * .01 : 1); targetGlow.material.opacity = inZone ? .6 : .22;
-    zone.material.color.setHex(danger ? 0xFF5A5A : fever ? 0xFFD84A : 0x7FE0FF); zone.material.opacity = !playing ? .1 : danger ? .14 : inZone ? .38 : .1 + .12 * closing;
-    target.visible = targetGlow.visible = zone.visible = state !== 'done';
+    target.material.color.setHex(danger ? RC.danger : inZone ? RC.hit : fever ? RC.fever : RC.base);
+    targetGlow.material.color.setHex(danger ? RC.danger : inZone ? RC.hit : fever ? RC.fever : RC.idle);
+    const ts = inZone ? 1.04 + Math.sin(t * 30) * .01 : 1; target.scale.setScalar(ts); targetLine.scale.setScalar(ts);
+    targetGlow.material.opacity = inZone ? .6 : .22;
+    zone.material.color.setHex(danger ? RC.danger : inZone ? RC.hit : fever ? RC.fever : RC.idle); zone.material.opacity = !playing ? .1 : danger ? .16 : inZone ? .35 : .08 + .1 * closing;
+    target.visible = targetGlow.visible = targetLine.visible = zone.visible = state !== 'done';
     // impact star
     starT += dt; if (starT < .35) { const u = starT / .35; star.visible = true; star.scale.setScalar(.6 + u * 2.4 * starK); star.material.opacity = 1 - u; star.quaternion.copy(camera.quaternion); } else star.visible = false;
     // camera punch
-    zoomP = Math.max(0, zoomP - dt * .5); camera.zoom = 1 + zoomP; camera.updateProjectionMatrix();
+    zoomP = Math.max(0, zoomP - dt * .5); camera.zoom = 1 + zoomP + slowAmt * slowAmt * .05; camera.updateProjectionMatrix();
     // shockwave on the floor
     shockT += dt; if (shockT < .6) { shock.scale.setScalar(.8 + shockT * 6); shock.material.opacity = 1 - shockT / .6; } else shock.material.opacity = 0;
     // squash the whole mochi (spring)
@@ -514,12 +583,12 @@ N3.stage('#mochi', (r, renderer, cv) => {
     }
     debris.instanceMatrix.needsUpdate = true;
     // springs
-    [tileV, usuV, mochiV, sheepV, kineV, lambV, armV, mikanV].forEach(v => stepVox(v, dt));
+    [tileV, usuV, mochiV, sheepV, kineV, hindV, torsoV, headV, legs[0].v, legs[1].v, mikanV].forEach(v => stepVox(v, dt));
     // camera shake
     shakeA = Math.max(0, shakeA - dt * .6);
     world.position.set(rand(-1, 1) * shakeA, rand(-1, 1) * shakeA * .6, 0);
   }
-  root._mc = { hit: q => { swingT = 0; impact(q, 0); }, setProg: v => { prog = v; }, get state() { return state; }, get beat() { return { t0, period, now }; } };   // test hook
+  root._mc = { hit: q => { swingT = 0; impact(q, 0); }, setProg: v => { prog = v; }, get state() { return state; }, get beat() { return { t0, period, now }; }, get lamb() { return { ready, pitch: torso.rotation.z, hand: handIn() }; }, set testHand(v) { testHand = v; }, get legs() { return legs.map((l, k) => ({ tip: l.g.localToWorld(new T.Vector3(0, -LEG, 0)).toArray().map(v => +v.toFixed(2)), hoof: HOOF[k].toArray().map(v => +v.toFixed(2)), rot: +l.g.rotation.z.toFixed(2), sy: +l.g.scale.y.toFixed(2) })); }, get lambPos() { return { lb: LB.position.toArray().map(v => +v.toFixed(2)), yaw: +LB.rotation.y.toFixed(2), U: [U.x, U.z] }; } };   // test hook
   resize(root.clientWidth || 322, root.clientHeight || 608);
   return { scene, camera, frame, resize, onMode() { resize(root.clientWidth, root.clientHeight); updHud(); } };
 });

@@ -205,13 +205,14 @@
 <!-- C -->
 <div class="demo" id="demo-gacha">
   <div class="stage"><div class="dev" data-path="kanji-gacha"><div class="scr s-3d s-gacha3d" id="gacha">
+    <button type="button" class="snd-ico js-snd" aria-pressed="false">サウンド OFF</button>
     <canvas class="gl" aria-label="3Dのガチャマシン。ハンドルを回すとカプセルが出てきます"></canvas>
     <div class="ov ov-top g-hud"><span class="k">KANJI GACHA 2027</span><b>羊＋大＝美 漢字ガチャ</b><span class="hint3d dark">ハンドルを回して「羊」入りの漢字を集めよう</span>
       <div class="g-col"><div class="g-coll" aria-label="集めた漢字"></div><span class="g-cnt">0 / 7</span></div><div class="g-prog"><i></i></div></div>
     <div class="ov g-prompt" aria-live="polite">ハンドルを回そう！</div>
     <div class="g-flash" aria-hidden="true"></div>
     <div class="ov gm" hidden role="dialog" aria-label="ガチャの結果"></div>
-    <div class="ov ov-bot"><div class="sbar"><button type="button" class="sbtn soft js-snd" aria-pressed="false">サウンド OFF</button><button type="button" class="sbtn blue js-act">ガチャを回す</button></div></div>
+    <div class="ov ov-bot"><div class="sbar"><button type="button" class="sbtn blue js-act">ガチャを回す</button></div></div>
   </div></div></div>
   <div class="expl">
     <div class="ttl"><span class="mono">DEMO C</span><h3>「羊＋大＝美」漢字ガチャ</h3><span class="en">Kanji capsule toy</span></div>
@@ -223,6 +224,7 @@
 <!-- D -->
 <div class="demo" id="demo-post">
   <div class="stage"><div class="dev" data-path="mirai-post"><div class="scr s-3d s-post3d" id="post">
+    <button type="button" class="snd-ico js-snd" aria-pressed="false">サウンド OFF</button>
     <canvas class="gl" aria-label="3Dの未来ポストと封筒"></canvas>
     <div class="ov ov-top g-hud"><span class="k">MIRAI POST</span><b>未来ポスト</b><span class="hint3d dark">書いた願いは、2027年の年末にあなたへ届きます</span></div>
     <div class="ov g-prompt" aria-live="polite">2027年にやりたいことを書こう</div>
@@ -231,7 +233,7 @@
     <div class="ov p-odo" hidden><span>お届け日へワープ中</span><b>2027.01.01</b></div>
     <div class="g-flash" aria-hidden="true"></div>
     <div class="ov gm" hidden role="dialog" aria-label="受付票"></div>
-    <div class="ov ov-bot"><div class="sbar"><button type="button" class="sbtn soft js-snd" aria-pressed="false">サウンド OFF</button><button type="button" class="sbtn blue js-seal" disabled>封をする</button><button type="button" class="sbtn blue js-post" hidden>投函する</button></div></div>
+    <div class="ov ov-bot"><div class="sbar"><button type="button" class="sbtn blue js-seal" disabled>封をする</button><button type="button" class="sbtn blue js-post" hidden>投函する</button></div></div>
   </div></div></div>
   <div class="expl">
     <div class="ttl"><span class="mono">DEMO D</span><h3>未来ポスト</h3><span class="en">A letter to December</span></div>
@@ -264,6 +266,8 @@
     <div class="ttl"><span class="mono">DEMO E / 3D</span><h3>群れで描く「2027」</h3><span class="en">The flock spells 2027</span></div>
     <p>新春の牧場で、500匹前後のひつじが歩いたり草を食べたりしています。「集合」を押すと群れが走り出し、「2027」→ bravesoftマーク → eventosロゴの順にかたちを作っては組み替えます。</p>
     <dl><dt>ひつじの動き</dt><dd>4本の脚で歩き、速く走るときは跳ねるように駆ける。頭を下げて草を食べ、きょろきょろ見回す。かたちができた後も、何匹かは少し位置を直したり、跳ねたり、よそ見をしたりする。</dd>
+      <dt>マウスに反応</dt><dd>カーソルを近づけると、ひつじが反応する。反応の「気分」は数秒ごとにランダムに変わる ── 驚いて逃げる（隊列が割れて、また戻る）、ウェーブ状に跳ねる、カーソルをじーっと見つめて寄ってくる、ドミノ倒しのようにばたばた倒れる、1匹ずつ違う反応（ぴょんぴょん・くるっと回る・気絶・ぶるぶる・ぽよん・メェ〜）。スマホはタップした場所のひつじが反応。</dd>
+      <dt>カメラ</dt><dd>かたちが変わるたびに、カメラが少し引いて横に回り込みながら、なめらかに次の構図へ移る。</dd>
       <dt>ぶつかり</dt><dd>1匹ずつに当たり判定があり、羊毛より少し小さめにしてあるので、もこもこと押し合いながら詰まって並ぶ。池・岩・雪だるまはよけて歩く。</dd>
       <dt>牧場の景色</dt><dd>柵と「2027」の門、門松、もみの木の森、bravesoftの納屋、凍った池、雪だるま、遠くの雪山、流れる雲、降る雪。</dd>
       <dt>PC版</dt><dd>PCは約520匹、スマホは約320匹。スマホでは「2027」を「20／27」の2行に組み替える。</dd>
@@ -303,8 +307,8 @@
     <div class="ttl"><span class="mono">DEMO G / 3D</span><h3>ひつじスノードーム</h3><span class="en">Shake the snow globe</span></div>
     <p>冬の贈り物らしいスノードームです。中にはひつじの親子、窓の灯った小さな家、雪だるま、プレゼント、「2027」の看板、もみの木。舞った雪は屋根やひつじの背中、木のてっぺんに積もります。振るたびに雪が舞い、社長メッセージが1行ずつ増えていきます。何度も振りたくなるのがポイントです。</p>
     <dl><dt>遊び方</dt><dd>1行目は最初から表示。タップ・ドラッグ・ボタンのどれでも、1回振るごとにすぐ次の行が出る（3回で完成）。「全文を表示」でいつでも全部読める。</dd>
-      <dt>動き</dt><dd>ひつじの親子はドームの中を歩き回り、振ると跳ねて転がる。プレゼントは跳ね、雪だるまの帽子は浮き上がる。ドラッグすると地球儀のように少しずれて傾き、離すとばねのように元の位置へ戻る。</dd>
-      <dt>雪</dt><dd>ドームを傾けた方向に重力がかかり、回すと中の水と雪が遅れてついてくる。止めると屋根やひつじの背中に積もる。</dd>
+      <dt>動き</dt><dd>ひつじの親子はドームの中を歩き回り、振ると跳ねて転がる。プレゼントは跳ね、雪だるまの帽子は浮き上がる。ひつじは家・木・雪だるま・看板・プレゼントにぶつかり、親子どうしも押し合う。ぶつかると木はゆれて雪を落とし、雪だるまの帽子が跳ね、プレゼントは押されて滑っていく。ドラッグすると地球儀のように少しずれて傾き、離すとばねのように元の位置へ戻る。</dd>
+      <dt>雪</dt><dd>雪は中の水に運ばれて動く。振ると水がうずを巻いて床の雪を巻き上げ、水が落ち着くにつれて、ひと粒ずつ違う速さでひらひら揺れながら沈んでいく（大きい粒ほど速い）。傾けた方向に重力がかかり、急に動かすと水が遅れてついてくる。屋根やひつじの背中、木のてっぺんに積もり、ひつじが動けば背中の雪は落ち、床の雪は歩いた跡でかき分けられる。</dd>
       <dt>ガラス</dt><dd>中央は透明のまま、ふちほど厚く見えるように反射と映り込みを強めている。</dd></dl>
   </div>
 </div>
@@ -322,6 +326,7 @@
 <!-- H -->
 <div class="demo" id="demo-omikuji">
   <div class="stage"><div class="dev" data-path="omikuji"><div class="scr s-omi s-3d" id="omikuji">
+    <button type="button" class="snd-ico js-snd" aria-pressed="false">サウンド OFF</button>
     <i class="wa-waves seigaiha" aria-hidden="true"></i>
     <div class="omi-dark" aria-hidden="true"><i class="wa-waves seigaiha dk"></i></div>
     <div class="pcbrand"><svg class="bs-logo pc" role="img" aria-label="bravesoft"><use href="#bs-logo"/></svg><span>NEW YEAR 2027</span></div>
@@ -331,7 +336,7 @@
     <div class="omi-meter" aria-hidden="true"><i></i><i></i><i></i></div>
     <div class="omi-no" aria-hidden="true"></div>
     <div class="omi-paper" hidden><div class="omi-sheet"></div><i class="omi-roll" aria-hidden="true"></i></div>
-    <div class="sbar omi-bar"><button type="button" class="omi-snd js-snd" aria-pressed="false">サウンド OFF</button><button type="button" class="omi-go js-act">筒をふる</button><button type="button" class="omi-again js-again" hidden>もう一度ひく</button></div>
+    <div class="sbar omi-bar"><button type="button" class="omi-go js-act">筒をふる</button><button type="button" class="omi-again js-again" hidden>もう一度ひく</button></div>
   </div></div></div>
   <div class="expl">
     <div class="ttl"><span class="mono">DEMO H / 和</span><h3>ひつじみくじ</h3><span class="en">Draw your 2027 fortune</span></div>
@@ -346,23 +351,17 @@
 <!-- I -->
 <div class="demo" id="demo-fuku">
   <div class="stage"><div class="dev" data-path="fukuwarai"><div class="scr s-fuku" id="fuku">
+    <button type="button" class="snd-ico js-snd" aria-pressed="false">サウンド OFF</button>
     <div class="pcbrand"><svg class="bs-logo pc" role="img" aria-label="bravesoft"><use href="#bs-logo"/></svg><span>NEW YEAR 2027</span></div>
     <div class="wa-head"><span class="k">FUKUWARAI</span><h4>ひつじ福笑い</h4><p class="fk-hint" aria-live="polite">目かくしをして、顔のパーツを置いてください</p></div>
     <div class="fk-board">
-      <div class="fk-face"><svg viewBox="0 0 200 220" aria-hidden="true">
-        <g fill="#fff" stroke="#C9D3E3" stroke-width="2.5">
-          <circle cx="58" cy="62" r="30"/><circle cx="100" cy="44" r="34"/><circle cx="142" cy="62" r="30"/><circle cx="40" cy="104" r="26"/><circle cx="160" cy="104" r="26"/><circle cx="46" cy="148" r="22"/><circle cx="154" cy="148" r="22"/>
-        </g>
-        <ellipse cx="100" cy="128" rx="60" ry="76" fill="#FFF4E8" stroke="#161717" stroke-width="3.5"/>
-        <g fill="#fff" stroke="#C9D3E3" stroke-width="2.5"><circle cx="78" cy="64" r="20"/><circle cx="100" cy="56" r="22"/><circle cx="122" cy="64" r="20"/></g>
-        <ellipse cx="70" cy="150" rx="11" ry="6" fill="#FFB3B3" opacity=".55"/><ellipse cx="130" cy="150" rx="11" ry="6" fill="#FFB3B3" opacity=".55"/>
-      </svg></div>
+      <div class="fk-face"></div>
       <div class="fk-cloth" aria-hidden="true"><span>目かくし中</span></div>
     </div>
     <div class="fk-tray" aria-label="顔のパーツ"></div>
     <div class="fk-bubble" aria-hidden="true">メェ〜ハッハッハ！</div>
     <div class="fk-result" hidden role="dialog" aria-label="結果"></div>
-    <div class="sbar"><button type="button" class="sbtn soft js-snd" aria-pressed="false">サウンド OFF</button><button type="button" class="sbtn blue js-act">目かくしをする</button></div>
+    <div class="sbar"><button type="button" class="sbtn blue js-act">目かくしをする</button></div>
   </div></div></div>
   <div class="expl">
     <div class="ttl"><span class="mono">DEMO I / 和</span><h3>ひつじ福笑い</h3><span class="en">Blindfolded face game</span></div>
@@ -377,14 +376,14 @@
 <!-- J -->
 <div class="demo" id="demo-mochi">
   <div class="stage"><div class="dev" data-path="mochitsuki"><div class="scr s-mochi s-3d" id="mochi">
+    <button type="button" class="snd-ico js-snd" aria-pressed="false">サウンド OFF</button>
     <canvas class="gl mc-gl" aria-label="ボクセルの臼と杵とひつじ。タップすると、ひつじが杵をふりおろします"></canvas>
     <div class="mc-glow" aria-hidden="true"></div>
     <aside class="mc-side">
       <svg class="bs-logo mc-logo" role="img" aria-label="bravesoft"><use href="#bs-logo"/></svg>
       <h4 class="mc-title">ぺったん<br>餅つき</h4>
-      <p class="mc-how"><b>青い輪</b>が重なった<br>瞬間にタップ</p>
+      <p class="mc-how"><b>黄色い輪</b>が重なった<br>瞬間にタップ</p>
       <div class="mc-prog"><span class="lbl">できあがり</span><div class="mc-gauge"><i></i></div><b class="mc-pct">0%</b></div>
-      <button type="button" class="mc-snd js-snd" aria-pressed="false">サウンド OFF</button>
     </aside>
     <div class="mc-ny" aria-hidden="true">NEW YEAR 2027</div>
     <div class="mc-msg" aria-live="polite"><span class="mc-msg-n"></span><p></p></div>
@@ -401,7 +400,7 @@
   <div class="expl">
     <div class="ttl"><span class="mono">DEMO J / 和</span><h3>ぺったん餅つき</h3><span class="en">Pound the mochi in rhythm</span></div>
     <p>ボクセル（立方体）で組んだ臼・餅・杵とはちまきのひつじ。リズムに合わせてタップすると、ひつじが杵をふりおろし、餅・臼・床のキューブが衝撃で跳ねて波打ちます。判定はぺったん（PERFECT）／いいね／はやい・おそい／すかっ（MISS）／あぶない!の5種類で、エフェクト・音・振動がそれぞれ違います。</p>
-    <dl><dt>遊び方</dt><dd>外側の青い輪が縮んで、餅のまわりの輪と重なった瞬間にタップ（スペースキーでも可）。拍の合間には、こひつじが手を入れて餅を返すので、輪が赤いときにつくと「あぶない!」でコンボが切れる。8コンボでFEVER（輪が金色・つき具合1.5倍）。</dd>
+    <dl><dt>遊び方</dt><dd>外側の黄色い輪が縮んで、餅のまわりの白い輪と重なると緑に光る。その瞬間にタップ（スペースキーでも可）。拍の合間には、こひつじが臼のふちで後ろ足で立ち上がり、前足で餅を返すので、輪が赤いときにつくと「あぶない!」でコンボが切れる。8コンボでFEVER（輪がピンク・つき具合1.5倍）。</dd>
       <dt>PC版</dt><dd>左に見出し・遊び方・できあがりゲージ、右にボクセルの舞台。スマホは上部にゲージ、下に大きなボタン。</dd>
       <dt>社長メッセージ</dt><dd>つき具合20%ごとに1行ずつ上部に表示。100%で餅のキューブが鏡餅に組み変わり、全文カードが出る。</dd>
       <dt>集合写真</dt><dd>任意。完成画面の背景に、社員の集合写真を紅白幕と一緒に。</dd></dl>

@@ -35,7 +35,7 @@ CDN = '''
 <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
 '''
 SCRIPTS = [GEN / 'assets.js', GEN / 'sfx.js', GEN / 'bgm.js', SRC / 'sound.js', SRC / 'app.js', GEN / 'gacha_glb.js', GEN / 'snowdome_glb.js', SRC / 'three-demos.js',
-           SRC / 'jp.js', GEN / 'omikuji_glb.js', SRC / 'omikuji.js', SRC / 'mochi.js']
+           GEN / 'fuku_art.js', SRC / 'jp.js', GEN / 'omikuji_glb.js', SRC / 'omikuji.js', SRC / 'mochi.js']
 
 def main():
     out = HEAD + '<style>\n' + (SRC / 'style.css').read_text() + '\n</style>\n' + (SRC / 'body.html').read_text() + CDN

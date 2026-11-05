@@ -35,24 +35,22 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
   const board = $('.fk-board', root), face = $('.fk-face', root), tray = $('.fk-tray', root), act = $('.js-act', root), hint = $('.fk-hint', root);
   const bubble = $('.fk-bubble', root), result = $('.fk-result', root);
   FX.soundButton($('.js-snd', root));
-  const INKC = '#161717';
-  // parts in face-SVG units (200 × 220 face); target = where they belong
-  const PARTS = [
-    { id: 'eyeL', name: '左目', w: 22, h: 28, tx: 76, ty: 118, tr: 0, svg: `<svg viewBox="0 0 22 28"><ellipse cx="11" cy="14" rx="10" ry="13" fill="${INKC}"/><circle cx="14" cy="9" r="3.5" fill="#fff"/></svg>` },
-    { id: 'eyeR', name: '右目', w: 22, h: 28, tx: 124, ty: 118, tr: 0, svg: `<svg viewBox="0 0 22 28"><ellipse cx="11" cy="14" rx="10" ry="13" fill="${INKC}"/><circle cx="14" cy="9" r="3.5" fill="#fff"/></svg>` },
-    { id: 'nose', name: '鼻', w: 30, h: 22, tx: 100, ty: 152, tr: 0, svg: `<svg viewBox="0 0 30 22"><path d="M3 4 Q15 -1 27 4 Q24 14 15 19 Q6 14 3 4Z" fill="#F08C97" stroke="${INKC}" stroke-width="2"/></svg>` },
-    { id: 'mouth', name: '口', w: 40, h: 18, tx: 100, ty: 178, tr: 0, svg: `<svg viewBox="0 0 40 18"><path d="M3 4 Q11 15 20 6 Q29 15 37 4" fill="none" stroke="${INKC}" stroke-width="3.2" stroke-linecap="round"/></svg>` },
-    { id: 'earL', name: '左耳', w: 54, h: 24, tx: 30, ty: 104, tr: -25, svg: `<svg viewBox="0 0 54 24"><path d="M52 12 Q30 -2 4 8 Q-1 12 4 16 Q30 26 52 12Z" fill="${INKC}"/><path d="M44 12 Q28 4 10 10 Q8 12 10 14 Q28 20 44 12Z" fill="#F7A9B4"/></svg>` },
-    { id: 'earR', name: '右耳', w: 54, h: 24, tx: 170, ty: 104, tr: 25, svg: `<svg viewBox="0 0 54 24"><path d="M2 12 Q24 -2 50 8 Q55 12 50 16 Q24 26 2 12Z" fill="${INKC}"/><path d="M10 12 Q26 4 44 10 Q46 12 44 14 Q26 20 10 12Z" fill="#F7A9B4"/></svg>` }
-  ];
+  // the illustration (head + parts) comes from the user's sprite sheet via tools/fuku_art.py → window.NENGA_FUKU.
+  // Everything is in sheet units: H = the head's box; each part's target = where its centre belongs on the head.
+  const ART = window.NENGA_FUKU, H = ART.head.box;
+  face.innerHTML = `<svg viewBox="${H.join(' ')}" aria-hidden="true">${ART.head.svg}</svg>`;
+  const TARGET = { eyeL: ['左目', 560, 480], eyeR: ['右目', 725, 480], nose: ['鼻', 642, 545], mouth: ['口', 642, 615], earL: ['左耳', 363, 485], earR: ['右耳', 920, 485] };
+  const PARTS = Object.keys(TARGET).map(id => { const b = ART[id].box, [name, tx, ty] = TARGET[id];
+    return { id, name, w: b[2], h: b[3], tx, ty, tr: 0, svg: `<svg viewBox="${b.join(' ')}">${ART[id].svg}</svg>` }; });
   let state = 'start', hidden = { dx: 0, dy: 0, s: 1, r: 0 };
   const els = PARTS.map(p => {
     const el = document.createElement('div'); el.className = 'fk-part home'; el.innerHTML = p.svg; el.setAttribute('aria-label', p.name);
     root.appendChild(el); return { p, el, x: 0, y: 0, rot: 0, placed: false };
   });
   // geometry in screen-local px
-  const faceBox = () => { const b = rectIn(root, board); const fw = b.w * .84; return { bx: b.x, by: b.y, bw: b.w, bh: b.h, fx: b.x + b.w * .08, fy: b.y + b.h * .06, fw, u: fw / 200 }; };
-  function place(o, x, y, rot) { o.x = x; o.y = y; o.rot = rot; const g = faceBox(); const w = o.p.w * g.u * 1.12, h = o.p.h * g.u * 1.12; Object.assign(o.el.style, { width: w + 'px', height: h + 'px', left: (x - w / 2) + 'px', top: (y - h / 2) + 'px', transform: `rotate(${rot}deg)` }); }
+  // face position from its layout box (offsets ignore the hidden nudge transform); u = screen px per sheet unit
+  const faceBox = () => { const b = rectIn(root, board), fw = face.offsetWidth; return { bx: b.x, by: b.y, bw: b.w, bh: b.h, fx: b.x + face.offsetLeft, fy: b.y + face.offsetTop, fw, fh: fw * H[3] / H[2], u: fw / H[2] }; };
+  function place(o, x, y, rot) { o.x = x; o.y = y; o.rot = rot; const g = faceBox(); const w = o.p.w * g.u, h = o.p.h * g.u; Object.assign(o.el.style, { width: w + 'px', height: h + 'px', left: (x - w / 2) + 'px', top: (y - h / 2) + 'px', transform: `rotate(${rot}deg)` }); }
   function homeSlots() {
     const t = rectIn(root, tray), n = els.length, pc = t.w < t.h;
     els.forEach((o, i) => {
@@ -63,6 +61,7 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
   }
   function layout() {
     homeSlots();
+    if (root.classList.contains('fk-fin')) return;   // placed parts ride inside the board then
     els.forEach(o => { if (o.placed) place(o, o.fxN * faceBox().bw + faceBox().bx, o.fyN * faceBox().bh + faceBox().by, o.rot); });
   }
   new ResizeObserver(layout).observe(root);
@@ -95,11 +94,11 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
       const inside = o.x > g.bx && o.x < g.bx + g.bw && o.y > g.by && o.y < g.by + g.bh;
       if (inside && state === 'blind') {
         // the hand slips a little — that's the fun of it
-        const slip = g.fw * .05;
+        const slip = g.fw * .022;
         const nx = clamp(o.x + rand(-slip, slip), g.bx + 8, g.bx + g.bw - 8), ny = clamp(o.y + rand(-slip, slip), g.by + 8, g.by + g.bh - 8);
         o.placed = true; o.fxN = (nx - g.bx) / g.bw; o.fyN = (ny - g.by) / g.bh;
         o.el.style.transition = 'left .25s ease-out, top .25s ease-out, transform .25s ease-out';
-        place(o, nx, ny, o.p.tr + rand(-22, 22));
+        place(o, nx, ny, o.p.tr + rand(-9, 9));
         setTimeout(() => { o.el.style.transition = ''; }, 260);
         o.el.classList.add('placed', 'blind');
         play('stamp', { vol: .45, rate: .95 + placedCount() * .06 }); buzz(10);
@@ -119,13 +118,13 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
     sfx.whoosh();
     // score: distance of each placed part to its target, in face units (taking the hidden nudge into account)
     const g = faceBox(); let err = 0, n = 0;
-    const cx = g.fx + g.fw / 2, cy = g.fy + g.fw * 1.1 / 2, ang = -hidden.r * Math.PI / 180;
+    const cx = g.fx + g.fw / 2, cy = g.fy + g.fh / 2, ang = -hidden.r * Math.PI / 180;
     els.forEach(o => {
       if (!o.placed) { err += .5; n++; return; }
-      let x = o.x - cx - hidden.dx * g.fw, y = o.y - cy - hidden.dy * g.fw * 1.1;
+      let x = o.x - cx - hidden.dx * g.fw, y = o.y - cy - hidden.dy * g.fh;
       const xr = x * Math.cos(ang) - y * Math.sin(ang), yr = x * Math.sin(ang) + y * Math.cos(ang);
-      const fx = xr / (g.u * hidden.s) + 100, fy = yr / (g.u * hidden.s) + 110;
-      err += Math.hypot(fx - o.p.tx, fy - o.p.ty) / 200; n++;
+      const fx = xr / (g.u * hidden.s) + H[0] + H[2] / 2, fy = yr / (g.u * hidden.s) + H[1] + H[3] / 2;
+      err += Math.hypot(fx - o.p.tx, fy - o.p.ty) / H[2]; n++;
     });
     const avg = err / n;
     const R = avg < .07 ? { k: '名人級', s: 'そっくりなひつじになりました', c: '#0066FF' } : avg < .15 ? { k: '福々しい', s: 'なかなか、いい顔です', c: '#D9332B' } : { k: '大わらい', s: 'これは…福がきました', c: '#D9332B' };
@@ -140,13 +139,27 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
         <div class="kw">笑う門には、福来たる。</div>
         <p>${R.s}。あけましておめでとうございます。2027年は未年、「未来」の年。今年もbravesoftは、皆さまと一緒に笑える、オモシロい体験をつくっていきます。</p>
         <span class="sig">${SIG}</span>`;
+      fin();
       result.hidden = false;
       if (!RM) result.animate([{ transform: 'translateY(30px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 380, easing: 'cubic-bezier(.2,1.2,.4,1)' });
       act.textContent = 'もう一回あそぶ';
     }, 2400);
     act.textContent = '…'; act.disabled = true; setTimeout(() => { act.disabled = false; }, 2400);
   }
+  // result layout: move the placed parts into the board so they travel with it as it shrinks aside
+  function fin() {
+    const b = rectIn(root, board);
+    els.forEach(o => { if (!o.placed) return;
+      o.el.style.left = (parseFloat(o.el.style.left) - b.x) + 'px'; o.el.style.top = (parseFloat(o.el.style.top) - b.y) + 'px'; board.appendChild(o.el); });
+    root.classList.add('fk-fin');
+  }
+  function unfin() {
+    if (!root.classList.contains('fk-fin')) return;
+    root.classList.remove('fk-fin');
+    els.forEach(o => { if (o.el.parentNode !== root) root.appendChild(o.el); });
+  }
   function again() {
+    unfin();
     result.hidden = true; face.classList.remove('laugh'); face.style.transform = '';
     els.forEach(o => { o.placed = false; o.el.classList.remove('placed', 'blind'); o.el.classList.add('home'); });
     homeSlots(); board.classList.remove('reveal'); state = 'start';

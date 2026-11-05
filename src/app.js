@@ -236,7 +236,7 @@ function local(el, e) {
     if (S.stage === 1 && t2 > 650) { S.stage = 2; head.className = 'sh-head inhale'; say('は…'); SNDX.play('inhale', { vol: .55, rate: 1, exact: true }); }
     if (S.stage === 2 && t2 > 1150) { S.stage = 3; say('はっ…'); }
     if (S.stage === 3 && t2 > 1600) { S.stage = 4; head.className = 'sh-head sneeze'; say('ハックション！'); blow(n); SNDX.play('sneeze', { vol: 1 }); SNDX.play('gust', { vol: .8, delay: .08 }); }
-    if (S.stage === 4 && t2 > 2900) { S.stage = 5; head.className = 'sh-head'; say('メェ〜…すっきり'); SNDX.sfx.bleat(); sneezing = null; sneezed = true; cooldownUntil = performance.now() + 1500; pct.textContent = 'タップでもう一度くしゃみ'; }
+    if (S.stage === 4 && t2 > 2900) { S.stage = 5; head.className = 'sh-head'; say('メェ〜…すっきり'); SNDX.sfx.bleat(); sneezing = null; sneezed = true; cooldownUntil = performance.now() + 1500; if (done) pct.textContent = 'タップでもう一度くしゃみ'; else progress(); }
   }
   function blow(n) {
     if (!RM) root.animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-5px,3px)' }, { transform: 'translate(4px,-2px)' }, { transform: 'translate(0,0)' }], { duration: 320 });
@@ -244,9 +244,28 @@ function local(el, e) {
     // wind streaks fanning out from the nose
     for (let k = 0; k < 14; k++) { const a = Math.PI / 2 + rand(-1.1, 1.1), L = rand(.5, 1) * (pc() ? 220 : 130); gusts.push({ x: n.x, y: n.y + 6, dx: Math.cos(a) * L, dy: Math.sin(a) * L, cx: rand(-30, 30), vx: Math.cos(a) * 3, vy: Math.sin(a) * 3, w: rand(1.5, 3.5), life: 1 }); }
     for (let k = 0; k < 24; k++) { const a = Math.PI / 2 + rand(-.9, .9), v = rand(2, 6); spray.push({ x: n.x, y: n.y + 4, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: rand(1, 2.5), life: 1 }); }
+    // the fleece still on the sheep: the sneeze strips its top layer — almost everything near the head, thinning out
+    // toward the bottom, so a sneeze half-way through shearing blows a big bite out of the wool
+    const left = tufts.filter(t => t.on);
+    if (left.length) {
+      const reach = R.h * (pc() ? .75 : .8);
+      left.forEach(t => {
+        const d = Math.hypot(t.x - n.x, t.y - n.y), f = clamp(1 - d / reach, 0, 1);
+        if (Math.random() > f * .9 + .04) return;
+        const before = loose.length; detach(t);
+        const b = loose[loose.length - 1];
+        if (loose.length > before && M && eng) {
+          const side = t.x < cx ? -1 : 1; b.blown = true;
+          M.Body.setVelocity(b, { x: side * rand(6, 16) * (.5 + f) * (pc() ? 1.5 : 1) + (t.x - n.x) * .02, y: -rand(3, 9) * (.4 + f) });
+          M.Body.setAngularVelocity(b, rand(-.4, .4));
+        }
+      });
+      progress();
+    }
     if (!(M && eng)) return;
     // push the wool that covers the card out to the sides; wool further away gets a weaker gust, so some stays
     loose.forEach(b => {
+      if (b.blown) { b.blown = false; return; }   // just blown off the fleece: already has its own velocity
       const x = b.position.x, y = b.position.y, onCard = x > R.x - 10 && x < R.x + R.w + 10 && y > R.y - 10 && y < R.y + R.h + 30;
       const d = Math.hypot(x - n.x, y - n.y), f = clamp(1 - d / (H * 1.1), .15, 1) * (onCard ? 1 : .35);
       if (onCard && Math.random() < .12) return;   // a few stubborn tufts stay put
@@ -256,7 +275,7 @@ function local(el, e) {
       M.Body.setAngularVelocity(b, rand(-.4, .4));
     });
   }
-  head.addEventListener('click', () => { if (!sneezing && done) startSneeze(true); });
+  head.addEventListener('click', () => { if (!sneezing) startSneeze(true); });   // tap the face any time: it sneezes (and blows wool off)
 
   function draw(now) {
     const c = ctx;

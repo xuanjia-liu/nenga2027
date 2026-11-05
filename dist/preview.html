@@ -895,15 +895,14 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 .omi-roll{position:absolute;top:-6px;bottom:-6px;width:22px;margin-left:-11px;border-radius:11px;background:linear-gradient(90deg,#CDBF9F,#FBF5E8 45%,#E7DCC2 70%,#B9AA88);box-shadow:-4px 0 12px rgba(0,0,0,.35);pointer-events:none}
 /* bottom bar */
 .omi-bar{position:absolute!important;left:0;right:0;bottom:0;z-index:6;display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
-.omi-snd{border:0;background:none;padding:6px 2px;font-family:var(--serif);font-weight:700;font-size:11px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:color .6s}
-.omi-snd::before{content:"";width:16px;height:16px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 9v6h4l5 4V5L7 9H3z'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 9v6h4l5 4V5L7 9H3z'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat}
+.omi-bar .omi-go{grid-column:2}.omi-bar .omi-again{grid-column:3}
 .omi-go{white-space:nowrap;justify-self:center;border:2px solid #E2BE73;border-radius:12px;height:46px;min-width:0;width:100%;max-width:240px;padding:0 18px;background:linear-gradient(#E0402F,#B5231A);color:#FFF4E2;font-family:var(--serif);font-weight:900;font-size:16px;letter-spacing:.08em;cursor:pointer;box-shadow:0 8px 20px -8px rgba(160,30,20,.7),inset 0 1px 0 rgba(255,255,255,.25)}
 .omi-go:hover{filter:brightness(1.06)}
 .omi-go:disabled{opacity:.55;cursor:default}
-.omi-go:focus-visible,.omi-again:focus-visible,.omi-snd:focus-visible{outline:3px solid #E2BE73;outline-offset:3px}
+.omi-go:focus-visible,.omi-again:focus-visible{outline:3px solid #E2BE73;outline-offset:3px}
 .omi-again{border:0;background:none;padding:6px 2px;font-family:var(--serif);font-weight:700;font-size:12px;color:var(--ink);text-decoration:underline;text-underline-offset:6px;text-decoration-color:var(--gold);cursor:pointer;white-space:nowrap;transition:color .6s}
 .omi-again[hidden]{display:block;visibility:hidden}
-.s-omi.dark .omi-snd,.s-omi.dark .omi-again{color:var(--cream)}
+.s-omi.dark .omi-again{color:var(--cream)}
 @container scr (min-width:700px){
   .omi-rope{top:62px}
   .omi-tied{left:auto;right:150px;width:420px}
@@ -920,7 +919,6 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
   .omi-sheet::before{inset:10px}.omi-sheet::after{inset:15px}
   .omi-roll{width:30px;margin-left:-15px}
   .omi-bar{padding:0 56px 34px!important;gap:32px;grid-template-columns:1fr auto 1fr}
-  .omi-snd{font-size:17px;justify-self:start}.omi-snd::before{width:22px;height:22px}
   .omi-go{height:68px;max-width:none;width:360px;font-size:28px;border-radius:14px}
   .omi-again{font-size:18px;justify-self:start}
 }
@@ -934,8 +932,8 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 .s-fuku .wa-head p{color:rgba(255,255,255,.85)}
 .s-fuku .pcbrand{color:#fff}
 .s-fuku .sbar{position:relative;z-index:8;margin-top:auto}
-.fk-board{position:absolute;left:50%;top:104px;width:min(80%,262px);aspect-ratio:200/224;transform:translateX(-50%);background:var(--washi);border-radius:14px;box-shadow:0 0 0 6px rgba(255,255,255,.12),0 20px 40px -14px rgba(0,0,0,.45);overflow:hidden;z-index:2}
-.fk-face{position:absolute;left:8%;top:6%;width:84%;transform-origin:50% 50%;transition:transform .01s}
+.fk-board{position:absolute;left:50%;top:100px;width:min(90%,330px);aspect-ratio:200/184;transform:translateX(-50%);transform-origin:50% 0;transition:transform .6s cubic-bezier(.3,1.15,.4,1);background:var(--washi);border-radius:14px;box-shadow:0 0 0 6px rgba(255,255,255,.12),0 20px 40px -14px rgba(0,0,0,.45);overflow:hidden;z-index:2}
+.fk-face{position:absolute;left:4%;top:8%;width:92%;transform-origin:50% 50%;transition:transform .01s}
 .fk-face svg{display:block;width:100%;height:auto}
 .fk-face.laugh{animation:fkLaugh .5s ease-in-out 4}
 @keyframes fkLaugh{0%,100%{rotate:0deg}25%{rotate:-4deg;translate:0 -3px}75%{rotate:4deg;translate:0 -3px}}
@@ -946,13 +944,16 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 .fk-cloth span{font-weight:900;font-size:12px;color:var(--blue);background:#fff;border-radius:99px;padding:4px 12px;position:relative;z-index:1}
 .fk-board.blind .fk-cloth{transform:none}
 .fk-board.reveal .fk-cloth{transform:translateY(-104%) rotate(-4deg)}
-.fk-tray{position:absolute;left:12px;right:12px;bottom:66px;height:112px;z-index:3;border-radius:14px;background:rgba(0,0,0,.16);box-shadow:inset 0 2px 8px rgba(0,0,0,.2)}
+.fk-tray{position:absolute;left:12px;right:12px;bottom:66px;height:124px;z-index:3;transition:opacity .4s,transform .4s;border-radius:14px;background:rgba(0,0,0,.16);box-shadow:inset 0 2px 8px rgba(0,0,0,.2)}
 .fk-tray::before{content:"パーツ";position:absolute;left:12px;top:6px;font-size:10px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:.1em}
 .fk-part{position:absolute;z-index:6;cursor:grab;touch-action:none;transform-origin:50% 50%;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25));transition:opacity .3s,filter .3s}
 .fk-part svg{display:block;width:100%;height:100%;pointer-events:none}
 .fk-part.drag{cursor:grabbing;z-index:9;filter:drop-shadow(0 10px 10px rgba(0,0,0,.35))}
 .fk-part.placed.blind{opacity:.45;filter:blur(.6px)}
 .fk-part.home{animation:fkWob 2.4s ease-in-out infinite}
+/* result: the board shrinks out of the way, the tray (and any part left in it) fades out, the message takes its place */
+.s-fuku.fk-fin .fk-board{transform:translateX(-50%) scale(.72)}
+.s-fuku.fk-fin .fk-tray,.s-fuku.fk-fin .fk-part.home{opacity:0;transform:translateY(16px);pointer-events:none}
 @keyframes fkWob{0%,100%{translate:0 0}50%{translate:0 -3px}}
 .fk-bubble{position:absolute;z-index:7;left:50%;top:92px;transform:translateX(-50%) scale(.6);opacity:0;background:#fff;color:var(--ink);font-weight:900;font-size:14px;border-radius:99px;padding:8px 16px;box-shadow:var(--lift);white-space:nowrap;pointer-events:none;transition:opacity .2s,transform .3s cubic-bezier(.2,1.6,.4,1)}
 .fk-bubble.show{opacity:1;transform:translateX(-50%) scale(1)}
@@ -965,12 +966,14 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 .fk-result p{margin:0;font-size:12px;line-height:1.7;color:var(--ink-muted)}
 .fk-result .sig{font-size:10.5px;color:var(--grey-400);text-align:right}
 @container scr (min-width:700px){
-  .fk-board{left:470px;top:100px;width:470px;transform:none}
-  .fk-tray{left:auto;right:56px;top:130px;bottom:auto;width:230px;height:430px}
+  .s-fuku .wa-head{width:280px}
+  .fk-board{left:360px;top:100px;width:590px;transform:none;transform-origin:0 0}
+  .fk-tray{left:974px;right:auto;top:100px;bottom:auto;width:250px;height:543px}
+  .s-fuku.fk-fin .fk-board{transform:translate(0,30px) scale(.84)}
   .fk-tray::before{font-size:12px;left:16px;top:10px}
   .fk-cloth span{font-size:16px;padding:6px 18px}
-  .fk-bubble{left:705px;top:70px;font-size:20px;padding:10px 22px}
-  .fk-result{left:56px;right:auto;top:290px;bottom:auto;width:370px;padding:24px 26px;gap:10px}
+  .fk-bubble{left:655px;top:68px;font-size:20px;padding:10px 22px}
+  .fk-result{left:878px;right:auto;top:110px;bottom:auto;width:346px;padding:24px 26px;gap:10px}
   .fk-result .rk b{font-size:44px}
   .fk-result .kw{font-size:20px}
   .fk-result p{font-size:15px}
@@ -1004,23 +1007,19 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 .s-mochi.fever .mc-glow{opacity:1;animation:mcFever 1.2s ease-in-out infinite alternate}
 @keyframes mcFever{from{filter:hue-rotate(0)}to{filter:hue-rotate(-20deg) brightness(1.15)}}
 /* side panel (PC) / top bar (phone) */
-.mc-side{position:absolute;z-index:4;left:0;right:0;top:0;display:grid;grid-template-columns:1fr auto auto;grid-template-areas:"title prog snd" "how how how";align-items:center;gap:4px 10px;padding:14px 14px 10px;
+.mc-side{position:absolute;z-index:4;left:0;right:0;top:0;display:grid;grid-template-columns:1fr auto;grid-template-areas:"title prog" "how how";align-items:center;gap:4px 10px;padding:14px 56px 10px 14px;
   background:linear-gradient(rgba(0,52,160,.92),rgba(0,52,160,.0));pointer-events:none}
 .mc-side .mc-logo{display:none}
 .mc-title{grid-area:title;margin:0;white-space:nowrap;font-weight:900;font-size:19px;line-height:1.1;letter-spacing:.01em;text-shadow:0 3px 0 rgba(0,40,140,.5),0 6px 14px rgba(0,20,80,.35)}
 .mc-title br{display:none}
 .mc-how{grid-area:how;margin:0;font-size:11px;font-weight:700;line-height:1.5;color:rgba(255,255,255,.92)}
 .mc-how br{display:none}
-.mc-how b{color:#8FE4FF}
+.mc-how b{color:#FFE14A}
 .mc-prog{grid-area:prog;display:flex;align-items:center;gap:6px}
 .mc-prog .lbl{display:none;font-size:10px;font-weight:700;opacity:.85}
 .mc-gauge{position:relative;width:64px;height:12px;border-radius:99px;background:rgba(0,30,110,.45);box-shadow:inset 0 0 0 2px rgba(255,255,255,.75);overflow:hidden}
 .mc-gauge i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:linear-gradient(90deg,#7FE0FF,#3FD0FF);box-shadow:0 0 10px rgba(127,224,255,.8);transition:width .35s cubic-bezier(.2,1.4,.4,1),height .35s cubic-bezier(.2,1.4,.4,1)}
 .mc-pct{font-family:var(--en);font-style:italic;font-weight:700;font-size:14px;min-width:2.4em;text-align:right}
-.mc-snd{grid-area:snd;pointer-events:auto;border:1.5px solid rgba(255,255,255,.7);background:rgba(255,255,255,.12);color:#fff;border-radius:99px;height:30px;padding:0 10px;font-weight:700;font-size:0;cursor:pointer;display:flex;align-items:center;gap:6px}
-.mc-snd::before{content:"";width:16px;height:16px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 9v6h4l5 4V5L7 9H3z'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 9v6h4l5 4V5L7 9H3z'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat}
-.mc-snd[aria-pressed="false"]::before{opacity:.55}
-.mc-snd:focus-visible,.mc-btn:focus-visible{outline:3px solid #FFE94A;outline-offset:3px}
 .mc-ny{display:none}
 /* message ticker */
 .mc-msg{position:absolute;z-index:4;left:50%;top:92px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 28px);display:flex;align-items:center;gap:8px;padding:7px 14px 7px 8px;border-radius:99px;background:rgba(255,255,255,.95);color:#0B3FA8;box-shadow:0 10px 24px -10px rgba(0,30,110,.6);opacity:0;pointer-events:none}
@@ -1083,9 +1082,7 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
   .mc-gauge{width:46px;height:200px;box-shadow:inset 0 0 0 4px #fff;border-radius:24px}
   .mc-gauge i{left:4px;right:4px;bottom:4px;top:auto;width:auto!important;height:0;border-radius:20px;background:linear-gradient(0deg,#3FD0FF,#9FEAFF)}
   .mc-pct{font-size:34px}
-  .mc-snd{margin-top:24px;height:56px;border-radius:99px;font-size:19px;justify-content:center;border-width:2px}
-  .mc-snd::before{width:26px;height:26px}
-  .mc-ny{display:block;position:absolute;z-index:4;right:40px;top:30px;font-family:var(--en);font-weight:700;font-size:26px;letter-spacing:.06em;text-shadow:0 3px 0 rgba(0,40,140,.35)}
+  .mc-ny{display:block;position:absolute;z-index:4;right:84px;top:26px;font-family:var(--en);font-weight:700;font-size:26px;letter-spacing:.06em;text-shadow:0 3px 0 rgba(0,40,140,.35)}
   .mc-msg{left:calc(290px + (100% - 290px) / 2);top:36px;padding:10px 22px 10px 12px;gap:12px}
   .mc-msg-n{font-size:15px;padding:4px 12px}
   .mc-msg p{font-size:18px}
@@ -1124,13 +1121,14 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 .fl-cursor span{position:absolute;left:18px;top:14px;white-space:nowrap;font-family:var(--jp);font-weight:700;font-size:11px;color:#fff;background:rgba(9,10,10,.45);border-radius:99px;padding:3px 9px;backdrop-filter:blur(4px)}
 .fl-cursor.drag i{transform:scale(.7)}
 .fl-cursor.drag span{opacity:.0}
+.fl-baa{position:absolute;left:0;top:0;z-index:4;pointer-events:none;white-space:nowrap;font-family:var(--jp);font-weight:900;font-size:11px;line-height:1;color:var(--ink,#090A0A);background:#fff;border-radius:99px;padding:4px 8px 5px;box-shadow:0 0 0 2px #161717,0 3px 8px rgba(0,40,0,.25);transform-origin:50% 100%;will-change:transform,opacity}
+.fl-baa::after{content:"";position:absolute;left:50%;bottom:-5px;width:8px;height:8px;margin-left:-4px;background:#fff;transform:rotate(45deg);box-shadow:2px 2px 0 0 #161717}
 .fl-ripple{position:absolute;width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,.9);pointer-events:none;z-index:5}
-@container scr (min-width:700px){.fl-cursor i{left:-24px;top:-24px;width:48px;height:48px}.fl-cursor span{font-size:14px;left:26px;top:18px;padding:4px 12px}}
+@container scr (min-width:700px){.fl-baa{font-size:14px;padding:5px 11px 6px}.fl-cursor i{left:-24px;top:-24px;width:48px;height:48px}.fl-cursor span{font-size:14px;left:26px;top:18px;padding:4px 12px}}
 
 @container scr (max-width:699px){
   .omi-bar{gap:6px;padding:8px 10px 12px!important}
   .omi-go{font-size:14px;height:42px;padding:0 10px;letter-spacing:.04em}
-  .omi-snd{font-size:0;gap:0}.omi-snd::before{width:20px;height:20px}
   .omi-again{font-size:11px}
   .omi-sheet .ceo .long{display:none}
   .omi-sheet .it.opt{display:none}
@@ -1155,7 +1153,7 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 .snd-ico[aria-pressed="false"]::after{content:"";position:absolute;left:50%;top:50%;width:20px;height:2px;border-radius:2px;background:#979C9E;transform:translate(-50%,-50%) rotate(-45deg);box-shadow:0 0 0 1.5px rgba(255,255,255,.86)}
 .snd-ico:active{transform:scale(.92)}
 .snd-ico:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
-@container scr (min-width:700px){.s-shear .pcbrand,.s-count .pcbrand{right:84px}.snd-ico{top:18px;right:18px;width:44px;height:44px}.snd-ico::before{width:22px;height:22px}.snd-ico[aria-pressed="false"]::after{width:25px}}
+@container scr (min-width:700px){.s-shear .pcbrand,.s-count .pcbrand,.s-omi .pcbrand,.s-fuku .pcbrand{right:84px}.snd-ico{top:18px;right:18px;width:44px;height:44px}.snd-ico::before{width:22px;height:22px}.snd-ico[aria-pressed="false"]::after{width:25px}}
 
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="bs-logo" viewBox="312 116 1352 590"><g fill="currentColor"><path d="M916.183 349.662C924.659 354.203 932 358.135 937.933 360.982H937.964C985.053 383.561 1031.960 377.462 1057.330 374.163C1063.120 373.410 1067.800 372.802 1071.090 372.716C1070.520 373.258 1069.870 373.891 1069.140 374.603C1057.290 386.160 1024.110 418.542 952.188 420.451C869.462 422.663 830.393 455.500 819.309 465.975L748.344 294.755C810.607 293.107 876.099 328.190 916.183 349.662Z"/>
@@ -1365,13 +1363,14 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 <!-- C -->
 <div class="demo" id="demo-gacha">
   <div class="stage"><div class="dev" data-path="kanji-gacha"><div class="scr s-3d s-gacha3d" id="gacha">
+    <button type="button" class="snd-ico js-snd" aria-pressed="false">サウンド OFF</button>
     <canvas class="gl" aria-label="3Dのガチャマシン。ハンドルを回すとカプセルが出てきます"></canvas>
     <div class="ov ov-top g-hud"><span class="k">KANJI GACHA 2027</span><b>羊＋大＝美 漢字ガチャ</b><span class="hint3d dark">ハンドルを回して「羊」入りの漢字を集めよう</span>
       <div class="g-col"><div class="g-coll" aria-label="集めた漢字"></div><span class="g-cnt">0 / 7</span></div><div class="g-prog"><i></i></div></div>
     <div class="ov g-prompt" aria-live="polite">ハンドルを回そう！</div>
     <div class="g-flash" aria-hidden="true"></div>
     <div class="ov gm" hidden role="dialog" aria-label="ガチャの結果"></div>
-    <div class="ov ov-bot"><div class="sbar"><button type="button" class="sbtn soft js-snd" aria-pressed="false">サウンド OFF</button><button type="button" class="sbtn blue js-act">ガチャを回す</button></div></div>
+    <div class="ov ov-bot"><div class="sbar"><button type="button" class="sbtn blue js-act">ガチャを回す</button></div></div>
   </div></div></div>
   <div class="expl">
     <div class="ttl"><span class="mono">DEMO C</span><h3>「羊＋大＝美」漢字ガチャ</h3><span class="en">Kanji capsule toy</span></div>
@@ -1383,6 +1382,7 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 <!-- D -->
 <div class="demo" id="demo-post">
   <div class="stage"><div class="dev" data-path="mirai-post"><div class="scr s-3d s-post3d" id="post">
+    <button type="button" class="snd-ico js-snd" aria-pressed="false">サウンド OFF</button>
     <canvas class="gl" aria-label="3Dの未来ポストと封筒"></canvas>
     <div class="ov ov-top g-hud"><span class="k">MIRAI POST</span><b>未来ポスト</b><span class="hint3d dark">書いた願いは、2027年の年末にあなたへ届きます</span></div>
     <div class="ov g-prompt" aria-live="polite">2027年にやりたいことを書こう</div>
@@ -1391,7 +1391,7 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
     <div class="ov p-odo" hidden><span>お届け日へワープ中</span><b>2027.01.01</b></div>
     <div class="g-flash" aria-hidden="true"></div>
     <div class="ov gm" hidden role="dialog" aria-label="受付票"></div>
-    <div class="ov ov-bot"><div class="sbar"><button type="button" class="sbtn soft js-snd" aria-pressed="false">サウンド OFF</button><button type="button" class="sbtn blue js-seal" disabled>封をする</button><button type="button" class="sbtn blue js-post" hidden>投函する</button></div></div>
+    <div class="ov ov-bot"><div class="sbar"><button type="button" class="sbtn blue js-seal" disabled>封をする</button><button type="button" class="sbtn blue js-post" hidden>投函する</button></div></div>
   </div></div></div>
   <div class="expl">
     <div class="ttl"><span class="mono">DEMO D</span><h3>未来ポスト</h3><span class="en">A letter to December</span></div>
@@ -1424,6 +1424,8 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
     <div class="ttl"><span class="mono">DEMO E / 3D</span><h3>群れで描く「2027」</h3><span class="en">The flock spells 2027</span></div>
     <p>新春の牧場で、500匹前後のひつじが歩いたり草を食べたりしています。「集合」を押すと群れが走り出し、「2027」→ bravesoftマーク → eventosロゴの順にかたちを作っては組み替えます。</p>
     <dl><dt>ひつじの動き</dt><dd>4本の脚で歩き、速く走るときは跳ねるように駆ける。頭を下げて草を食べ、きょろきょろ見回す。かたちができた後も、何匹かは少し位置を直したり、跳ねたり、よそ見をしたりする。</dd>
+      <dt>マウスに反応</dt><dd>カーソルを近づけると、ひつじが反応する。反応の「気分」は数秒ごとにランダムに変わる ── 驚いて逃げる（隊列が割れて、また戻る）、ウェーブ状に跳ねる、カーソルをじーっと見つめて寄ってくる、ドミノ倒しのようにばたばた倒れる、1匹ずつ違う反応（ぴょんぴょん・くるっと回る・気絶・ぶるぶる・ぽよん・メェ〜）。スマホはタップした場所のひつじが反応。</dd>
+      <dt>カメラ</dt><dd>かたちが変わるたびに、カメラが少し引いて横に回り込みながら、なめらかに次の構図へ移る。</dd>
       <dt>ぶつかり</dt><dd>1匹ずつに当たり判定があり、羊毛より少し小さめにしてあるので、もこもこと押し合いながら詰まって並ぶ。池・岩・雪だるまはよけて歩く。</dd>
       <dt>牧場の景色</dt><dd>柵と「2027」の門、門松、もみの木の森、bravesoftの納屋、凍った池、雪だるま、遠くの雪山、流れる雲、降る雪。</dd>
       <dt>PC版</dt><dd>PCは約520匹、スマホは約320匹。スマホでは「2027」を「20／27」の2行に組み替える。</dd>
@@ -1463,8 +1465,8 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
     <div class="ttl"><span class="mono">DEMO G / 3D</span><h3>ひつじスノードーム</h3><span class="en">Shake the snow globe</span></div>
     <p>冬の贈り物らしいスノードームです。中にはひつじの親子、窓の灯った小さな家、雪だるま、プレゼント、「2027」の看板、もみの木。舞った雪は屋根やひつじの背中、木のてっぺんに積もります。振るたびに雪が舞い、社長メッセージが1行ずつ増えていきます。何度も振りたくなるのがポイントです。</p>
     <dl><dt>遊び方</dt><dd>1行目は最初から表示。タップ・ドラッグ・ボタンのどれでも、1回振るごとにすぐ次の行が出る（3回で完成）。「全文を表示」でいつでも全部読める。</dd>
-      <dt>動き</dt><dd>ひつじの親子はドームの中を歩き回り、振ると跳ねて転がる。プレゼントは跳ね、雪だるまの帽子は浮き上がる。ドラッグすると地球儀のように少しずれて傾き、離すとばねのように元の位置へ戻る。</dd>
-      <dt>雪</dt><dd>ドームを傾けた方向に重力がかかり、回すと中の水と雪が遅れてついてくる。止めると屋根やひつじの背中に積もる。</dd>
+      <dt>動き</dt><dd>ひつじの親子はドームの中を歩き回り、振ると跳ねて転がる。プレゼントは跳ね、雪だるまの帽子は浮き上がる。ひつじは家・木・雪だるま・看板・プレゼントにぶつかり、親子どうしも押し合う。ぶつかると木はゆれて雪を落とし、雪だるまの帽子が跳ね、プレゼントは押されて滑っていく。ドラッグすると地球儀のように少しずれて傾き、離すとばねのように元の位置へ戻る。</dd>
+      <dt>雪</dt><dd>雪は中の水に運ばれて動く。振ると水がうずを巻いて床の雪を巻き上げ、水が落ち着くにつれて、ひと粒ずつ違う速さでひらひら揺れながら沈んでいく（大きい粒ほど速い）。傾けた方向に重力がかかり、急に動かすと水が遅れてついてくる。屋根やひつじの背中、木のてっぺんに積もり、ひつじが動けば背中の雪は落ち、床の雪は歩いた跡でかき分けられる。</dd>
       <dt>ガラス</dt><dd>中央は透明のまま、ふちほど厚く見えるように反射と映り込みを強めている。</dd></dl>
   </div>
 </div>
@@ -1482,6 +1484,7 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 <!-- H -->
 <div class="demo" id="demo-omikuji">
   <div class="stage"><div class="dev" data-path="omikuji"><div class="scr s-omi s-3d" id="omikuji">
+    <button type="button" class="snd-ico js-snd" aria-pressed="false">サウンド OFF</button>
     <i class="wa-waves seigaiha" aria-hidden="true"></i>
     <div class="omi-dark" aria-hidden="true"><i class="wa-waves seigaiha dk"></i></div>
     <div class="pcbrand"><svg class="bs-logo pc" role="img" aria-label="bravesoft"><use href="#bs-logo"/></svg><span>NEW YEAR 2027</span></div>
@@ -1491,7 +1494,7 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
     <div class="omi-meter" aria-hidden="true"><i></i><i></i><i></i></div>
     <div class="omi-no" aria-hidden="true"></div>
     <div class="omi-paper" hidden><div class="omi-sheet"></div><i class="omi-roll" aria-hidden="true"></i></div>
-    <div class="sbar omi-bar"><button type="button" class="omi-snd js-snd" aria-pressed="false">サウンド OFF</button><button type="button" class="omi-go js-act">筒をふる</button><button type="button" class="omi-again js-again" hidden>もう一度ひく</button></div>
+    <div class="sbar omi-bar"><button type="button" class="omi-go js-act">筒をふる</button><button type="button" class="omi-again js-again" hidden>もう一度ひく</button></div>
   </div></div></div>
   <div class="expl">
     <div class="ttl"><span class="mono">DEMO H / 和</span><h3>ひつじみくじ</h3><span class="en">Draw your 2027 fortune</span></div>
@@ -1506,23 +1509,17 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 <!-- I -->
 <div class="demo" id="demo-fuku">
   <div class="stage"><div class="dev" data-path="fukuwarai"><div class="scr s-fuku" id="fuku">
+    <button type="button" class="snd-ico js-snd" aria-pressed="false">サウンド OFF</button>
     <div class="pcbrand"><svg class="bs-logo pc" role="img" aria-label="bravesoft"><use href="#bs-logo"/></svg><span>NEW YEAR 2027</span></div>
     <div class="wa-head"><span class="k">FUKUWARAI</span><h4>ひつじ福笑い</h4><p class="fk-hint" aria-live="polite">目かくしをして、顔のパーツを置いてください</p></div>
     <div class="fk-board">
-      <div class="fk-face"><svg viewBox="0 0 200 220" aria-hidden="true">
-        <g fill="#fff" stroke="#C9D3E3" stroke-width="2.5">
-          <circle cx="58" cy="62" r="30"/><circle cx="100" cy="44" r="34"/><circle cx="142" cy="62" r="30"/><circle cx="40" cy="104" r="26"/><circle cx="160" cy="104" r="26"/><circle cx="46" cy="148" r="22"/><circle cx="154" cy="148" r="22"/>
-        </g>
-        <ellipse cx="100" cy="128" rx="60" ry="76" fill="#FFF4E8" stroke="#161717" stroke-width="3.5"/>
-        <g fill="#fff" stroke="#C9D3E3" stroke-width="2.5"><circle cx="78" cy="64" r="20"/><circle cx="100" cy="56" r="22"/><circle cx="122" cy="64" r="20"/></g>
-        <ellipse cx="70" cy="150" rx="11" ry="6" fill="#FFB3B3" opacity=".55"/><ellipse cx="130" cy="150" rx="11" ry="6" fill="#FFB3B3" opacity=".55"/>
-      </svg></div>
+      <div class="fk-face"></div>
       <div class="fk-cloth" aria-hidden="true"><span>目かくし中</span></div>
     </div>
     <div class="fk-tray" aria-label="顔のパーツ"></div>
     <div class="fk-bubble" aria-hidden="true">メェ〜ハッハッハ！</div>
     <div class="fk-result" hidden role="dialog" aria-label="結果"></div>
-    <div class="sbar"><button type="button" class="sbtn soft js-snd" aria-pressed="false">サウンド OFF</button><button type="button" class="sbtn blue js-act">目かくしをする</button></div>
+    <div class="sbar"><button type="button" class="sbtn blue js-act">目かくしをする</button></div>
   </div></div></div>
   <div class="expl">
     <div class="ttl"><span class="mono">DEMO I / 和</span><h3>ひつじ福笑い</h3><span class="en">Blindfolded face game</span></div>
@@ -1537,14 +1534,14 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 <!-- J -->
 <div class="demo" id="demo-mochi">
   <div class="stage"><div class="dev" data-path="mochitsuki"><div class="scr s-mochi s-3d" id="mochi">
+    <button type="button" class="snd-ico js-snd" aria-pressed="false">サウンド OFF</button>
     <canvas class="gl mc-gl" aria-label="ボクセルの臼と杵とひつじ。タップすると、ひつじが杵をふりおろします"></canvas>
     <div class="mc-glow" aria-hidden="true"></div>
     <aside class="mc-side">
       <svg class="bs-logo mc-logo" role="img" aria-label="bravesoft"><use href="#bs-logo"/></svg>
       <h4 class="mc-title">ぺったん<br>餅つき</h4>
-      <p class="mc-how"><b>青い輪</b>が重なった<br>瞬間にタップ</p>
+      <p class="mc-how"><b>黄色い輪</b>が重なった<br>瞬間にタップ</p>
       <div class="mc-prog"><span class="lbl">できあがり</span><div class="mc-gauge"><i></i></div><b class="mc-pct">0%</b></div>
-      <button type="button" class="mc-snd js-snd" aria-pressed="false">サウンド OFF</button>
     </aside>
     <div class="mc-ny" aria-hidden="true">NEW YEAR 2027</div>
     <div class="mc-msg" aria-live="polite"><span class="mc-msg-n"></span><p></p></div>
@@ -1561,7 +1558,7 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
   <div class="expl">
     <div class="ttl"><span class="mono">DEMO J / 和</span><h3>ぺったん餅つき</h3><span class="en">Pound the mochi in rhythm</span></div>
     <p>ボクセル（立方体）で組んだ臼・餅・杵とはちまきのひつじ。リズムに合わせてタップすると、ひつじが杵をふりおろし、餅・臼・床のキューブが衝撃で跳ねて波打ちます。判定はぺったん（PERFECT）／いいね／はやい・おそい／すかっ（MISS）／あぶない!の5種類で、エフェクト・音・振動がそれぞれ違います。</p>
-    <dl><dt>遊び方</dt><dd>外側の青い輪が縮んで、餅のまわりの輪と重なった瞬間にタップ（スペースキーでも可）。拍の合間には、こひつじが手を入れて餅を返すので、輪が赤いときにつくと「あぶない!」でコンボが切れる。8コンボでFEVER（輪が金色・つき具合1.5倍）。</dd>
+    <dl><dt>遊び方</dt><dd>外側の黄色い輪が縮んで、餅のまわりの白い輪と重なると緑に光る。その瞬間にタップ（スペースキーでも可）。拍の合間には、こひつじが臼のふちで後ろ足で立ち上がり、前足で餅を返すので、輪が赤いときにつくと「あぶない!」でコンボが切れる。8コンボでFEVER（輪がピンク・つき具合1.5倍）。</dd>
       <dt>PC版</dt><dd>左に見出し・遊び方・できあがりゲージ、右にボクセルの舞台。スマホは上部にゲージ、下に大きなボタン。</dd>
       <dt>社長メッセージ</dt><dd>つき具合20%ごとに1行ずつ上部に表示。100%で餅のキューブが鏡餅に組み変わり、全文カードが出る。</dd>
       <dt>集合写真</dt><dd>任意。完成画面の背景に、社員の集合写真を紅白幕と一緒に。</dd></dl>
@@ -2007,7 +2004,7 @@ function local(el, e) {
     if (S.stage === 1 && t2 > 650) { S.stage = 2; head.className = 'sh-head inhale'; say('は…'); SNDX.play('inhale', { vol: .55, rate: 1, exact: true }); }
     if (S.stage === 2 && t2 > 1150) { S.stage = 3; say('はっ…'); }
     if (S.stage === 3 && t2 > 1600) { S.stage = 4; head.className = 'sh-head sneeze'; say('ハックション！'); blow(n); SNDX.play('sneeze', { vol: 1 }); SNDX.play('gust', { vol: .8, delay: .08 }); }
-    if (S.stage === 4 && t2 > 2900) { S.stage = 5; head.className = 'sh-head'; say('メェ〜…すっきり'); SNDX.sfx.bleat(); sneezing = null; sneezed = true; cooldownUntil = performance.now() + 1500; pct.textContent = 'タップでもう一度くしゃみ'; }
+    if (S.stage === 4 && t2 > 2900) { S.stage = 5; head.className = 'sh-head'; say('メェ〜…すっきり'); SNDX.sfx.bleat(); sneezing = null; sneezed = true; cooldownUntil = performance.now() + 1500; if (done) pct.textContent = 'タップでもう一度くしゃみ'; else progress(); }
   }
   function blow(n) {
     if (!RM) root.animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-5px,3px)' }, { transform: 'translate(4px,-2px)' }, { transform: 'translate(0,0)' }], { duration: 320 });
@@ -2015,9 +2012,28 @@ function local(el, e) {
     // wind streaks fanning out from the nose
     for (let k = 0; k < 14; k++) { const a = Math.PI / 2 + rand(-1.1, 1.1), L = rand(.5, 1) * (pc() ? 220 : 130); gusts.push({ x: n.x, y: n.y + 6, dx: Math.cos(a) * L, dy: Math.sin(a) * L, cx: rand(-30, 30), vx: Math.cos(a) * 3, vy: Math.sin(a) * 3, w: rand(1.5, 3.5), life: 1 }); }
     for (let k = 0; k < 24; k++) { const a = Math.PI / 2 + rand(-.9, .9), v = rand(2, 6); spray.push({ x: n.x, y: n.y + 4, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: rand(1, 2.5), life: 1 }); }
+    // the fleece still on the sheep: the sneeze strips its top layer — almost everything near the head, thinning out
+    // toward the bottom, so a sneeze half-way through shearing blows a big bite out of the wool
+    const left = tufts.filter(t => t.on);
+    if (left.length) {
+      const reach = R.h * (pc() ? .75 : .8);
+      left.forEach(t => {
+        const d = Math.hypot(t.x - n.x, t.y - n.y), f = clamp(1 - d / reach, 0, 1);
+        if (Math.random() > f * .9 + .04) return;
+        const before = loose.length; detach(t);
+        const b = loose[loose.length - 1];
+        if (loose.length > before && M && eng) {
+          const side = t.x < cx ? -1 : 1; b.blown = true;
+          M.Body.setVelocity(b, { x: side * rand(6, 16) * (.5 + f) * (pc() ? 1.5 : 1) + (t.x - n.x) * .02, y: -rand(3, 9) * (.4 + f) });
+          M.Body.setAngularVelocity(b, rand(-.4, .4));
+        }
+      });
+      progress();
+    }
     if (!(M && eng)) return;
     // push the wool that covers the card out to the sides; wool further away gets a weaker gust, so some stays
     loose.forEach(b => {
+      if (b.blown) { b.blown = false; return; }   // just blown off the fleece: already has its own velocity
       const x = b.position.x, y = b.position.y, onCard = x > R.x - 10 && x < R.x + R.w + 10 && y > R.y - 10 && y < R.y + R.h + 30;
       const d = Math.hypot(x - n.x, y - n.y), f = clamp(1 - d / (H * 1.1), .15, 1) * (onCard ? 1 : .35);
       if (onCard && Math.random() < .12) return;   // a few stubborn tufts stay put
@@ -2027,7 +2043,7 @@ function local(el, e) {
       M.Body.setAngularVelocity(b, rand(-.4, .4));
     });
   }
-  head.addEventListener('click', () => { if (!sneezing && done) startSneeze(true); });
+  head.addEventListener('click', () => { if (!sneezing) startSneeze(true); });   // tap the face any time: it sneezes (and blows wool off)
 
   function draw(now) {
     const c = ctx;
@@ -2981,14 +2997,14 @@ stage('#flock', (root, renderer, canvas) => {
     let mx = 0, mz = 0; pts.forEach(([x, z]) => { mx = Math.max(mx, Math.abs(x)); mz = Math.max(mz, Math.abs(z)); });
     extent = [mx * 2 + 4, mz * 2 + 4];
     RC = Math.min(.46, SP * .45); SCt = clamp(SP / 1.05, .62, 1); msg.classList.remove('show');
-    assign(pts); holdT = 0; shapeT = 0;
+    assign(pts); holdT = 0; shapeT = 0; shotChange(shapeIx === 0 ? 2.6 : 2.1);
     shapeEl.textContent = `かたち ${shapeIx + 1} / ${SHAPES.length}　${sh0.name}`;
   }
   btn.addEventListener('click', () => {
     cycling = !cycling;
     play('hooves', { vol: .8 }); [0, .35, .8].forEach(d => sfx.bleat({ vol: .35, delay: d + Math.random() * .2 }));
     if (cycling) { shapeIx = -1; nextShape(); btn.textContent = '解散する'; btn.classList.add('sec'); nextBtn.hidden = false; }
-    else { RC = .46; SCt = 1; sh.forEach(s => { s.mode = Math.random() < .5 ? 'graze' : 'wander'; s.t = rnd(0, 2); }); msg.classList.remove('show'); btn.textContent = 'ひつじを集合させる'; btn.classList.remove('sec'); nextBtn.hidden = true; shapeEl.textContent = ''; }
+    else { shotChange(2.4); RC = .46; SCt = 1; sh.forEach(s => { s.mode = Math.random() < .5 ? 'graze' : 'wander'; s.t = rnd(0, 2); }); msg.classList.remove('show'); btn.textContent = 'ひつじを集合させる'; btn.classList.remove('sec'); nextBtn.hidden = true; shapeEl.textContent = ''; }
   });
   nextBtn.addEventListener('click', () => {
     if (!cycling) return;
@@ -2996,7 +3012,7 @@ stage('#flock', (root, renderer, canvas) => {
   });
 
   /* ---------------- camera orbit ---------------- */
-  let az = 0, tiltOff = 0, camT = 0, drag = null, aspect = 1;
+  let az = 0, tiltOff = 0, drag = null, aspect = 1;
   // drag = orbit the camera; a tap (barely moved, short) = 集合 / 次のかたち
   canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, d: 0, t: e.timeStamp }; canvas.setPointerCapture(e.pointerId); canvas.style.cursor = 'grabbing'; });
   canvas.addEventListener('pointermove', e => {
@@ -3033,10 +3049,139 @@ stage('#flock', (root, renderer, canvas) => {
     if (cur) cur.classList.remove('drag');
     drag = null; canvas.style.cursor = '';
     if (!tap) return;
+    // touch has no hover: the tapped spot gets a random poke too
+    if (e.pointerType !== 'mouse' && groundAt(e)) pokeAt(hit.x, hit.z, pick(['scatter', 'wave', 'mixed', 'domino']));
     if (!cycling) btn.click(); else { nextShape(); popEl(nextBtn, 1.08); }
     sfx.bleat();
   };
   canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', endDrag);
+
+  /* ---------------- camera shots: every change is an eased swoop, never a cut ---------------- */
+  // `cam` is what is rendered; the live target (fit distance, tilt, azimuth, look-at) is recomputed each frame.
+  // shotChange() tweens from wherever the camera is to the new target along an arc: it pulls back, swings
+  // sideways and banks a little in the middle of the move, then settles (ease in-out).
+  const cam = { d: 0, polar: 1.25, a: 0, lz: 0 };
+  let camTw = null, camRoll = 0;
+  const easeIO = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  function shotChange(dur) {
+    if (!cam.d) return;
+    camTw = { from: Object.assign({}, cam), t: 0, dur: RM ? .8 : dur, swing: RM ? 0 : (Math.random() < .5 ? -1 : 1) * rnd(.22, .42), lift: RM ? 0 : rnd(.1, .2) };
+  }
+
+  /* ---------------- hover: the flock reacts to the mouse, in changing moods ---------------- */
+  // the cursor is projected onto the meadow; sheep near it react. The mood changes every few seconds
+  // (and each time the mouse comes back), so the same gesture never gives the same result twice:
+  //   scatter — they start and run away, the formation parts like water, then they trot back
+  //   wave    — a stadium wave of hops spreads out from the cursor
+  //   curious — heads (and bodies) turn to follow the cursor; free sheep walk over to it
+  //   domino  — one sheep faints, the ones around it topple over in a ring, then they all get up
+  //   mixed   — every sheep picks its own reaction: hop-hop, spin, faint, wool shake, boing, baa
+  const ray = new T.Raycaster(), ndc = new T.Vector2(), hit = new T.Vector3(), GROUND = new T.Plane(new T.Vector3(0, 1, 0), 0);
+  const hov = { on: false, ok: false, x: 0, z: 0, mood: 'mixed', moodT: 0, waveT: 0, sndT: 0, bubT: 0 };
+  const pick = a => a[(Math.random() * a.length) | 0];
+  const MOODS = [['mixed', 3], ['scatter', 2], ['wave', 2], ['curious', 1.5], ['domino', 1.5]];
+  function pickMood() {
+    const pool = MOODS.filter(m => m[0] !== hov.mood), tot = pool.reduce((a, m) => a + m[1], 0);
+    let r = Math.random() * tot; hov.mood = pool.find(m => (r -= m[1]) < 0)[0];
+    hov.moodT = rnd(3.5, 6);
+  }
+  const groundAt = e => {
+    const r = canvas.getBoundingClientRect();
+    ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera); return ray.ray.intersectPlane(GROUND, hit);
+  };
+  canvas.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse') return;
+    const r = canvas.getBoundingClientRect();
+    ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    if (!hov.on) pickMood();
+    hov.on = !(drag && drag.d > 8);
+  });
+  canvas.addEventListener('pointerleave', () => { hov.on = false; });
+  // speech bubbles (メェ〜, ばたん, くるっ …) pinned above a sheep's head
+  const bubbles = [], BV = new T.Vector3();
+  function bubble(s, txt, force) {
+    if (!force && (hov.bubT > 0 || Math.random() < .35)) return;
+    hov.bubT = .14;
+    if (bubbles.length >= 7) bubbles.shift().el.remove();
+    const el = document.createElement('span'); el.className = 'fl-baa'; el.textContent = txt; root.appendChild(el);
+    bubbles.push({ el, s, t: 0 });
+  }
+  function noise(name, o) { if (hov.sndT > 0) return; hov.sndT = .16; if (name === 'bleat') sfx.bleat(Object.assign({ vol: .3 }, o)); else play(name, Object.assign({ vol: .35, rate: rnd(.9, 1.15) }, o)); }
+  const busy = s => s.rx && s.rx.k !== 'look';
+  const rx = (k, d, delay = 0, o) => Object.assign({ k, d, delay, t: 0, go: false, dir: Math.random() < .5 ? -1 : 1 }, o);
+  // a sheep's local +z (its right side) in world space is (sin yaw, cos yaw): roll that way = fall away from (x, z)
+  const fallDir = (s, x, z) => Math.sign((s.x - x) * Math.sin(s.yaw) + (s.z - z) * Math.cos(s.yaw)) || 1;
+  const DUR = { hop: 1.05, spin: .95, flop: 2.6, shake: .85, boing: 1, baa: 1.1 };
+  const SAY = { hop: ['ぴょん', 'ぴょんぴょん', '対応完了メェ！', '打てる球は全部打つメェ'], spin: ['くるっ', 'くるりん'], flop: ['ばたん', 'きゅう…', '工数調整メェ…', '取り急ぎメェ〜'], shake: ['ぶるぶる', 'もふもふ'], boing: ['ぽよん', 'ぼよーん', '対応完了メェ！', '打てる球は全部打つメェ'], baa: ['メェ〜', 'メェッ！', 'メ〜', '承知しメェした', '助かりメェす'] };
+  function near(x, z, R, fn) {
+    const R2 = R * R, seen = new Set();
+    for (let cx = Math.floor(x - R); cx <= Math.floor(x + R); cx++) for (let cz = Math.floor(z - R); cz <= Math.floor(z + R); cz++) {
+      const b = grid.get((cx * 73856093) ^ (cz * 19349663)); if (!b) continue;
+      for (const i of b) { if (seen.has(i)) continue; seen.add(i); const s = sh[i], d2 = (s.x - x) ** 2 + (s.z - z) ** 2; if (d2 < R2) fn(s, Math.sqrt(d2)); }
+    }
+  }
+  function pokeAt(x, z, mood) {
+    if (mood === 'scatter') {
+      near(x, z, 2.7, (s, d) => {
+        if (s.cool > 0 || busy(s)) return;
+        const l = d || 1;
+        s.rx = rx('flee', rnd(.55, .95), rnd(0, .08), { fx: (s.x - x) / l, fz: (s.z - z) / l, pow: rnd(5.5, 8.5) * (1.15 - d / 2.7 * .5) });
+        s.hv = rnd(1.8, 3.2); s.cool = rnd(2.2, 3.6);
+        bubble(s, pick(['！', '！？', 'わっ', 'ひゃっ', '連投メェ〜', '念のためメェ'])); noise('bleat', { rate: rnd(1.1, 1.3) });
+      });
+    } else if (mood === 'wave') {
+      let ready = false; near(x, z, 1.3, s => { if (s.cool <= 0 && !busy(s)) ready = true; });
+      if (!ready || hov.waveT > 0) return;
+      hov.waveT = 1.7; let first = null;
+      near(x, z, 9, (s, d) => {
+        if (busy(s)) return;
+        s.rx = rx('hop', .8, d * .075, { hops: d < 1.6 ? 2 : 1, h: rnd(3.6, 4.6) * (1 - d / 9 * .35), say: false }); s.cool = 2.6;
+        if (!first || d < first[1]) first = [s, d];
+      });
+      if (first) bubble(first[0], pick(['♪', 'それっ', 'ウェーブ！', 'よろしくメェ〜', 'おつかれメェ！']), true);
+      noise('pon', { vol: .4 });
+    } else if (mood === 'domino') {
+      let seed = null; near(x, z, 1.2, (s, d) => { if (s.cool <= 0 && !busy(s) && (!seed || d < seed[1])) seed = [s, d]; });
+      if (!seed) return;
+      const [s0] = seed;
+      near(s0.x, s0.z, 4.2, (s, d) => {
+        if (busy(s) || Math.random() < d / 4.2 * .45) return;
+        s.rx = rx('flop', DUR.flop + rnd(-.2, .4), d * .13, { dir: fallDir(s, s0.x, s0.z), say: false }); s.cool = DUR.flop + rnd(1.5, 3);
+      });
+      bubble(s0, pick(['ばたん', 'きゅう…', 'バタバタ', '工数調整メェ…', '取り急ぎメェ〜']), true); noise('poof', { vol: .5 });
+    } else if (mood === 'curious') {
+      near(x, z, 5.5, s => {
+        if (busy(s)) return;
+        if (s.rx) { s.rx.t = Math.min(s.rx.t, .2); return; }
+        s.rx = rx('look', 1.4, rnd(0, .35));
+        if (Math.random() < .05) bubble(s, pick(['？', 'なに？', 'じーっ', 'なるほどメェ〜', 'これでOKメェ？']));
+      });
+    } else {
+      near(x, z, 2, s => {
+        if (s.cool > 0 || busy(s)) return;
+        const k = pick(['hop', 'hop', 'spin', 'spin', 'flop', 'shake', 'boing', 'boing', 'baa', 'baa']);
+        s.rx = rx(k, DUR[k] * rnd(.9, 1.15), rnd(0, .18), { hops: 2, h: rnd(3.8, 4.8) }); s.cool = rnd(3, 5.5);
+      });
+    }
+  }
+  // a reaction's first frame (after its delay): sounds, bubbles, hops
+  function startRx(s, r) {
+    if (r.k === 'hop') { s.hv = r.h; if (r.say !== false) bubble(s, pick(SAY.hop)); }
+    else if (r.k === 'boing') { s.hv = 3.2; bubble(s, pick(SAY.boing)); noise('boing'); }
+    else if (r.k === 'baa') { bubble(s, pick(SAY.baa), true); noise('bleat'); }
+    else if (r.k === 'flop') { if (r.say !== false) bubble(s, pick(SAY.flop)); noise('thud', { vol: .22, rate: rnd(1.2, 1.5) }); }
+    else if (r.k in SAY) bubble(s, pick(SAY[r.k]));
+  }
+  function hoverStep(dt) {
+    hov.waveT -= dt; hov.sndT -= dt; hov.bubT -= dt;
+    if (!hov.on) return;
+    hov.moodT -= dt; if (hov.moodT <= 0) pickMood();
+    ray.setFromCamera(ndc, camera); hov.ok = !!ray.ray.intersectPlane(GROUND, hit);
+    if (!hov.ok) return;
+    hov.x = hit.x; hov.z = hit.z;
+    pokeAt(hov.x, hov.z, hov.mood);
+  }
 
   /* ---------------- simulation ---------------- */
   let SP = 1.05, RC = .46, SC = 1, SCt = 1;   // spacing, soft collision radius (smaller than the wool so neighbours squish), sheep scale
@@ -3049,7 +3194,7 @@ stage('#flock', (root, renderer, canvas) => {
     for (let i = 0; i < n; i++) {
       const s = sh[i];
       let dvx = 0, dvz = 0, maxV = 1;
-      s.t -= dt;
+      s.t -= dt; if (s.cool > 0) s.cool -= dt;
       if (s.mode === 'graze' || s.mode === 'wander') {
         if (s.t <= 0) {
           if (s.mode === 'graze') { s.mode = 'wander'; const a = rnd(0, 6.28), r = Math.sqrt(Math.random()) * WANDER_R; s.wx = Math.cos(a) * r; s.wz = Math.sin(a) * r; s.t = rnd(4, 9); }
@@ -3082,6 +3227,24 @@ stage('#flock', (root, renderer, canvas) => {
           maxV = run + 1;
         }
       }
+      // hover reactions: timers, extra hops, running away, walking over to look, lying still after a faint
+      const r = s.rx;
+      if (r) {
+        if (r.delay > 0) r.delay -= dt;
+        else {
+          if (!r.go) { r.go = true; startRx(s, r); }
+          r.t += dt;
+          if (r.k === 'hop' && r.hops > 1 && r.t > .15 && s.hop === 0 && s.hv === 0) { r.hops--; s.hv = r.h * .8; }
+          if (r.k === 'flee') { const f = Math.max(0, 1 - r.t / r.d); dvx += r.fx * r.pow * f; dvz += r.fz * r.pow * f; maxV = Math.max(maxV, r.pow); s.hpT = -.1; }
+          else if (r.k === 'flop' || r.k === 'shake') { dvx = dvz = 0; }
+          else if (r.k === 'look' && hov.on && (s.mode === 'graze' || s.mode === 'wander')) {
+            const dx = hov.x - s.x, dz = hov.z - s.z, d = Math.hypot(dx, dz) || 1;
+            if (d > 1.8) { dvx = dx / d * 1.4 * s.speed; dvz = dz / d * 1.4 * s.speed; maxV = Math.max(maxV, 1.6); } else { dvx = dvz = 0; }
+            s.t = Math.max(s.t, .5);
+          }
+          if (r.t >= r.d) s.rx = null;
+        }
+      }
       // accelerate toward the desired velocity
       const k = Math.min(1, dt * 4);
       s.vx += (dvx - s.vx) * k; s.vz += (dvz - s.vz) * k;
@@ -3109,6 +3272,7 @@ stage('#flock', (root, renderer, canvas) => {
       for (const [ox, oz, r] of OB) { const dx = a.x - ox, dz = a.z - oz, d = Math.hypot(dx, dz), rr = r + RC; if (d < rr && d > 1e-4) { a.x = ox + dx / d * rr; a.z = oz + dz / d * rr; } }
       const dc = Math.hypot(a.x, a.z); if (dc > FR - 1.2) { a.x *= (FR - 1.2) / dc; a.z *= (FR - 1.2) / dc; }
     }
+    hoverStep(dt);
     return arrived;
   }
   function frame(dt, t) {
@@ -3120,17 +3284,33 @@ stage('#flock', (root, renderer, canvas) => {
     const n = count;
     for (let i = 0; i < n; i++) {
       const s = sh[i], spd = Math.hypot(s.vx, s.vz);
+      const r = s.rx && s.rx.go ? s.rx : null, u = r ? clamp(r.t / r.d, 0, 1) : 0;
+      const looking = r && r.k === 'look' && hov.ok;
       if (spd > .2) { const want = Math.atan2(-s.vz, s.vx); let dy = want - s.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); s.yaw += dy * Math.min(1, dt * 7); }
+      else if (looking && s.mode === 'formed') { let dy = Math.atan2(-(hov.z - s.z), hov.x - s.x) - s.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); s.yaw += clamp(dy, -.9, .9) * Math.min(1, dt * 3); }
       else if (s.mode === 'formed') { let dy = (-Math.PI / 2 + Math.sin(s.ph) * .35) - s.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); s.yaw += dy * Math.min(1, dt * 1.5); }
       s.ph += dt * (2 + spd * 2.2);
       // hop (gallop bounce when running fast, occasional happy hop)
       if (s.hv) { s.hop += s.hv * dt; s.hv -= 12 * dt; if (s.hop <= 0) { s.hop = 0; s.hv = 0; } }
       const gallop = spd > 4 ? Math.abs(Math.sin(s.ph)) * .28 : Math.abs(Math.sin(s.ph)) * .05 * Math.min(1, spd);
-      s.headP += (s.hpT - s.headP) * Math.min(1, dt * 3); s.headY += (s.hyT - s.headY) * Math.min(1, dt * 2.5);
-      if (s.mode !== 'formed' && s.mode !== 'go') s.hyT = Math.sin(t * .7 + s.ph) * .3;
-      Q.setFromAxisAngle(Y, s.yaw); V.set(s.x, s.hop + gallop, s.z);
+      // reaction poses: head targets, spin, faint (roll onto the back, legs kicking), wool shake, squash & stretch
+      let spin = 0, roll = 0, sx = 1, sy = 1, kick = 0;
+      if (looking) { let rel = Math.atan2(-(hov.z - s.z), hov.x - s.x) - s.yaw; rel = Math.atan2(Math.sin(rel), Math.cos(rel)); s.hyT = clamp(rel, -1.1, 1.1); s.hpT = -.18; }
+      else if (r) {
+        if (r.k === 'spin') spin = easeIO(u) * Math.PI * 2 * r.dir;
+        else if (r.k === 'flop') {
+          const f = u < .13 ? (u / .13) ** 2 : u < .24 ? 1 - Math.sin((u - .13) / .11 * Math.PI) * .12 : u < .8 ? 1 : 1 - easeIO((u - .8) / .2);
+          roll = f * 2.75 * r.dir; kick = u > .2 && u < .8 ? 1 : 0; s.hpT = 0;
+        } else if (r.k === 'shake') { roll = Math.sin(r.t * 40) * .24 * (1 - u); s.hyT = Math.sin(r.t * 40 + 1) * .5 * (1 - u); }
+        else if (r.k === 'boing') { const w = Math.sin(u * Math.PI * 3.5) * (1 - u) * .38; sy = 1 + w; sx = 1 - w * .45; }
+        else if (r.k === 'baa') { s.hpT = u < .75 ? -.55 : 0; s.hyT = Math.sin(r.t * 22) * .12 * (u < .75 ? 1 : 0); }
+      }
+      s.headP += (s.hpT - s.headP) * Math.min(1, dt * (r ? 8 : 3)); s.headY += (s.hyT - s.headY) * Math.min(1, dt * (r ? 9 : 2.5));
+      if (s.mode !== 'formed' && s.mode !== 'go' && !looking && !r) s.hyT = Math.sin(t * .7 + s.ph) * .3;
+      Q.setFromAxisAngle(Y, s.yaw + spin); V.set(s.x, s.hop + gallop, s.z);
       const lean = spd > 4 ? Math.sin(s.ph * 2) * .06 : 0;
-      M.compose(V, Q, ONE.set(SC, SC, SC)); if (lean) M.multiply(T1.makeRotationZ(lean));
+      M.compose(V, Q, ONE.set(SC * sx, SC * sy, SC * sx)); if (lean) M.multiply(T1.makeRotationZ(lean));
+      if (roll) M.multiply(T1.makeTranslation(0, .85, 0)).multiply(T2.makeRotationX(roll)).multiply(T1.makeTranslation(0, -.85, 0));
       // head: pitch down to graze / yaw to look around, pivoting at the neck
       E.set(0, s.headY, -s.headP); Qh.setFromEuler(E);
       Mh.copy(M).multiply(T1.makeTranslation(NECK.x, NECK.y, NECK.z)).multiply(T2.makeRotationFromQuaternion(Qh)).multiply(T1.makeTranslation(-NECK.x, -NECK.y, -NECK.z));
@@ -3143,7 +3323,7 @@ stage('#flock', (root, renderer, canvas) => {
       // legs swing from the hip; diagonal pairs move together
       const amp = Math.min(.7, spd * .16 + (s.hop > 0 ? .4 : 0));
       for (let j = 0; j < mL.length; j++) {
-        const p = P_LEG[j], sw = Math.sin(s.ph * 1.6 + (j === 0 || j === 3 ? 0 : Math.PI)) * amp;
+        const p = P_LEG[j], sw = kick ? Math.sin(t * 17 + j * 1.9) * .55 : Math.sin(s.ph * 1.6 + (j === 0 || j === 3 ? 0 : Math.PI)) * amp;
         Ml.copy(M).multiply(T1.makeTranslation(p[0], HIPY, p[2])).multiply(T2.makeRotationZ(sw)).multiply(T1.makeTranslation(-p[0], -HIPY, -p[2]));
         iLeg.setMatrixAt(i * mL.length + j, tmp.multiplyMatrices(Ml, mL[j]));
       }
@@ -3164,19 +3344,45 @@ stage('#flock', (root, renderer, canvas) => {
     clouds.forEach((c, k) => { c.position.x += dt * (.6 + k * .1); if (c.position.x > 90) c.position.x = -90; });
     for (let i = 0; i < SN; i++) { sp[i * 3 + 1] -= sv[i] * dt; sp[i * 3] += Math.sin(t * .5 + i) * .4 * dt; if (sp[i * 3 + 1] < 0) { sp[i * 3 + 1] = 30; sp[i * 3] = rnd(-45, 45); sp[i * 3 + 2] = rnd(-45, 45); } }
     sg.attributes.position.needsUpdate = true; snow.material.uniforms.time.value = t;
-    // camera
-    camT += ((cycling ? 1 : 0) - camT) * Math.min(1, (dt || .016) * 1.4);
+    // camera: live target for the current shot, reached through the swoop tween after every change
     const fovT = Math.tan(T.MathUtils.degToRad(camera.fov / 2));
     const ew = cycling ? extent[0] : (isPC() ? 50 : 28), eh = cycling ? extent[1] : 30;
-    const fitD = Math.max(ew / 2 / (fovT * aspect), eh / 2 / fovT) * 1.12;
-    const polar = clamp(T.MathUtils.lerp(1.25, .42, camT) + tiltOff, .25, 1.4);
-    const a = az + (cycling ? 0 : Math.sin(t * .07) * .3);
-    camera.position.set(Math.sin(a) * Math.sin(polar) * fitD, Math.cos(polar) * fitD + 1, Math.cos(a) * Math.sin(polar) * fitD);
-    camera.lookAt(0, 0, (isPC() ? 2 : 4) * (1 - camT));
+    const tgt = {
+      d: Math.max(ew / 2 / (fovT * aspect), eh / 2 / fovT) * 1.12,
+      polar: clamp((cycling ? .42 : 1.25) + tiltOff, .25, 1.4),
+      a: az + (cycling ? 0 : Math.sin(t * .07) * .3),
+      lz: cycling ? 0 : (isPC() ? 2 : 4)
+    };
+    camRoll = 0;
+    if (!cam.d || !camTw) Object.assign(cam, tgt);
+    else {
+      camTw.t += dt;
+      const u = clamp(camTw.t / camTw.dur, 0, 1), e = easeIO(u), arc = Math.sin(Math.PI * u);
+      for (const k in tgt) cam[k] = camTw.from[k] + (tgt[k] - camTw.from[k]) * e;
+      cam.d *= 1 + arc * camTw.lift; cam.a += arc * camTw.swing; camRoll = arc * camTw.swing * -.1;
+      if (u >= 1) camTw = null;
+    }
+    const sp_ = Math.sin(cam.polar);
+    camera.position.set(Math.sin(cam.a) * sp_ * cam.d, Math.cos(cam.polar) * cam.d + 1, Math.cos(cam.a) * sp_ * cam.d);
+    camera.lookAt(0, 0, cam.lz);
+    if (camRoll) camera.rotateZ(camRoll);
+    // speech bubbles follow their sheep on screen: pop in, float up a little, fade out
+    for (let k = bubbles.length - 1; k >= 0; k--) {
+      const b = bubbles[k]; b.t += dt;
+      const u = b.t / 1.15;
+      if (u >= 1) { b.el.remove(); bubbles.splice(k, 1); continue; }
+      BV.set(b.s.x, 1.75 * SC + b.s.hop, b.s.z).project(camera);
+      if (BV.z > 1) { b.el.style.opacity = 0; continue; }
+      const x = (BV.x + 1) / 2 * root.clientWidth, y = (1 - BV.y) / 2 * root.clientHeight - u * 16;
+      const sc = u < .16 ? 1 + 2.70158 * Math.pow(u / .16 - 1, 3) + 1.70158 * Math.pow(u / .16 - 1, 2) : 1;
+      b.el.style.opacity = u > .72 ? 1 - (u - .72) / .28 : 1;
+      b.el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) translate(-50%,-100%) scale(${Math.max(0, sc).toFixed(3)})`;
+    }
   }
   function resize(w, h) { aspect = w / h; camera.aspect = aspect; camera.updateProjectionMatrix(); snow.fit(renderer, camera, h); }
   setCount(N());
   for (let k = 0; k < 30; k++) step(1 / 30, k / 30);
+  root._fl = { camera, cam, hov, pokeAt, tween: () => camTw };   // test hook
   return { scene, camera, frame, resize, onMode() { setCount(N()); if (cycling) { shapeIx--; nextShape(); } } };
 });
 
@@ -3738,10 +3944,13 @@ stage('#gacha', (root, renderer, canvas) => {
   // capsules inside the globe (simple sphere physics)
   const CR = .21, NC = 20, PAL = [C.blue, C.yellow, 0x00BBFF, 0xffffff, C.sky, C.strong];
   const halfTop = new T.SphereGeometry(CR, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), halfBot = new T.SphereGeometry(CR, 20, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
-  const clearM = new T.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: .85, shininess: 90 });
+  // shells are open hemispheres: draw both sides so an opened capsule shows its inside, and give each cut edge a lip
+  const clearM = new T.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: .85, shininess: 90, side: T.DoubleSide });
+  const lipGeo = new T.RingGeometry(CR * .9, CR * 1.002, 24), lipM = new T.MeshPhongMaterial({ color: 0xffffff, shininess: 40, side: T.DoubleSide });
   function capsule(color) {
     const g = new T.Group();
-    const t = new T.Mesh(halfTop, new T.MeshPhongMaterial({ color, shininess: 80 })), b = new T.Mesh(halfBot, clearM), band = new T.Mesh(new T.TorusGeometry(CR, .012, 6, 24), STD(0xffffff)); band.rotation.x = Math.PI / 2;
+    const t = new T.Mesh(halfTop, new T.MeshPhongMaterial({ color, shininess: 80, side: T.DoubleSide })), b = new T.Mesh(halfBot, clearM), band = new T.Mesh(new T.TorusGeometry(CR, .012, 6, 24), STD(0xffffff)); band.rotation.x = Math.PI / 2;
+    [t, b].forEach(h => { const lip = new T.Mesh(lipGeo, lipM); lip.rotation.x = Math.PI / 2; h.add(lip); });
     t.castShadow = b.castShadow = true; g.add(t, b, band); g.top = t; g.bot = b; g.band = band; return g;
   }
   const globe = new T.Group(); globe.position.y = GY; mach.add(globe);
@@ -4226,18 +4435,39 @@ stage('#post', (root, renderer, canvas) => {
     g.font = `500 22px ${MONO}`; g.fillStyle = '#979C9E'; g.textAlign = 'right'; g.fillText(`${typed.length} / 60`, w - 30, h - 20); g.textAlign = 'left';
     if (!focused && !typed) { g.setLineDash([14, 10]); g.strokeStyle = '#0066FF'; g.lineWidth = 4; g.strokeRect(16, TOP, w - 32, h - TOP - 50); g.setLineDash([]); }
   });
-  const letter = new T.Mesh(new T.PlaneGeometry(EW * .84, EW * .62), new T.MeshStandardMaterial({ map: letterTex, side: T.DoubleSide }));
+  // the letter is a sheet of card with a visible paper edge, standing a little off the envelope's back so it casts a soft shadow on it
+  const LW = EW * .84, LH = EW * .62, LT = .012, LET_Z = .036;   // size, thickness, centre depth (back of the envelope is at z .01)
+  const paperEdge = STD(0xE9E2CF, { roughness: .9 }), paperBack = STD(0xFBF8F0, { roughness: .9 });
+  const letter = new T.Mesh(new T.BoxGeometry(LW, LH, LT), [paperEdge, paperEdge, paperEdge, paperEdge, new T.MeshStandardMaterial({ map: letterTex, roughness: .85 }), paperBack]);
+  letter.castShadow = true;
   const LET_UP = .42;                                   // letter sticks out of the open envelope while writing; ends centred inside (y 0)
-  letter.position.set(0, LET_UP, .015); ENV.add(letter);
+  letter.position.set(0, LET_UP, LET_Z); ENV.add(letter);
+  // its soft shadow: a blurred card (drawn as the canvas shadow of an off-canvas rect, which every browser supports),
+  // laid on the envelope back and on the open flap behind it. The shapes clip the shadow to the paper; the texture slides with the letter.
+  const SPAD = .09, SW = LW + SPAD * 2, SH = LH + SPAD * 2;
+  const shTex = canvasTex(256, Math.round(256 * SH / SW), (g, w, h) => {
+    const m = SPAD * w / SW;
+    g.shadowColor = 'rgba(11,28,63,.6)'; g.shadowBlur = m * .85; g.shadowOffsetX = w * 2;
+    g.fillStyle = '#000'; g.fillRect(m - w * 2, m, w - m * 2, h - m * 2);
+  });
+  const shTexF = shTex.clone(); shTexF.needsUpdate = true;
+  const shMat = tex => new T.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  const backS = new T.Shape(); backS.moveTo(-EW / 2, -EH / 2); backS.lineTo(EW / 2, -EH / 2); backS.lineTo(EW / 2, EH / 2); backS.lineTo(-EW / 2, EH / 2); backS.lineTo(-EW / 2, -EH / 2);
+  const letShB = new T.Mesh(new T.ShapeGeometry(backS), shMat(shTex)); letShB.position.z = .0105; ENV.add(letShB);   // ShapeGeometry uv = local x,y
   const pocketS = new T.Shape(); pocketS.moveTo(-EW / 2, -EH / 2); pocketS.lineTo(EW / 2, -EH / 2); pocketS.lineTo(EW / 2, EH * .12); pocketS.lineTo(0, -EH * .12); pocketS.lineTo(-EW / 2, EH * .12); pocketS.lineTo(-EW / 2, -EH / 2);
-  const pocket = new T.Mesh(new T.ShapeGeometry(pocketS), STD(0xE6EAF0, { side: T.DoubleSide, roughness: .6 })); pocket.position.z = .03; ENV.add(pocket);
+  const pocket = new T.Mesh(new T.ShapeGeometry(pocketS), STD(0xE6EAF0, { side: T.DoubleSide, roughness: .6 })); pocket.position.z = .052; pocket.castShadow = true; ENV.add(pocket);
+  // the pocket stands off the back now, so close its sides and bottom with thin gussets
+  { const gm = STD(0xDCE2EB, { roughness: .6 }), gd = .052 - .01, gh = EH / 2 + EH * .12;
+    [-1, 1].forEach(sd => { const w = new T.Mesh(new T.BoxGeometry(.004, gh, gd), gm); w.position.set(sd * (EW / 2 - .002), -EH / 2 + gh / 2, .01 + gd / 2); ENV.add(w); });
+    const b = new T.Mesh(new T.BoxGeometry(EW, .004, gd), gm); b.position.set(0, -EH / 2 + .002, .01 + gd / 2); ENV.add(b); }
   const edge = new T.LineBasicMaterial({ color: 0x9AA3AF });
-  const pocketLine = new T.Line(new T.BufferGeometry().setFromPoints([[-EW / 2, EH * .12], [0, -EH * .12], [EW / 2, EH * .12]].map(([x, y]) => new T.Vector3(x, y, .032))), edge); ENV.add(pocketLine);
+  const pocketLine = new T.Line(new T.BufferGeometry().setFromPoints([[-EW / 2, EH * .12], [0, -EH * .12], [EW / 2, EH * .12]].map(([x, y]) => new T.Vector3(x, y, .054))), edge); ENV.add(pocketLine);
   const flapP = new T.Group(); flapP.position.set(0, EH / 2, -.012); ENV.add(flapP);
   // closed, the flap reaches down to the pocket's V (with a little overlap) so the letter is fully hidden
   const FS = EH * .12 - EH / 2 - .012, FC = -EH * .12 - EH / 2 - .012;   // flap bottom at the sides / at the centre point
   const flapS = new T.Shape(); flapS.moveTo(-EW / 2, 0); flapS.lineTo(EW / 2, 0); flapS.lineTo(EW / 2, FS); flapS.lineTo(0, FC); flapS.lineTo(-EW / 2, FS); flapS.lineTo(-EW / 2, 0);
   const flapM = new T.Mesh(new T.ShapeGeometry(flapS), STD(0xDCE2EB, { side: T.DoubleSide, roughness: .6 })); flapP.add(flapM);
+  const letShF = new T.Mesh(new T.ShapeGeometry(flapS), shMat(shTexF)); letShF.position.z = -.003; flapP.add(letShF);   // open, local -z faces the camera
   flapP.add(new T.Line(new T.BufferGeometry().setFromPoints([[-EW / 2, FS], [0, FC], [EW / 2, FS]].map(([x, y]) => new T.Vector3(x, y, .002))), edge));
   const seal = new T.Group(); seal.position.set(0, FC + .07, .03); flapP.add(seal);
   const sealDisc = new T.Mesh(new T.CylinderGeometry(.12, .12, .03, 32), new T.MeshStandardMaterial({ color: C.blue, roughness: .35 }));
@@ -4366,12 +4596,19 @@ stage('#post', (root, renderer, canvas) => {
       }
       if (sealT >= 1) {
         flipT = Math.min(1, flipT + dt * 1.8);
-        if (flipT >= 1) { phase = 'ready'; setPrompt('投函する（封筒を上にスワイプでもOK）', true, doPost); }
+        if (flipT >= 1) { phase = 'ready'; setPrompt('投函する', true, doPost); prompt.setAttribute('aria-label', '投函する（封筒を上にスワイプでもOK）'); }
       }
     }
     letter.position.y = LET_UP * (1 - ease2(letterT));
     flapP.rotation.x = -Math.PI * (1 - ease2(flapT));
-    flapP.position.z = flapT > 0 ? .036 : -.012;
+    flapP.position.z = flapT > 0 ? .058 : -.012;
+    // letter shadow: the key light is upper-left/front, so it falls down-right, further (and fainter) on the flap, which is further back
+    { const ly = letter.position.y, gB = LET_Z - LT / 2 - .01, gF = LET_Z - LT / 2 + .009;
+      const cxB = gB * 1.2, cyB = ly - gB * 2, cxF = gF * 1.2, cyF = ly - gF * 2;
+      shTex.repeat.set(1 / SW, 1 / SH); shTex.offset.set(-(cxB - SW / 2) / SW, -(cyB - SH / 2) / SH);
+      // the open flap is turned over (local y points down), so v runs the other way
+      shTexF.repeat.set(1 / SW, -1 / SH); shTexF.offset.set(-(cxF - SW / 2) / SW, (EH / 2 - cyF + SH / 2) / SH);
+      letShB.material.opacity = .75; letShF.material.opacity = .6 * Math.max(0, 1 - flapT * 3); letShF.visible = flapT < .34; }
     const ss = sealT <= 0 ? .001 : sealT < .6 ? 2.4 - 1.6 * (sealT / .6) : 1 + Math.sin((sealT - .6) / .4 * Math.PI) * .12;
     seal.scale.setScalar(ss);
     // envelope placement / idle float
@@ -4485,8 +4722,8 @@ stage('#dome', (root, renderer, canvas) => {
   colSphere(.55, lamb.position.y + .31, .62, .26); const lambCol = COL[COL.length - 1];
   // the two sheep wander around their spot and react when the dome is shaken
   const critters = [
-    { o: sheep, col: sheepCol, hx: -.05, hz: .2, roam: .45, yOff: -.1, colY: .53, sp: .16, x: -.05, z: .2 },
-    { o: lamb, col: lambCol, hx: .55, hz: .62, roam: .3, yOff: -.05, colY: .31, sp: .22, x: .55, z: .62 }
+    { o: sheep, col: sheepCol, hx: -.05, hz: .2, roam: .45, yOff: -.1, colY: .53, sp: .16, x: -.05, z: .2, fr: .3, mass: 1 },
+    { o: lamb, col: lambCol, hx: .55, hz: .62, roam: .3, yOff: -.05, colY: .31, sp: .22, x: .55, z: .62, fr: .18, mass: .45 }
   ].map(c => Object.assign(c, { tx: c.x, tz: c.z, wait: Math.random() * 2, hop: 0, hv: 0, tilt: 0, tiltV: 0, roll: 0, rollV: 0, ph: 0, vx: 0, vz: 0, legs: c.o.legs }));
 
   // little house with a glowing window
@@ -4520,7 +4757,7 @@ stage('#dome', (root, renderer, canvas) => {
   const eyeG = new T.SphereGeometry(.018, 8, 6), eyeM = std(C.ink);
   const e1 = new T.Mesh(eyeG, eyeM); e1.position.set(-.045, .49, .115); const e2 = e1.clone(); e2.position.x = .045;
   snowman.add(b1, b2, scarf, tail, hatG, nose, e1, e2);
-  colSphere(sx, sb - .03 + .18, sz, .2); colSphere(sx, sb - .03 + .45, sz, .13); colBox(sx, sz, .12, .12, sb - .03 + .55); colBox(sx, sz, .075, .075, sb - .03 + .66);
+  colSphere(sx, sb - .03 + .18, sz, .2); colSphere(sx, sb - .03 + .45, sz, .13); colBox(sx, sz, .12, .12, sb - .03 + .55); colBox(sx, sz, .075, .075, sb - .03 + .66); const hatCol = COL[COL.length - 1], hatTop = hatCol.top;
 
   // gift box
   const gx = -.6, gz = .82, gb = floorH(gx, gz), gs = .13;
@@ -4553,6 +4790,39 @@ stage('#dome', (root, renderer, canvas) => {
     t.add(c1, c2, tr);
     colCone(x, z, .3 * s, b - .02 + .1 * s, .35 * s); colCone(x, z, .22 * s, b - .02 + .42 * s, .4 * s);
   });
+
+  // footprints on the snow floor that the sheep and the present bump into (inner-local):
+  // circles {x,z,r} and rotated boxes {x,z,hx,hz} (same rotation convention as colBox); h = height, so a hop can clear low ones
+  const OBS = [];
+  const obC = (x, z, r, h, tag, o) => OBS.push(Object.assign({ k: 'c', x, z, r, h, tag }, o));
+  const obB = (x, z, hx_, hz_, ry, h, tag) => OBS.push({ k: 'b', x, z, hx: hx_, hz: hz_, c: Math.cos(ry), s: Math.sin(ry), h, tag });
+  obB(hx, hz, hw + .03, hd + .03, hry, 9, 'house');
+  obC(sx, sz, .21, .6, 'snowman');
+  obC(signX, signZ, .045, 9, 'sign'); obB(signX, signZ, .28, .03, -.3, 9, 'sign');
+  [[-1.1, .28, .95], [.08, -1.12, .8], [1.05, -.62, .62], [1.12, .62, .5]].forEach(([x, z, s], k) => obC(x, z, .25 * s, 9, 'tree', { tree: domeTrees[k], w: 0, wv: 0 }));
+  // push a circle (x, z, r) out of every obstacle it overlaps → { x, z, nx, nz, hit } (n = outward normal of the last hit)
+  function pushOut(x, z, r, hop) {
+    let hit = null, nx = 0, nz = 0;
+    for (const o of OBS) {
+      if (hop > o.h) continue;
+      const dx = x - o.x, dz = z - o.z;
+      if (o.k === 'c') {
+        const d = Math.hypot(dx, dz), m = o.r + r;
+        if (d < m) { const ux = d > 1e-5 ? dx / d : 1, uz = d > 1e-5 ? dz / d : 0; x = o.x + ux * m; z = o.z + uz * m; nx = ux; nz = uz; hit = o; }
+      } else {
+        const lx = dx * o.c - dz * o.s, lz = dx * o.s + dz * o.c;
+        const qx = clamp(lx, -o.hx, o.hx), qz = clamp(lz, -o.hz, o.hz), ex = lx - qx, ez = lz - qz, d = Math.hypot(ex, ez);
+        if (d >= r) continue;
+        let ux, uz, nlx, nlz;
+        if (d > 1e-5) { ux = ex / d; uz = ez / d; nlx = qx + ux * r; nlz = qz + uz * r; }
+        else if (o.hx - Math.abs(lx) < o.hz - Math.abs(lz)) { ux = Math.sign(lx) || 1; uz = 0; nlx = ux * (o.hx + r); nlz = lz; }   // centre inside: leave by the nearest face
+        else { ux = 0; uz = Math.sign(lz) || 1; nlx = lx; nlz = uz * (o.hz + r); }
+        x = o.x + nlx * o.c + nlz * o.s; z = o.z - nlx * o.s + nlz * o.c;
+        nx = ux * o.c + uz * o.s; nz = -ux * o.s + uz * o.c; hit = o;
+      }
+    }
+    return { x, z, nx, nz, hit };
+  }
 
   // props modelled in Blender (snowdome.glb): turned lacquer base, cottage, pines, gift.
   // The simple shapes above stay as the fallback; colliders and animation targets are unchanged.
@@ -4620,7 +4890,7 @@ stage('#dome', (root, renderer, canvas) => {
   lip.rotation.x = Math.PI / 2; lip.position.y = .03; dome.add(lip);
 
   // snow particles (in dome local space, center at y=.45)
-  const NP = 700, pos = new Float32Array(NP * 3), vel = new Float32Array(NP * 3);
+  const NP = 5600, pos = new Float32Array(NP * 3), vel = new Float32Array(NP * 3);   // 8× the original 700
   const CY = .45, RIN = R - .1;
   const rest = new Uint8Array(NP);
   for (let i = 0; i < NP; i++) {
@@ -4631,22 +4901,40 @@ stage('#dome', (root, renderer, canvas) => {
   const pg = new T.BufferGeometry(); pg.setAttribute('position', new T.BufferAttribute(pos, 3));
   const snow = makeSnow(pg, NP, .035, .15);
   inner.add(snow);
+  // each flake sinks at its own speed (big ones faster, soft fluffy ones slower) and flutters side to side as it falls
+  const vt = new Float32Array(NP), flF = new Float32Array(NP), flP = new Float32Array(NP);
+  { const sz = pg.attributes.size.array, vr = pg.attributes.variant.array;
+    for (let i = 0; i < NP; i++) { vt[i] = (.1 + sz[i] * 1.25) * (.8 + Math.random() * .4) * (vr[i] >= 12 ? .75 : 1); flF[i] = 1.4 + Math.random() * 2.2; flP[i] = Math.random() * 6.28; } }
+  // the water: flakes are carried by it. W = its spin relative to the glass (angular velocity, local axes) + turbulence;
+  // both die down over a couple of seconds like a real globe
+  // + two turbulence modes whose phases and scales are re-rolled on every big shake, so each shake swirls differently
+  // + a ring-shaped overturn (Hill's vortex: up through the middle, out over the top, down along the glass) that lifts the snow
+  const W = { x: 0, y: 0, z: 0, turb: 0, up: 0, k1: 1, k2: 2.2, p: [0, 1, 2, 3, 4, 5] };
+  const rerollWater = () => { W.k1 = .8 + Math.random() * .7; W.k2 = 1.9 + Math.random() * 1.2; for (let k = 0; k < 6; k++) W.p[k] = Math.random() * 6.28; };
+  let pOX = 0, pOY = 0, pVX = 0, pVY = 0, pWZ = 0, pWX = 0, bumpSnd = 0, snowFC = 0;
 
   const LINES = ['あけましておめでとうございます。', '2027年は未年。「未」は「未来」の「未」です。', '雪がとけたら、新しいことが芽吹く季節。', '今年も皆さまと一緒に、あしたをオモシロク。'];
   const msg = $('.ov-msg', root), linesEl = $('.js-lines', root), sigEl = $('.js-sig', root), shakesEl = $('.js-shakes', root), btn = $('.js-shake', root), allBtn = $('.js-all', root);
   let offX = 0, offY = 0, offVX = 0, offVY = 0, prevRZ = 0, prevRX = 0;
-  let shown = 1, wob = 0, wobV = 0, tiltX = 0, tiltZ = 0, drag = null, dragDist = 0, counted = false, aspect = 1, swirl = 0, lock = false;
+  let shown = 1, wob = 0, wobV = 0, tiltX = 0, tiltZ = 0, drag = null, dragDist = 0, counted = false, aspect = 1, lock = false;
   let lastSlosh = 0;
   function shake(power) {
     const now = performance.now();
     if (now - lastSlosh > 380 || power >= 1) { lastSlosh = now; play('globe', { vol: Math.min(1, .35 + power * .65) }); }
+    // stir the water (a spin around a random axis + turbulence); the flakes on the floor are swept up by it
+    const sgn = Math.random() < .5 ? -1 : 1;
+    W.x += (Math.random() - .5) * power * 2.4; W.y += sgn * power * (1.4 + Math.random()); W.z += (Math.random() - .5) * power * 2.4;
+    if (power > .5 || W.turb < .2) rerollWater();
+    W.turb = Math.min(1.1, W.turb + power * 1.0); W.up = Math.min(1.3, W.up + power * 1.1);
+    // flakes are thrown every which way (mostly up), so they fill the globe instead of rising as one sheet
     for (let i = 0; i < NP; i++) {
+      if (rest[i] && Math.random() > .25 + power * .7) continue;
       rest[i] = 0;
-      vel[i * 3] += (Math.random() - .5) * power * 2.4;
-      vel[i * 3 + 1] += (Math.random() * .9 + .4) * power * 2.6;
-      vel[i * 3 + 2] += (Math.random() - .5) * power * 2.4;
+      vel[i * 3] += (Math.random() - .5) * power * 1.6;
+      vel[i * 3 + 1] += (.3 + Math.random() * 1.6) * power;
+      vel[i * 3 + 2] += (Math.random() - .5) * power * 1.6;
     }
-    wobV += power * 4 * (Math.random() < .5 ? -1 : 1); swirl = power * 2;
+    wobV += power * 4 * sgn;
     critters.forEach(c => { c.hv += power * (1.2 + Math.random() * 1.2); c.tiltV += (Math.random() - .5) * power * 14; c.rollV += (Math.random() - .5) * power * 10; c.wait = 0; });
     giftS.hv += power * (1 + Math.random()); giftS.tiltV += (Math.random() - .5) * power * 16; giftS.spin += (Math.random() - .5) * power * 3;
     hatS.hv += power * (1.4 + Math.random() * .8); hatS.tiltV += (Math.random() - .5) * power * 18;
@@ -4690,8 +4978,21 @@ stage('#dome', (root, renderer, canvas) => {
   canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', () => { drag = null; canvas.style.cursor = ''; });
   render();
 
+  const GIFT_R = gs * 1.25;
+  // what happens when something runs into an obstacle: the sheep wobbles, a tree shakes its snow off,
+  // the snowman's hat jumps, the cottage roof sheds a little
+  function bumped(c, o, speed) {
+    if (c) { c.tiltV += (Math.random() - .5) * speed * 14; c.rollV += (Math.random() - .5) * speed * 10; c.hv += speed * .5; }
+    if (o.tag === 'tree') o.wv += speed * (Math.random() < .5 ? -6 : 6);
+    if (o.tag === 'snowman') { hatS.hv += speed * 1.2; hatS.tiltV += (Math.random() - .5) * speed * 20; }
+    const rad = o.tag === 'tree' ? o.r * 1.6 : o.tag === 'house' ? .45 : .3, share = o.tag === 'house' ? .3 : 1;
+    for (let i = 0; i < NP; i++) if (rest[i] && Math.random() < share) { const ex = pos[i * 3] - o.x, ez = pos[i * 3 + 2] - o.z; if (ex * ex + ez * ez < rad * rad && pos[i * 3 + 1] > floorH(pos[i * 3], pos[i * 3 + 2]) + .05) { rest[i] = 0; vel[i * 3 + 1] = .1 + Math.random() * .3 * speed; vel[i * 3] = (Math.random() - .5) * .3; vel[i * 3 + 2] = (Math.random() - .5) * .3; } }
+    const now = performance.now(); if (now - bumpSnd > 280) { bumpSnd = now; play('thud', { vol: Math.min(.4, .12 + speed * .3), rate: 1.3 + Math.random() * .3 }); }
+  }
   function frame(dt, t) {
     dt = dt || .016;
+    // trees that were bumped sway back on a spring
+    OBS.forEach(o => { if (!o.tree) return; o.wv += (-o.w * 70 - o.wv * 5) * dt; o.w += o.wv * dt; o.tree.rotation.z = o.w * .12; o.tree.rotation.x = o.w * .06; });
     // wobble spring
     wobV += (-wob * 30 - wobV * 4) * dt; wob += wobV * dt;
     if (!drag) {
@@ -4702,17 +5003,29 @@ stage('#dome', (root, renderer, canvas) => {
     dome.position.x = offX; dome.position.y = offY;
     dome.rotation.z = wob * .25 + tiltZ + offVX * .02; dome.rotation.x = tiltX * .6;
     inner.rotation.y = Math.sin(t * .3) * .12;
-    swirl *= .97;
-    // how much the globe turned this frame: the water (and snow) lags behind the glass
+    // how much the globe turned this frame
     const dRZ = dome.rotation.z - prevRZ, dRX = dome.rotation.x - prevRX; prevRZ = dome.rotation.z; prevRX = dome.rotation.x;
-    const turn = Math.abs(dRZ) + Math.abs(dRX), slosh = .8 / Math.max(dt, .008);
-    const gx = -Math.sin(dome.rotation.z) * .55, gy = -Math.cos(dome.rotation.z) * Math.cos(dome.rotation.x) * .55, gz = Math.sin(dome.rotation.x) * .55;
-    if (turn > .02) for (let i = 0; i < NP; i++) if (rest[i] && Math.random() < turn * 6) { rest[i] = 0; vel[i * 3 + 1] += .2; }
+    // "down" inside the globe follows its tilt
+    const gx = -Math.sin(dome.rotation.z), gy = -Math.cos(dome.rotation.z) * Math.cos(dome.rotation.x), gz = Math.sin(dome.rotation.x);
+    // the water: when the glass changes its spin, the water keeps going (so relative to the glass it spins the other way);
+    // when the globe is jerked sideways the water sloshes into a swirl. Viscosity brings it back to rest.
+    { const ide = 1 / Math.max(dt, .008), wz = dRZ * ide, wx = dRX * ide;
+      W.z -= (wz - pWZ) * 1.3; W.x -= (wx - pWX) * 1.3; pWZ = wz; pWX = wx;
+      const vX = (offX - pOX) * ide, vY = (offY - pOY) * ide, aX = vX - pVX, aY = vY - pVY; pOX = offX; pOY = offY; pVX = vX; pVY = vY;
+      W.z += aX * .9; W.x -= aY * .5; W.turb = Math.min(.9, W.turb + (Math.abs(aX) + Math.abs(aY)) * .25);
+      // the flakes are a touch heavier than water, so they lag behind a jerk of the glass
+      if (Math.abs(aX) + Math.abs(aY) > .01) for (let i = 0; i < NP; i++) if (!rest[i]) { vel[i * 3] -= aX * .35; vel[i * 3 + 1] -= aY * .35; }
+      const wd = Math.exp(-dt / 1.7); W.x *= wd; W.y *= wd; W.z *= wd; W.turb *= Math.exp(-dt / 1.4); W.up *= Math.exp(-dt / 1.5);
+      const lim = 3.2, wm = Math.hypot(W.x, W.y, W.z); if (wm > lim) { W.x *= lim / wm; W.y *= lim / wm; W.z *= lim / wm; } }
+    hatCol.top = hatTop + hatS.h;
     // the sheep stroll, hop when shaken, wobble, and settle again
     critters.forEach(c => {
-      const ox = c.x, oz = c.z;
       c.wait -= dt;
-      if (c.wait <= 0 && Math.hypot(c.tx - c.x, c.tz - c.z) < .03) { const a = Math.random() * 6.28, r = Math.random() * c.roam; c.tx = c.hx + Math.cos(a) * r; c.tz = c.hz + Math.sin(a) * r; c.wait = 1.5 + Math.random() * 3; }
+      if (c.wait <= 0 && Math.hypot(c.tx - c.x, c.tz - c.z) < .03) {
+        // next spot to stroll to: somewhere free (not inside the cottage, a tree, the snowman…)
+        for (let k = 0; k < 8; k++) { const a = Math.random() * 6.28, r = Math.random() * c.roam, tx = c.hx + Math.cos(a) * r, tz = c.hz + Math.sin(a) * r; if (!pushOut(tx, tz, c.fr, 0).hit) { c.tx = tx; c.tz = tz; break; } }
+        c.wait = 1.5 + Math.random() * 3;
+      }
       const dx = c.tx - c.x, dz = c.tz - c.z, d = Math.hypot(dx, dz);
       const v = c.wait > 0 && d < .03 ? 0 : c.sp;
       c.vx += ((d > .01 ? dx / d * v : 0) - c.vx) * Math.min(1, dt * 4); c.vz += ((d > .01 ? dz / d * v : 0) - c.vz) * Math.min(1, dt * 4);
@@ -4722,6 +5035,36 @@ stage('#dome', (root, renderer, canvas) => {
       // inertia: when the globe turns, the sheep slide the other way a little
       c.vx += -dRZ * 1.8 / Math.max(dt, .008) * dt; c.vz += dRX * 1.2 / Math.max(dt, .008) * dt;
       c.x += c.vx * dt; c.z += c.vz * dt;
+      // bump into the cottage, trees, snowman and sign
+      const P = pushOut(c.x, c.z, c.fr, c.hop);
+      if (P.hit) {
+        c.x = P.x; c.z = P.z;
+        const vn = c.vx * P.nx + c.vz * P.nz;
+        if (vn < 0) { c.vx -= vn * P.nx * 1.35; c.vz -= vn * P.nz * 1.35; }        // stop, bounce back a little
+        if (vn < -.2) bumped(c, P.hit, -vn);
+        // walking into it: give up on that spot, look around, pick another
+        if ((c.tx - c.x) * P.nx + (c.tz - c.z) * P.nz < -.02) { c.tx = c.x; c.tz = c.z; c.wait = Math.max(c.wait, .5); }
+      }
+      // ewe and lamb jostle (the lamb gives way more)
+      critters.forEach(o => {
+        if (o === c || Math.abs(o.hop - c.hop) > .3) return;
+        const dx = c.x - o.x, dz = c.z - o.z, d = Math.hypot(dx, dz), m = c.fr + o.fr;
+        if (d >= m || d < 1e-5) return;
+        const ux = dx / d, uz = dz / d, k = o.mass / (o.mass + c.mass);
+        c.x += ux * (m - d) * k; c.z += uz * (m - d) * k;
+        const rv = (c.vx - o.vx) * ux + (c.vz - o.vz) * uz;
+        if (rv < 0) { c.vx -= rv * ux * k * 1.4; c.vz -= rv * uz * k * 1.4; if (rv < -.3) { c.tiltV += (Math.random() - .5) * 8; c.rollV += (Math.random() - .5) * 6; } }
+      });
+      // nudge the present: it is light, so it slides away and the sheep barely slows down
+      if (c.hop < .2 + giftS.h) {
+        const dx = giftS.x - c.x, dz = giftS.z - c.z, d = Math.hypot(dx, dz), m = c.fr + GIFT_R;
+        if (d < m && d > 1e-5) {
+          const ux = dx / d, uz = dz / d, p = m - d;
+          giftS.x += ux * p * .8; giftS.z += uz * p * .8; c.x -= ux * p * .2; c.z -= uz * p * .2;
+          const rv = (c.vx - giftS.vx) * ux + (c.vz - giftS.vz) * uz;
+          if (rv > 0) { giftS.vx += ux * rv * 1.5; giftS.vz += uz * rv * 1.5; if (rv > .25) { giftS.tiltV += (Math.random() - .5) * rv * 20; giftS.hv += rv * .6; } }
+        }
+      }
       const rr = Math.hypot(c.x, c.z); if (rr > 1.35) { c.x *= 1.35 / rr; c.z *= 1.35 / rr; }
       c.hv -= 9 * dt; c.hop += c.hv * dt; if (c.hop < 0) { c.hop = 0; c.hv = Math.abs(c.hv) > 1 ? -c.hv * .3 : 0; }
       c.tiltV += (-c.tilt * 60 - c.tiltV * 5) * dt; c.tilt += c.tiltV * dt;
@@ -4741,8 +5084,6 @@ stage('#dome', (root, renderer, canvas) => {
       c.o.position.set(c.x, floorH(c.x, c.z) + c.yOff + c.hop + Math.abs(Math.sin(c.ph)) * .01, c.z);
       c.o.rotation.x = c.roll; c.o.rotation.z = c.tilt;
       c.col.x = c.x; c.col.z = c.z; c.col.y = c.o.position.y + c.colY;
-      // snow sitting on a sheep that moved slides off
-      if (Math.abs(c.x - ox) + Math.abs(c.z - oz) > .002 || c.hop > 0) for (let i = 0; i < NP; i++) if (rest[i]) { const ex = pos[i * 3] - c.x, ez = pos[i * 3 + 2] - c.z; if (ex * ex + ez * ez < c.col.r * c.col.r && pos[i * 3 + 1] > floorH(pos[i * 3], pos[i * 3 + 2]) + .03) rest[i] = 0; }
     });
     // the gift box hops and the snowman's hat pops up
     giftS.hv -= 9 * dt; giftS.h += giftS.hv * dt; if (giftS.h < 0) { giftS.h = 0; giftS.hv = Math.abs(giftS.hv) > .8 ? -giftS.hv * .35 : 0; }
@@ -4755,8 +5096,14 @@ stage('#dome', (root, renderer, canvas) => {
       giftS.vx *= Math.pow(.15, dt); giftS.vz *= Math.pow(.15, dt);
       giftS.x += giftS.vx * dt; giftS.z += giftS.vz * dt;
       const gr = Math.hypot(giftS.x, giftS.z); if (gr > 1.45) { giftS.x *= 1.45 / gr; giftS.z *= 1.45 / gr; giftS.vx *= -.3; giftS.vz *= -.3; }
-      // bump the sheep
-      critters.forEach(c => { const dx = giftS.x - c.x, dz = giftS.z - c.z, d = Math.hypot(dx, dz), m = c.col.r + .2; if (d < m && d > 1e-4) { giftS.x = c.x + dx / d * m; giftS.z = c.z + dz / d * m; } });
+      // the present bumps into the cottage, trees, snowman, sign and the sheep
+      const P = pushOut(giftS.x, giftS.z, GIFT_R, giftS.h);
+      if (P.hit) {
+        giftS.x = P.x; giftS.z = P.z;
+        const vn = giftS.vx * P.nx + giftS.vz * P.nz;
+        if (vn < 0) { giftS.vx -= vn * P.nx * 1.4; giftS.vz -= vn * P.nz * 1.4; if (vn < -.25) { giftS.tiltV += (Math.random() - .5) * -vn * 18; bumped(null, P.hit, -vn * .6); } }
+      }
+      critters.forEach(c => { if (c.hop > .2 + giftS.h) return; const dx = giftS.x - c.x, dz = giftS.z - c.z, d = Math.hypot(dx, dz), m = c.fr + GIFT_R; if (d < m && d > 1e-4) { giftS.x = c.x + dx / d * m; giftS.z = c.z + dz / d * m; } });
       gift.position.x = giftS.x; gift.position.z = giftS.z; giftS.base = floorH(giftS.x, giftS.z) - .01;
       giftCol.x = giftS.x; giftCol.z = giftS.z; giftCol.top = giftS.base + gs * 1.6 + giftS.h; }
     gift.position.y = giftS.base + giftS.h; gift.rotation.z = giftS.tilt; gift.rotation.y += giftS.spin * dt;
@@ -4764,25 +5111,70 @@ stage('#dome', (root, renderer, canvas) => {
     hatS.tiltV += (-hatS.tilt * 50 - hatS.tiltV * 4) * dt; hatS.tilt += hatS.tiltV * dt;
     hatS.h = Math.min(hatS.h, .45); if (hatS.h >= .45 && hatS.hv > 0) hatS.hv = -hatS.hv * .3;
     hatG.position.y = .54 + hatS.h; hatG.rotation.z = hatS.tilt; hatG.rotation.x = hatS.tilt * .6;
+    // flakes: each one relaxes toward (water velocity + its own sinking speed + flutter); they settle on whatever is below,
+    // slide off when what held them moves away, get kicked up when something moves into them and are swept up again by fast water
+    const relax = 1 - Math.exp(-dt / .2), tiltS = Math.hypot(gx, gz);
+    // each flake also drifts a little on its own (more while the water is stirred), so neighbours don't stay in lock-step
+    const wSpin = Math.hypot(W.x, W.y, W.z), jit = (.03 + .35 * W.turb + .08 * wSpin) * Math.sqrt(dt) * 3.4, RIN2 = RIN * RIN;
+    const k1 = W.k1, k2 = W.k2, P = W.p;
+    // settled flakes are checked on every 3rd frame only (a third of them each frame), which keeps 5600 flakes cheap
+    snowFC = (snowFC + 1) % 3; const rdt = dt * 3;
     for (let i = 0; i < NP; i++) {
+      if (rest[i] && (i + snowFC) % 3) continue;
       const ix = i * 3;
       let x = pos[ix], y = pos[ix + 1], z = pos[ix + 2];
       let vx = vel[ix], vy = vel[ix + 1], vz = vel[ix + 2];
-      if (!rest[i]) {
-        // gravity follows the tilt of the globe, and turning the globe sloshes the snow the other way
-        vx += gx * dt; vy += gy * dt; vz += gz * dt;
-        vx += (dRZ * (y - CY)) * slosh * .35; vy += (-dRZ * x + dRX * z) * slosh * .35; vz += (-dRX * (y - CY)) * slosh * .35;
-        const drg = Math.pow(.25, dt); vx *= drg; vy *= drg; vz *= drg;
-        vx += -z * swirl * dt; vz += x * swirl * dt;
-        vx += Math.sin(t * 1.3 + i) * .02 * dt; vz += Math.cos(t * 1.1 + i) * .02 * dt;
-        const py = y;
-        x += vx * dt; y += vy * dt; z += vz * dt;
-        const ry = y - CY, rr = Math.sqrt(x * x + ry * ry + z * z);
-        if (rr > RIN) { const k = RIN / rr; x *= k; z *= k; y = CY + ry * k; vx *= -.3; vy *= -.3; vz *= -.3; }
-        // land on whatever is below: roofs, the sheep's back, tree tops, the snowman's hat, or the floor
+      const ry0 = y - CY;
+      // water velocity here: spin (W × r), fading to zero at the glass (water clings to the wall, so flakes are not
+      // flung into one stream along it) + a two-scale divergence-free wobble (each component ignores its own axis)
+      const tb = W.turb, ns = Math.max(0, 1 - (x * x + ry0 * ry0 + z * z) / RIN2) * 1.4;
+      const ux = (W.y * z - W.z * ry0) * ns + tb * (.65 * Math.sin(k1 * (1.7 * ry0 + 2.1 * z) + P[0] + t * 1.1) + .35 * Math.sin(k2 * (1.3 * ry0 - 1.6 * z) + P[3] + t * 1.7));
+      const uy = (W.z * x - W.x * z) * ns + tb * .8 * (.65 * Math.sin(k1 * (1.9 * z + 1.3 * x) + P[1] + t * .9) + .35 * Math.sin(k2 * (1.5 * x - 1.2 * z) + P[4] + t * 1.5));
+      const uz = (W.x * ry0 - W.y * x) * ns + tb * (.65 * Math.sin(k1 * (1.5 * x + 1.8 * ry0) + P[2] + t * 1.3) + .35 * Math.sin(k2 * (1.4 * ry0 - 1.7 * x) + P[5] + t * 1.9));
+      if (rest[i]) {
         const h = surfaceH(x, z);
-        if (vy <= 0 && y <= h && (py >= h - .02 || h - y < .06 || h <= floorH(x, z) + .001)) { y = h + .006; vx = vy = vz = 0; rest[i] = 1; }
-        else if (y < floorH(x, z)) { y = floorH(x, z) + .006; vx = vy = vz = 0; rest[i] = 1; }
+        if (y > h + .03) rest[i] = 0;                                                     // its support moved away: fall
+        else if (y < h - .015) {
+          // something moved into it. A sheep walking through floor snow ploughs it aside (now and then a little puff);
+          // anything else (the present hopping, the hat landing) tosses it up
+          const c = y < floorH(x, z) + .03 && critters.find(c => (x - c.x) ** 2 + (z - c.z) ** 2 < (c.fr + .15) ** 2);
+          if (c) {
+            const dx = x - c.x, dz = z - c.z, d = Math.hypot(dx, dz) || 1, m = c.fr + .03;
+            x = c.x + dx / d * m; z = c.z + dz / d * m; y = floorH(x, z) + .006;
+            if (Math.random() < .12) { rest[i] = 0; vy = .12 + Math.random() * .15; vx = dx / d * .2; vz = dz / d * .2; }
+          } else { y = h + .01; rest[i] = 0; vy = .2 + Math.random() * .3; vx = (Math.random() - .5) * .25; vz = (Math.random() - .5) * .25; }
+        }
+        else if (Math.hypot(ux, uy, uz) > .3 + vt[i] && Math.random() < rdt * 6) { rest[i] = 0; vy = .15; }   // swept up by the water
+        else if (tiltS > .3 && Math.random() < (tiltS - .3) * rdt * 3) { rest[i] = 0; }   // steep tilt: it slides
+        if (rest[i]) { pos[ix] = x; pos[ix + 1] = y; pos[ix + 2] = z; continue; }
+      }
+      const fa = vt[i] * .7, fs = Math.sin(t * flF[i] + flP[i]) * fa, fc = Math.cos(t * flF[i] * .77 + flP[i] * 1.3) * fa;
+      // overturn: u_ρ = A·ρ·h/R², u_y = A·(1 − (2ρ² + h²)/R²) — divergence-free and tangent to the glass
+      const A = W.up, ho = A * ry0 / RIN2, uyo = A * (1 - (2 * (x * x + z * z) + ry0 * ry0) / RIN2);
+      vx += (ux + x * ho + gx * vt[i] + fs - vx) * relax;
+      vy += (uy + uyo + gy * vt[i] - vy) * relax;
+      vz += (uz + z * ho + gz * vt[i] + fc - vz) * relax;
+      vx += (Math.random() - .5) * jit; vy += (Math.random() - .5) * jit * .6; vz += (Math.random() - .5) * jit;
+      const px = x, py = y, pz = z;
+      x += vx * dt; y += vy * dt; z += vz * dt;
+      // glass: stay inside, lose the outward part of the velocity, slide along the wall with a little friction
+      const ry = y - CY, rr = Math.sqrt(x * x + ry * ry + z * z);
+      if (rr > RIN) {
+        const nx = x / rr, ny = ry / rr, nz = z / rr; x = nx * RIN; y = CY + ny * RIN; z = nz * RIN;
+        const vn = vx * nx + vy * ny + vz * nz; if (vn > 0) { vx -= vn * nx * 1.15; vy -= vn * ny * 1.15; vz -= vn * nz * 1.15; }
+        vx *= .85; vy *= .85; vz *= .85;
+      }
+      // a thin layer of still water at the glass nudges flakes back into the open
+      { const wall = rr - (RIN - .12); if (wall > 0) { const k = wall * 3.5 / (rr || 1); vx -= x * k; vy -= ry * k; vz -= z * k; } }
+      // land on whatever is below: roofs, the sheep's back, tree tops, the snowman's hat, the present, or the floor
+      const fh = floorH(x, z), h = surfaceH(x, z);
+      if (y <= h) {
+        if (h <= fh + .001 || ((py >= h - .02 || h - y < .05) && vy <= .05)) { y = h + .006; vx = vy = vz = 0; rest[i] = 1; }
+        else {
+          // came in from the side: bounce off the wall instead of passing through
+          x = px; z = pz; vx *= -.25; vz *= -.25;
+          const h2 = surfaceH(x, z); if (y < h2) { y = h2 + .006; vx = vy = vz = 0; rest[i] = 1; }
+        }
       }
       pos[ix] = x; pos[ix + 1] = y; pos[ix + 2] = z; vel[ix] = vx; vel[ix + 1] = vy; vel[ix + 2] = vz;
     }
@@ -4800,11 +5192,17 @@ stage('#dome', (root, renderer, canvas) => {
     camera.updateProjectionMatrix(); snow.fit(renderer, camera, h);
   }
   fontsReady.then(() => { texPlate._redraw(); texSign._redraw(); });
+  root._dm = { pos, rest, W, critters, giftS, OBS, pushOut, surfaceH, shake };   // test hook
   return { scene, camera, frame, resize, onMode() { resize(root.clientWidth, root.clientHeight); } };
 });
 window.NENGA.fx = { SND, tone, play, sfx, soundButton, buzz, shakeEl, popEl };
 window.NENGA.three = { stage, canvasTex, makeBurst, ndcOf };
 })();
+
+</script>
+<script>
+/* generated by tools/fuku_art.py from assets/source/fukuwarai.svg — do not edit */
+window.NENGA_FUKU = {"head":{"box":[232.0,97.0,819.1,685.6],"svg":"<path d=\"M549.44 145.514C557.856 135.389 569.718 126.06 581.189 119.706C612.487 102.58 649.258 98.4289 683.587 108.144L684.071 108.173C707.991 115.224 725.522 125.893 742.968 143.527C757.981 136.817 774.391 133.822 790.807 134.795C825.573 136.59 853.108 152.449 876.036 177.801C912.612 154.807 961.725 164.26 994.774 189.201C1021.64 209.082 1039.39 238.917 1044.04 272.007C1050.24 316.936 1029.2 365.835 981.912 377.652C977.279 378.809 972.592 379.399 967.867 380.039C964.78 385.494 963.582 387.463 959.436 392.211C973.783 401.447 983.683 413.61 988.378 430.222C993.753 448.776 991.371 468.715 981.788 485.484C972.144 502.28 957.394 513.057 938.832 518.005C933.913 556.96 905.643 574.442 868.123 571.409C863.401 595.964 846.786 629.899 833.994 651.097C801.997 704.111 742.536 758.293 680.819 772.616C559.863 800.689 441.156 681.165 415.091 571.377C413.942 571.518 412.791 571.642 411.639 571.75C376.142 575.044 349.546 553.923 346.256 518.302C330.304 514.381 316.291 504.864 306.765 491.483C283.599 458.825 292.338 415.768 324.976 393.08C320.672 388.875 318.643 385.142 315.897 379.949C238.82 373.453 220.164 285.831 254.518 226.919C271.351 198.094 298.862 177.058 331.092 168.365C360.938 160.604 386.785 165.34 413.004 180.661C426.159 165.584 442.555 153.679 460.963 145.836C490.728 133.339 519.737 133.346 549.44 145.514Z\" fill=\"#0B0604\"/><path d=\"M739.354 309.966C758.517 329.706 781.972 334.997 807.197 323.529L807.449 323.968C818.073 342.076 830.326 350.891 850.403 356.056L850.52 366.833C850.869 369.568 852.692 380.852 852.763 382.565C857.861 398.543 861.091 407.606 872.946 420.064C873.331 426.709 873.847 433.711 874.059 440.331C877.79 474.952 861.899 580.187 844.662 609.227C842.672 614.579 839.85 620.363 837.226 625.475C807.679 682.983 753.55 738.387 691.204 758.966C648.822 772.956 603.836 766.491 564.811 746.074C515.025 720.035 472.788 677.167 446.915 627.3C442.391 618.577 436.989 607.495 433.999 598.183C431.58 593.651 427.21 579.437 425.797 574.439C414.004 531.215 409.156 486.39 411.436 441.645C412.177 434.948 412.51 427.256 412.951 420.46C413.511 420.015 414.057 419.55 414.587 419.068C432.092 403.382 438.36 379.677 439.455 357.056C469.001 355.669 487.836 340.427 500.28 314.384C521.868 328.22 541.22 326.432 563.014 314.35C566.541 332.535 576.951 348.657 592.072 359.358C607.533 370.307 626.745 374.584 645.39 371.227C663.406 368.004 675.976 359.231 686.147 344.42C710.55 344.484 728.356 330.858 739.354 309.966Z\" fill=\"#FCF9F2\"/><path d=\"M739.354 309.966C758.517 329.706 781.972 334.997 807.197 323.529L807.449 323.968C818.073 342.076 830.326 350.891 850.403 356.056L850.521 366.833C829.829 362.864 815.598 353.683 806.094 334.221C781.884 346.941 758.635 340.594 739.304 322.549C726.458 345.251 712.175 354.336 686.006 355.551C667.178 386.855 625.218 390.961 595.567 373.463C576.483 362.2 568.569 347.08 563.043 326.456C540.033 336.452 523.387 339.557 500.243 327.044C486.4 352.327 471.15 366.566 440.77 367.791C439.483 390.512 432.551 409.359 420.498 428.503C418.127 432.268 414.482 438.583 411.436 441.645C412.177 434.948 412.51 427.256 412.951 420.46C413.511 420.015 414.057 419.55 414.587 419.068C432.092 403.382 438.36 379.677 439.455 357.056C469.001 355.669 487.836 340.427 500.28 314.384C521.868 328.22 541.22 326.432 563.014 314.35C566.541 332.535 576.951 348.657 592.072 359.358C607.533 370.307 626.745 374.584 645.39 371.227C663.406 368.004 675.976 359.231 686.147 344.42C710.55 344.484 728.356 330.858 739.354 309.966Z\" fill=\"#EFE5DD\"/><path d=\"M433.999 598.183C436.075 600.109 444.952 617.873 447.184 621.887C451.523 629.783 456.178 637.501 461.139 645.026C500.723 703.995 568.451 759.213 642.218 759.345C697.762 759.445 740.805 734.001 779.425 696.455C792.13 684.166 803.728 670.779 814.084 656.456C818.71 650.029 842.613 610.812 844.662 609.227C842.672 614.578 839.85 620.363 837.226 625.475C807.679 682.983 753.55 738.386 691.204 758.966C648.822 772.956 603.836 766.49 564.811 746.074C515.025 720.034 472.788 677.167 446.915 627.3C442.391 618.577 436.989 607.494 433.999 598.183Z\" fill=\"#EFE5DD\"/><path d=\"M852.764 382.565C857.861 398.543 861.091 407.606 872.946 420.064C873.331 426.709 873.847 433.711 874.059 440.331C865.254 432.202 851.178 395.327 852.764 382.565Z\" fill=\"#EFE5DD\"/><path d=\"M497.066 557.981C556.866 551.197 581.232 613.349 513.542 620.742C501.201 622.359 479.617 618.26 470.531 610.325C439.316 583.049 468.424 561.565 497.066 557.981Z\" fill=\"#FEC3C1\"/><path d=\"M776.84 557.948C790.876 556.24 808.022 559.226 819.312 567.668C837.638 581.37 831.958 603.937 812.856 613.403C803.912 617.842 797.153 619.729 787.337 620.742C774.151 622.42 757.472 619.188 746.537 611.702C734.083 603.187 730.093 588.098 739.845 575.802C749.049 564.197 762.749 559.952 776.84 557.948Z\" fill=\"#FEC3C1\"/><path d=\"M552.218 157.833C600.476 96.4979 705.121 99.0933 746.492 165.699C746.687 159.692 742.875 158.734 744.082 153.775L746.867 152.34C774.581 142.238 802.185 142.406 829.203 155.059C836.353 158.42 843.165 162.457 849.548 167.112C856.66 172.576 861.503 177.164 867.637 183.8C856.823 193.952 851.275 206.384 842.665 218.819C839.078 219.034 834.612 218.987 831.674 221.181C843.203 221.433 854.495 224.501 864.565 230.119C886.44 243.867 900.837 266.419 894.257 292.957C889.268 298.501 887.045 300.219 881.755 305.235C884.839 304.489 887.44 303.495 890.432 304.226C892.929 307.209 891.984 311.11 891.812 315.509C892.56 323.258 893.684 328.343 896.47 335.758C904.143 352.482 913.37 362.811 929.597 371.594C938.886 375.742 947.007 378.659 957.317 379.575C949.002 391.135 948.577 388.525 937.725 395.026C957.912 395.669 977.766 419.224 979.777 438.409C982.948 454.001 979.808 470.213 971.045 483.496C962.058 497.231 949.675 505.489 933.866 509.304C932.621 505.844 930.997 499.746 927.222 498.399V498.57C938.027 534.716 906.076 568.958 870.006 561.416C871.981 550.153 874.02 536.433 876.424 525.443C879.264 508.117 881.501 490.697 883.132 473.215C883.815 455.289 883.47 442.607 882.127 424.767C887.191 425.816 891.02 425.984 896.129 426.308C890.402 423.437 885.153 419.698 880.568 415.224C863.08 398.115 859.732 377.039 859.434 354.075C865.48 352.609 869.444 350.734 874.844 347.968C846.482 350.889 829.387 342.818 814.542 318.327C826.701 306.338 827.764 298.3 828.877 282.182C815.462 325.951 772.097 332.854 741.746 300.411C742.937 291.257 742.21 285.53 740.187 276.777L740.045 275.964L735.782 266.987C743.025 312.424 714.092 339.748 669.589 335.719C672.325 336.883 676.106 338.617 678.858 339.446C669.341 352.206 658.413 359.845 642.282 362.271C625.849 364.683 609.13 360.461 595.812 350.537C581.696 339.786 572.494 323.813 570.276 306.21C567.473 284.383 574.696 269.011 586.438 251.957C572.201 264.449 563.254 276.53 561.904 296.447C561.738 299.159 561.623 301.873 561.557 304.588C548.358 313.277 535.983 317.242 519.882 313.803C508.796 311.53 499.109 304.852 493.042 295.3C488.971 288.825 487.785 282.883 486.012 275.563C482.3 286.444 487.107 298.432 493.167 307.547C478.695 340.301 451.195 356.007 415.603 346.535C420.898 350.012 424.659 352.499 430.788 354.615C429.761 377.952 423.402 399.54 405.578 415.881C401.064 419.951 396.093 423.484 390.767 426.411L403.505 425.209C398.959 465.307 402.829 522.162 412.899 561.765C397.367 563.25 384.669 561.136 372.17 550.687C362.701 542.749 356.798 531.355 355.773 519.043C354.718 506.486 358.082 497.839 364.459 487.546C355.789 495.412 352.379 497.758 348.824 509.041C331.736 503.524 319.352 494.959 310.855 478.545C303.352 463.719 302.13 446.498 307.465 430.761C312.138 416.67 321.689 405.048 335.018 398.363C338.358 396.69 341.909 395.479 345.574 394.762C335.82 389.995 332.914 388.843 326.573 379.423C337.176 378.288 342.814 376.159 352.423 371.978C370.9 362.623 384.812 345.812 389.742 325.06C390.887 320.24 390.098 309.461 391.773 304.589C393.622 303.646 393.175 303.988 395.729 304.439L398.753 304.875C398.133 302.53 391.184 298.671 388.921 294.39C383.165 283.501 380.881 274.699 384.699 262.679C389.695 246.953 400.14 236.814 414.238 229.206C427.265 224.136 436.731 222.034 450.769 223.698C447.802 221.325 443.06 220.346 439.334 219.333C434.648 210.118 426.689 195.482 420.423 187.889C425.808 181.933 430.566 177.589 436.633 172.395C444.976 165.661 454.204 160.104 464.059 155.881C491.764 143.979 518.475 144.017 546.307 155.113L552.218 157.833Z\" fill=\"#FCF9F2\"/><path d=\"M896.47 335.758C904.143 352.482 913.37 362.811 929.597 371.594C938.886 375.742 947.007 378.659 957.317 379.575C949.002 391.135 948.577 388.525 937.726 395.026C957.912 395.669 977.766 419.224 979.777 438.409C982.949 454.001 979.808 470.213 971.045 483.496C962.058 497.231 949.675 505.489 933.866 509.304C932.621 505.844 930.997 499.746 927.222 498.399V498.57C938.027 534.716 906.077 568.958 870.006 561.416C871.981 550.153 874.02 536.433 876.424 525.443C879.264 508.117 881.501 490.697 883.132 473.215L884.569 472.676C886.953 473.314 896.06 480.381 900.419 482.686C900.819 475.771 902.171 471.147 904.166 464.704C896.02 434.902 907.794 428.697 927.052 410.584C890.545 408.675 875.859 383.562 880.995 349.349C888.115 343.986 890.14 341.49 896.47 335.758Z\" fill=\"#FCF9F2\"/><path d=\"M876.424 525.443C881.458 530.724 891.075 531.147 897.794 529.824C908.521 527.712 919.589 520.127 923.695 509.736C925.088 506.207 924.848 501.636 927.222 498.57C938.027 534.716 906.077 568.958 870.006 561.416C871.981 550.153 874.02 536.433 876.424 525.443Z\" fill=\"#EFE5DD\"/><path d=\"M979.777 438.409C982.949 454.001 979.808 470.213 971.045 483.496C962.058 497.23 949.675 505.489 933.866 509.304C932.621 505.843 930.997 499.746 927.222 498.399C925.799 494.245 927.129 484.063 926.132 476.872C927.756 476.971 929.388 476.999 931.02 476.954C949.327 476.486 959.343 467.182 971.765 454.74C976.165 450.327 979.979 444.796 979.777 438.409Z\" fill=\"#EFE5DD\"/><path d=\"M929.597 371.594C938.886 375.742 947.007 378.659 957.317 379.575C949.002 391.135 948.577 388.525 937.726 395.026C920.934 395.967 912.426 389.534 903.161 376.096C913.316 377.945 921.568 378.965 929.597 371.594Z\" fill=\"#EFE5DD\"/><path d=\"M802.491 234.499C817.926 241.044 828.386 248.573 834.899 264.951C839.427 276.071 839.218 288.557 834.319 299.519C833.698 300.903 833.043 302.27 832.355 303.621C848.73 323.952 865.213 330.077 890.059 320.588C891.463 320.051 891.578 316.889 891.812 315.509C892.56 323.258 893.685 328.343 896.47 335.757C890.14 341.49 888.115 343.986 880.995 349.349C875.859 383.561 890.545 408.675 927.052 410.584C907.794 428.697 896.02 434.902 904.166 464.704C902.171 471.146 900.82 475.771 900.419 482.686C896.06 480.38 886.953 473.313 884.569 472.676L883.133 473.215C883.815 455.289 883.47 442.607 882.127 424.767C887.191 425.816 891.02 425.984 896.129 426.308C890.402 423.437 885.154 419.698 880.568 415.224C863.08 398.115 859.732 377.039 859.434 354.075C865.48 352.609 869.444 350.734 874.844 347.968C846.482 350.889 829.387 342.817 814.543 318.327C826.701 306.338 827.764 298.3 828.877 282.182C815.462 325.951 772.097 332.853 741.746 300.411C742.937 291.257 742.21 285.53 740.187 276.777C743.348 278.494 746.912 281.456 749.786 283.812C767.012 297.935 798.945 302.33 811.863 279.239C816.117 271.454 817.085 262.292 814.55 253.791C812.331 246.089 808.033 240.163 802.491 234.499Z\" fill=\"#EFE5DD\"/><path d=\"M864.565 230.119C886.44 243.867 900.837 266.419 894.257 292.957C889.268 298.501 887.045 300.219 881.755 305.235L881.281 306.068C876.24 307.635 870.564 308.742 865.371 309.88C882.44 290.94 890.323 272.33 875.806 248.177C872.288 242.325 865.407 236.577 864.565 230.119Z\" fill=\"#EFE5DD\"/><path d=\"M398.753 304.875C398.133 302.53 391.184 298.671 388.921 294.39C383.165 283.501 380.881 274.699 384.699 262.679C389.695 246.953 400.14 236.814 414.238 229.207C413.904 234.624 405.675 241.756 402.368 247.36C389.209 269.655 395.823 293.851 415.247 309.832C409.735 308.261 404.166 306.75 398.753 304.875Z\" fill=\"#EFE5DD\"/><path d=\"M352.423 371.978C358.406 380.094 373.996 377.512 382.133 374.966C374.778 389.931 361.969 396.259 345.574 394.762C335.82 389.995 332.914 388.843 326.573 379.423C337.176 378.288 342.815 376.159 352.423 371.978Z\" fill=\"#EFE5DD\"/><path d=\"M849.548 167.112C856.66 172.576 861.503 177.164 867.637 183.8C856.823 193.952 851.275 206.385 842.665 218.819C839.078 219.034 834.612 218.987 831.674 221.181L824.077 220.937C825.447 218.762 841.773 211.794 847.414 199.846C854.098 185.686 853.727 181.829 849.548 167.112Z\" fill=\"#EFE5DD\"/><path d=\"M436.633 172.395L436.635 173.089C436.628 175.526 436.405 178.119 436.044 180.519C432.776 202.253 441.338 210.372 456.07 223.64L455.926 224.383C453.861 224.232 452.762 224.205 450.769 223.698C447.802 221.325 443.06 220.346 439.334 219.333C434.648 210.117 426.689 195.482 420.423 187.889C425.808 181.933 430.566 177.589 436.633 172.395Z\" fill=\"#EFE5DD\"/><path d=\"M546.307 155.113L552.218 157.833C550.602 160.618 545.761 168.348 543.426 170.051L542.842 168.948C543.252 163.554 544.607 160.174 546.307 155.113Z\" fill=\"#EFE5DD\"/><path d=\"M917.523 175.606L924.16 175.456C963.334 175.861 1004.42 199.915 1021.23 235.741C1023.31 238.712 1024.87 242.77 1026.32 246.17C1028.76 251.616 1031.03 258.049 1031.96 263.952C1035.16 274.329 1035.6 290.762 1033.93 301.474C1031.44 317.65 1024.61 336.855 1012.57 348.339C1011.7 346.564 1011.81 345.888 1011.7 343.858L1010.54 339.805L1009.55 339.276L1006.31 341.448C1005.57 329.436 1000.64 324.304 992.586 316.589L992.129 315.981C989.561 314.693 985.045 313.133 982.214 312.061L984.441 305.132C985.547 297.344 984.263 291.358 981.757 284.059L977.241 277.136C970.759 268.701 964.069 264.845 954.239 261.433C949.358 260.083 943.488 259.832 938.406 259.566C934.346 260.225 929.342 260.877 925.49 262.078C922.968 263.105 919.991 264.238 917.562 265.362C909.967 269.955 906.378 273.679 901.034 280.406C900.28 268.67 898.276 263.927 892.945 253.792C890.332 249.835 887.84 246.669 884.93 242.961C877.243 234.761 873.69 231.355 864.142 225.591C860.387 223.752 856.051 222.048 852.161 220.42C856.433 215.616 858.058 213.355 861.558 208.021L863.077 204.493L863.479 202.76L866.938 197.973C872.187 192.062 876.209 189.026 883.048 185.184C893.496 179.243 905.713 176.75 917.523 175.606Z\" fill=\"#FDB73F\"/><path d=\"M963.195 247.582C977.689 236.07 989.144 233.022 1007.59 236.341C1009.03 236.882 1012.11 237.934 1013.32 238.607C1018.81 240.951 1021.41 242.855 1026.32 246.17C1028.76 251.616 1031.03 258.049 1031.96 263.952C1035.16 274.329 1035.6 290.762 1033.93 301.473C1031.44 317.65 1024.61 336.855 1012.57 348.339C1011.7 346.564 1011.81 345.888 1011.7 343.858L1010.54 339.805L1009.55 339.276L1006.31 341.448C1005.57 329.436 1000.64 324.304 992.586 316.589L992.129 315.981C989.561 314.693 985.044 313.133 982.214 312.061L984.441 305.131C985.547 297.344 984.263 291.358 981.757 284.059L977.241 277.136C970.759 268.701 964.069 264.845 954.239 261.433C956.265 255.441 958.848 252.025 963.195 247.582Z\" fill=\"#FDB73F\"/><path d=\"M988.417 272.745C991.596 273.997 992.663 276.667 993.506 279.79L994.403 280.092C998.417 291.056 998.711 299.222 995.617 310.513C994.558 312.035 992.771 314.374 992.129 315.981C989.561 314.693 985.045 313.133 982.214 312.061L984.441 305.132C985.547 297.345 984.263 291.358 981.757 284.059L977.241 277.136C981.626 274.987 983.745 274.208 988.417 272.745Z\" fill=\"#DB8B20\"/><path d=\"M988.417 272.745C991.596 273.997 992.663 276.667 993.506 279.79C988.564 281.075 986.444 281.965 981.757 284.059L977.241 277.136C981.626 274.987 983.745 274.208 988.417 272.745Z\" fill=\"#AE630A\"/><path d=\"M984.441 305.132C988.595 306.944 991.65 308.335 995.617 310.513C994.558 312.035 992.771 314.374 992.129 315.981C989.561 314.693 985.045 313.133 982.214 312.061L984.441 305.132Z\" fill=\"#AE630A\"/><path d=\"M963.195 247.582C969.816 252.734 986.135 264.853 988.533 272.184L988.417 272.745C983.745 274.208 981.626 274.987 977.241 277.136C970.759 268.701 964.069 264.845 954.239 261.432C956.265 255.44 958.848 252.024 963.195 247.582Z\" fill=\"#DB8B20\"/><path d=\"M1011.12 337.255C1025.58 324.246 1025.87 312.826 1033.93 301.473C1031.44 317.65 1024.61 336.855 1012.57 348.339C1011.7 346.564 1011.81 345.888 1011.7 343.858C1011.88 340.769 1011.83 340.268 1011.12 337.255Z\" fill=\"#DB8B20\"/><path d=\"M988.533 272.184C1006.99 271.993 1015.27 274.947 1026.22 290.397C1014.93 282.468 1008.72 279.917 994.403 280.092L993.506 279.79C992.663 276.667 991.595 273.996 988.417 272.745L988.533 272.184Z\" fill=\"#DB8B20\"/><path d=\"M995.617 310.513C1005.39 319.068 1008.69 324.002 1011.12 337.255C1011.83 340.269 1011.88 340.769 1011.7 343.859L1010.54 339.805L1009.55 339.276L1006.31 341.448C1005.57 329.436 1000.64 324.304 992.586 316.589L992.129 315.981C992.771 314.374 994.558 312.035 995.617 310.513Z\" fill=\"#DB8B20\"/><path d=\"M1013.32 238.607C1018.81 240.951 1021.41 242.855 1026.32 246.17C1028.76 251.616 1031.03 258.049 1031.96 263.952L1030.1 263.446C1027.98 261.134 1014.15 241.17 1013.32 238.607Z\" fill=\"#FDCB7B\"/><path d=\"M924.16 175.456C963.334 175.861 1004.42 199.915 1021.23 235.741C1023.31 238.712 1024.87 242.77 1026.32 246.17C1021.41 242.855 1018.81 240.951 1013.32 238.607C1012.11 237.934 1009.03 236.882 1007.59 236.341C989.144 233.022 977.689 236.07 963.195 247.582C958.848 252.025 956.265 255.44 954.239 261.433C949.358 260.083 943.488 259.832 938.406 259.566C934.346 260.225 929.342 260.876 925.49 262.078C924.631 260.249 924.786 257.362 924.732 255.237C926.147 248.848 926.333 247.508 929.156 241.49C937.2 224.004 942.026 213.184 936.96 193.588L934.059 187.681C931.654 183.441 927.493 179.072 924.16 175.456Z\" fill=\"#FDB73F\"/><path d=\"M924.16 175.456C963.334 175.861 1004.42 199.915 1021.23 235.741C1023.31 238.712 1024.87 242.77 1026.32 246.17C1021.41 242.855 1018.81 240.951 1013.32 238.607C1012.11 237.934 1009.03 236.882 1007.59 236.341C1008.19 234.16 1003.96 230.339 1002.41 228.548L1001.2 227.82C986.259 210.732 959.304 197.619 936.96 193.588L934.059 187.681C931.654 183.441 927.493 179.072 924.16 175.456Z\" fill=\"#FDCB7B\"/><path d=\"M1002.41 228.548C1008.26 229.786 1019.45 235.782 1021.23 235.741C1023.31 238.712 1024.87 242.771 1026.32 246.17C1021.41 242.855 1018.81 240.951 1013.32 238.607C1012.11 237.934 1009.03 236.882 1007.59 236.342C1008.19 234.16 1003.96 230.339 1002.41 228.548Z\" fill=\"#DB8B20\"/><path d=\"M953.975 244.083C966.42 228.72 982.755 226.084 1001.2 227.82L1002.41 228.548C1003.96 230.339 1008.19 234.16 1007.59 236.342C989.144 233.022 977.689 236.07 963.195 247.582C958.848 252.025 956.265 255.441 954.238 261.433C949.358 260.083 943.488 259.832 938.406 259.566C939.783 258.906 943.194 258.988 944.895 258.931C947.579 252.702 949.915 249.3 953.975 244.083Z\" fill=\"#C37412\"/><path d=\"M929.156 241.49C938.661 241.561 944.702 241.862 953.975 244.083C949.915 249.3 947.579 252.702 944.895 258.931C943.194 258.988 939.783 258.906 938.406 259.566C934.346 260.224 929.341 260.876 925.49 262.078C924.631 260.249 924.786 257.362 924.732 255.237C926.147 248.848 926.333 247.508 929.156 241.49Z\" fill=\"#DB8B20\"/><path d=\"M917.523 175.606L924.159 175.456C927.493 179.072 931.654 183.441 934.059 187.681L929.481 188.186L928.522 189.614L929.102 192.605C909.998 192.725 895.624 195.145 878.829 205.208L878.36 206.047L878.373 206.397C876.945 207.347 875.37 208.29 874.188 209.505L873.727 209.238L868.583 205.292L863.479 202.76L866.937 197.973C872.187 192.062 876.209 189.026 883.048 185.184C893.496 179.243 905.713 176.75 917.523 175.606Z\" fill=\"#FDCB7B\"/><path d=\"M866.937 197.973C872.187 192.062 876.209 189.025 883.048 185.184C881.716 192.336 877.07 199.627 878.829 205.208L878.36 206.047L878.373 206.397C876.945 207.346 875.37 208.29 874.188 209.505L873.727 209.238L868.583 205.292L863.479 202.76L866.937 197.973Z\" fill=\"#F0A93D\"/><path d=\"M866.937 197.973C870.123 200.34 874.164 202.23 876.738 204.573L878.36 206.047L878.373 206.397C876.945 207.347 875.37 208.29 874.188 209.505L873.727 209.238L868.583 205.293L863.479 202.761L866.937 197.973Z\" fill=\"#DB8B20\"/><path d=\"M876.738 204.573L878.36 206.047L878.373 206.397C876.945 207.347 875.37 208.29 874.188 209.505L873.728 209.238L868.583 205.293C870.168 204.474 874.7 204.622 876.738 204.573Z\" fill=\"#DB8B20\"/><path d=\"M917.523 175.606L924.16 175.456C927.493 179.072 931.654 183.441 934.059 187.681L929.481 188.186L928.522 189.614C924.863 182.974 923.27 180.462 917.523 175.606Z\" fill=\"#DB8B20\"/><path d=\"M863.479 202.76L868.583 205.293L873.728 209.238L874.189 209.505C882.578 219.349 886.087 229.921 884.93 242.961C877.243 234.761 873.69 231.355 864.142 225.591C860.387 223.752 856.051 222.048 852.161 220.42C856.433 215.616 858.058 213.355 861.558 208.021L863.077 204.493L863.479 202.76Z\" fill=\"#FDB73F\"/><path d=\"M852.161 220.42C856.433 215.616 858.058 213.355 861.558 208.021C862.413 211.15 864.391 222.539 864.142 225.591C860.387 223.752 856.051 222.048 852.161 220.42Z\" fill=\"#F0A93D\"/><path d=\"M863.479 202.76L868.583 205.293L873.728 209.238C870.123 212.411 867.084 215.408 863.695 218.777C863.843 214.018 864.287 209.063 863.077 204.493L863.479 202.76Z\" fill=\"#F0A93D\"/><path d=\"M928.522 189.614L929.481 188.186L934.059 187.681L936.96 193.588C942.026 213.184 937.2 224.004 929.156 241.49C926.333 247.508 926.147 248.848 924.732 255.237C920.107 254.923 920.648 252.618 916.216 253.663C916.912 251.429 917.841 246.742 918.413 244.287C918.467 244.21 918.529 244.132 918.583 244.054C927.539 224.878 933.487 215.518 929.829 194.192L929.102 192.605L928.522 189.614Z\" fill=\"#C37412\"/><path d=\"M928.522 189.614L929.481 188.186L934.059 187.681L936.96 193.588C933.41 193.329 932.281 192.574 929.829 194.192L929.102 192.605L928.522 189.614Z\" fill=\"#DB8B20\"/><path d=\"M893.71 253.154L894.626 254.635C897.204 254.97 914.097 246.168 918.413 244.287C917.84 246.743 916.912 251.429 916.216 253.663C920.648 252.618 920.107 254.923 924.732 255.237C924.786 257.362 924.631 260.249 925.49 262.078C922.968 263.105 919.991 264.238 917.562 265.362C909.967 269.955 906.378 273.679 901.034 280.406C900.28 268.671 898.276 263.927 892.945 253.792L893.71 253.154Z\" fill=\"#DB8B20\"/><path d=\"M916.216 253.663C920.648 252.618 920.107 254.923 924.732 255.237C924.786 257.361 924.631 260.249 925.49 262.078C922.968 263.104 919.991 264.238 917.562 265.362C916.441 260.347 916.263 258.801 916.216 253.663Z\" fill=\"#AE630A\"/><path d=\"M878.373 206.397C892.783 220.002 894.983 234.079 893.71 253.154L892.945 253.792C890.332 249.835 887.84 246.669 884.93 242.961C886.087 229.921 882.578 219.349 874.188 209.505C875.37 208.29 876.945 207.346 878.373 206.397Z\" fill=\"#C37412\"/><path d=\"M355.674 175.292C359.279 175.191 361.682 175.335 365.289 175.624C378.864 176.6 389.354 179.331 401.542 185.729C408.973 189.701 410.762 191.188 415.974 197.805C417.266 199.653 418.64 201.528 419.772 203.47L421.203 207.203C424.146 212.39 425.912 215.38 429.467 220.222C416.675 223.721 410.812 227.015 400.442 235.041C395.074 239.746 392.209 242.203 387.67 247.688L384.235 252.973C380.147 260.573 378.127 265.753 376.928 274.443C372.76 270.598 371.105 269.187 366.362 266.016C363.484 264.647 360.179 263.339 357.21 262.092C354.038 261.144 349.93 260.367 346.621 259.65C339.954 259.849 335.318 259.739 328.824 261.456C319.268 264.172 311.381 269.26 305.131 277.04C303.88 279.17 302.083 282.024 301.086 284.2C297.705 292.864 297.239 296.778 298.681 306.005L300.779 312.672C296.911 313.86 294.122 314.55 290.626 316.58C289.088 314.429 288.481 313.329 287.27 310.971L286.94 310.893C279.428 316.804 274.048 325.549 272.852 335.089C272.725 336.109 272.662 337.136 272.663 338.165C272.381 340.787 271.922 347.161 270.978 349.232C259.808 338.26 251.335 319.501 249.376 304.053C247.264 297.132 247.576 278.155 249.385 271.037C250.471 263.542 253.713 252.982 256.78 246.126C258.394 242.217 259.3 240.171 261.418 236.539C265.518 228.411 270.667 220.856 276.734 214.068C297.653 190.355 324.235 177.295 355.674 175.292Z\" fill=\"#FDB73F\"/><path d=\"M275.117 236.341C288.166 233.247 301.91 235.526 313.261 242.664C315.506 244.102 318.177 246.03 320.02 247.954L320.983 248.646C323.698 252.27 327.567 257.163 328.824 261.456C319.268 264.172 311.381 269.26 305.131 277.04C303.88 279.17 302.083 282.024 301.086 284.2C297.705 292.864 297.239 296.778 298.681 306.005L300.779 312.672C296.911 313.86 294.122 314.55 290.626 316.58C289.088 314.429 288.481 313.329 287.27 310.971L286.94 310.893C279.428 316.804 274.048 325.549 272.852 335.089C272.725 336.109 272.662 337.136 272.663 338.165C272.381 340.787 271.922 347.161 270.978 349.232C259.808 338.26 251.335 319.501 249.376 304.053C247.264 297.132 247.576 278.155 249.385 271.037C250.471 263.542 253.713 252.982 256.78 246.126C262.462 242.28 264.971 240.772 271.13 237.894C271.913 237.47 274.163 236.695 275.117 236.341Z\" fill=\"#FDB73F\"/><path d=\"M292.587 273.201C296.523 273.088 301.582 275.327 305.131 277.04C303.88 279.17 302.083 282.024 301.086 284.2C297.704 292.864 297.239 296.778 298.681 306.005L300.779 312.672C296.911 313.86 294.122 314.55 290.626 316.58C289.088 314.429 288.48 313.329 287.27 310.971L286.94 310.893C285.623 304.393 284.014 296.657 285.186 290.093C285.802 286.646 287.463 283.695 287.819 279.992L288.246 279.764L288.036 278.88L292.587 273.201Z\" fill=\"#DB8B20\"/><path d=\"M292.587 273.201C296.523 273.088 301.582 275.327 305.131 277.04C303.88 279.17 302.083 282.024 301.086 284.2C297.041 280.95 293.25 280.566 288.246 279.764L288.036 278.88L292.587 273.201Z\" fill=\"#C37412\"/><path d=\"M298.681 306.005L300.779 312.672C296.911 313.86 294.122 314.549 290.626 316.58C289.088 314.429 288.481 313.329 287.27 310.971C290.42 308.264 294.77 307.095 298.681 306.005Z\" fill=\"#AE630A\"/><path d=\"M320.02 247.954L320.983 248.646C323.698 252.27 327.567 257.163 328.824 261.456C319.268 264.172 311.381 269.26 305.131 277.04C301.582 275.327 296.523 273.088 292.587 273.201L291.601 272.596C292.345 272.464 293.009 272.325 293.563 271.738C302.01 262.77 310.329 255.557 320.02 247.954Z\" fill=\"#DB8B20\"/><path d=\"M249.376 304.053C251.737 307.095 254.329 312.378 256.086 315.89C260.983 325.681 264.84 330.816 272.663 338.165C272.381 340.787 271.922 347.161 270.978 349.232C259.808 338.26 251.335 319.501 249.376 304.053Z\" fill=\"#DB8B20\"/><path d=\"M256.599 289.701C265.86 276.442 275.228 271.159 291.601 272.596L292.587 273.201L288.036 278.88L288.246 279.764L287.819 279.992C273.329 279.558 268.684 282.164 256.599 289.701Z\" fill=\"#C37412\"/><path d=\"M271.13 237.895L271.419 239.231C263.616 248.098 257.51 258.927 251.807 269.209C251.484 269.793 250.021 270.701 249.385 271.037C250.471 263.542 253.713 252.982 256.78 246.126C262.462 242.28 264.971 240.772 271.13 237.895Z\" fill=\"#FDCB7B\"/><path d=\"M355.674 175.292C359.279 175.191 361.682 175.335 365.289 175.624C359.164 181.167 357.159 184.245 354.189 192.025L353.718 193.513C350.844 193.253 349.563 193.515 346.779 193.91C340.927 213.36 346.586 224.344 354.324 242.108C355.935 247.22 359.505 257.13 357.21 262.092C354.038 261.144 349.93 260.367 346.621 259.65C339.954 259.849 335.318 259.739 328.824 261.456C327.567 257.163 323.698 252.27 320.983 248.646L320.02 247.954C318.177 246.03 315.506 244.102 313.261 242.664C301.91 235.526 288.166 233.247 275.117 236.341C274.163 236.695 271.913 237.47 271.13 237.894C264.971 240.772 262.462 242.28 256.78 246.126C258.394 242.217 259.299 240.171 261.418 236.539C265.518 228.411 270.667 220.856 276.734 214.068C297.653 190.355 324.235 177.295 355.674 175.292Z\" fill=\"#FDB73F\"/><path d=\"M355.674 175.292C359.279 175.191 361.682 175.335 365.289 175.624C359.164 181.167 357.159 184.245 354.189 192.025L353.718 193.513C350.844 193.253 349.563 193.515 346.779 193.91C324.178 195.944 296.689 210.984 281.545 227.73L279.693 228.475C278.361 230.75 276.258 234.089 275.117 236.341C274.163 236.695 271.913 237.47 271.13 237.894C264.971 240.772 262.462 242.28 256.78 246.126C258.394 242.217 259.299 240.171 261.418 236.539C265.518 228.411 270.667 220.856 276.734 214.068C297.653 190.355 324.235 177.295 355.674 175.292Z\" fill=\"#FDCB7B\"/><path d=\"M355.674 175.292C359.279 175.191 361.682 175.335 365.289 175.624C359.164 181.167 357.159 184.245 354.189 192.025L353.718 193.513C350.844 193.253 349.563 193.515 346.779 193.91C349.983 184.298 352.774 183.922 357.862 176.143L355.674 175.292Z\" fill=\"#DB8B20\"/><path d=\"M261.418 236.539C267.428 234.56 270.852 230.72 279.693 228.475C278.361 230.75 276.258 234.089 275.117 236.342C274.163 236.695 271.913 237.47 271.13 237.894C264.971 240.772 262.462 242.28 256.78 246.126C258.394 242.217 259.299 240.171 261.418 236.539Z\" fill=\"#DB8B20\"/><path d=\"M328.825 244.118C339.313 242.014 343.643 241.689 354.324 242.108C355.935 247.22 359.504 257.13 357.21 262.092C354.038 261.144 349.93 260.367 346.621 259.65C339.954 259.849 335.318 259.739 328.824 261.456C327.567 257.163 323.698 252.27 320.983 248.646C324.14 244.696 328.02 245.849 331.523 248.134L328.825 244.118Z\" fill=\"#DB8B20\"/><path d=\"M320.983 248.646C324.14 244.696 328.02 245.849 331.523 248.134C334.198 251.107 336.113 255.355 337.597 259.075C340.258 259.102 344.219 258.953 346.621 259.65C339.954 259.849 335.318 259.739 328.824 261.456C327.567 257.163 323.698 252.27 320.983 248.646Z\" fill=\"#AE630A\"/><path d=\"M281.545 227.73C299.843 226.712 316.286 229.052 328.825 244.118L331.523 248.134C328.02 245.849 324.14 244.696 320.983 248.646L320.02 247.954C318.177 246.03 315.506 244.102 313.261 242.664C301.91 235.526 288.166 233.247 275.117 236.341C276.258 234.089 278.361 230.75 279.693 228.475L281.545 227.73Z\" fill=\"#C37412\"/><path d=\"M365.289 175.624C378.864 176.6 389.354 179.33 401.542 185.729C408.973 189.701 410.762 191.188 415.974 197.805C417.266 199.653 418.64 201.528 419.772 203.47C415.38 204.688 412.767 205.54 409.517 208.991L409.09 209.059C407.995 208.3 406.017 207.234 404.799 206.523L404.366 206.612L403.39 204.718C391.768 196.921 379.158 194.471 365.485 193.103C361.725 192.726 357.634 192.988 354.189 192.025C357.159 184.245 359.164 181.167 365.289 175.624Z\" fill=\"#FDCB7B\"/><path d=\"M401.542 185.729C408.973 189.701 410.762 191.188 415.974 197.805C417.266 199.653 418.64 201.528 419.772 203.47C415.38 204.688 412.767 205.54 409.517 208.991L409.09 209.059C407.995 208.3 406.017 207.233 404.799 206.523L404.366 206.612L403.39 204.718C405.163 201.43 401.146 192.066 401.542 185.729Z\" fill=\"#F0A93D\"/><path d=\"M415.974 197.805C417.266 199.653 418.64 201.528 419.772 203.47C415.38 204.688 412.767 205.54 409.517 208.991L409.09 209.059C407.995 208.3 406.017 207.234 404.799 206.523C407.95 202.984 412.047 200.48 415.974 197.805Z\" fill=\"#DB8B20\"/><path d=\"M346.779 193.91C349.563 193.515 350.844 193.254 353.718 193.513C349.005 214.562 355.937 225.682 364.267 244.344C370.957 247.141 377.613 250.018 384.235 252.974C380.147 260.573 378.127 265.753 376.928 274.443C372.76 270.599 371.105 269.187 366.362 266.016C363.484 264.647 360.179 263.339 357.21 262.092C359.504 257.13 355.935 247.22 354.324 242.109C346.586 224.344 340.927 213.36 346.779 193.91Z\" fill=\"#C37412\"/><path d=\"M364.267 244.344C370.957 247.141 377.613 250.018 384.235 252.973C380.147 260.573 378.127 265.753 376.928 274.443C372.76 270.598 371.105 269.187 366.362 266.016C368.38 259.537 366.048 250.685 364.267 244.344Z\" fill=\"#DB8B20\"/><path d=\"M409.517 208.991C412.767 205.54 415.38 204.688 419.772 203.47L421.203 207.204C424.146 212.39 425.912 215.38 429.467 220.222C416.675 223.721 410.812 227.015 400.442 235.041C396.928 228.396 405.461 214.657 409.09 209.059L409.517 208.991Z\" fill=\"#FDB73F\"/><path d=\"M409.517 208.991C412.767 205.54 415.38 204.688 419.772 203.47L421.203 207.204C420.253 211.404 420.21 212.955 420.107 217.304C418.085 215.757 410.976 210.496 409.517 208.991Z\" fill=\"#F0A93D\"/><path d=\"M404.366 206.613L404.799 206.523C406.017 207.234 407.995 208.3 409.09 209.059C405.461 214.657 396.928 228.396 400.442 235.041C395.074 239.746 392.209 242.203 387.67 247.688C392.588 229.614 390.105 221.097 404.366 206.613Z\" fill=\"#C37412\"/><path d=\"M286.94 310.893L287.27 310.971C288.48 313.329 289.088 314.429 290.626 316.58C294.122 314.55 296.911 313.86 300.779 312.672C305.55 321.589 309.748 325.295 319.594 328.295C320.224 328.486 320.856 328.673 321.488 328.854L328.814 329.188C335.98 328.18 339.367 325.949 344.497 321.259L347.754 323.246C351.348 326.199 352.657 327.803 354.904 331.959C358.11 330.223 359.035 331.557 362.188 333.355L363.274 335.325C365.376 341.819 362.681 345.111 365.242 350.507C362.33 353.291 359.92 355.683 356.645 358.089C338.445 370.107 311.87 375.283 292.06 364.115C287.356 362.364 282.733 359.484 278.83 356.346L277.372 355.551C274.919 353.326 273.23 351.659 270.978 349.232C271.922 347.161 272.381 340.787 272.663 338.165C272.662 337.136 272.725 336.109 272.852 335.089C274.048 325.549 279.428 316.804 286.94 310.893Z\" fill=\"#FDB73F\"/><path d=\"M344.497 321.259L347.754 323.246C351.348 326.199 352.657 327.803 354.904 331.959C358.11 330.223 359.035 331.557 362.188 333.355L363.274 335.325C365.376 341.819 362.681 345.111 365.242 350.507C362.33 353.291 359.92 355.683 356.645 358.089C338.445 370.107 311.87 375.283 292.06 364.115C298.131 360.319 305.816 364.673 317.75 355.658C322.037 352.519 323.656 350.474 326.127 345.872C324.759 345.193 321.572 344.797 319.927 344.518C321.417 339.107 321.694 338.989 321.681 333.19L321.805 332.692L321.488 328.854L328.814 329.188C335.98 328.18 339.367 325.949 344.497 321.259Z\" fill=\"#DB8B20\"/><path d=\"M344.497 321.259L347.754 323.246C351.348 326.199 352.657 327.803 354.904 331.959L357.795 341.183C347.181 350.502 332.114 357.137 317.75 355.658C322.037 352.519 323.656 350.474 326.127 345.872C324.759 345.193 321.572 344.797 319.927 344.518C321.417 339.107 321.694 338.989 321.681 333.19L321.805 332.692L321.488 328.854L328.815 329.188C335.98 328.18 339.367 325.949 344.497 321.259Z\" fill=\"#FDB73F\"/><path d=\"M321.488 328.854L328.814 329.188C328.671 330.472 328.403 332.386 328.357 333.617L328.657 334.025C328.405 338.697 327.865 341.453 326.127 345.872C324.759 345.193 321.572 344.797 319.927 344.518C321.417 339.107 321.694 338.989 321.681 333.19L321.805 332.692L321.488 328.854Z\" fill=\"#DB8B20\"/><path d=\"M321.488 328.854L328.815 329.188C328.671 330.472 328.403 332.386 328.357 333.617C325.448 334.406 324.042 334.737 321.805 332.692L321.488 328.854Z\" fill=\"#C37412\"/><path d=\"M344.497 321.259L347.754 323.246C337.806 333.374 331.88 331.162 328.657 334.025L328.357 333.617C328.403 332.386 328.671 330.472 328.814 329.188C335.98 328.18 339.367 325.949 344.497 321.259Z\" fill=\"#F0A93D\"/><path d=\"M354.904 331.959C358.11 330.223 359.035 331.557 362.188 333.355L363.274 335.325C365.376 341.819 362.681 345.111 365.242 350.507C362.33 353.291 359.92 355.683 356.645 358.089C356.843 352.635 357.373 346.66 357.795 341.183L354.904 331.959Z\" fill=\"#C37412\"/><path d=\"M286.94 310.893L287.27 310.971C288.48 313.329 289.088 314.429 290.626 316.58L290.677 317.006C281.383 323.801 278.524 329.638 276.549 340.814C276.909 345.24 277.58 351.241 277.372 355.551C274.919 353.326 273.23 351.659 270.978 349.232C271.922 347.161 272.381 340.787 272.663 338.165C272.662 337.136 272.725 336.109 272.852 335.089C274.048 325.549 279.428 316.804 286.94 310.893Z\" fill=\"#C37412\"/><path d=\"M319.927 344.518C321.572 344.796 324.759 345.193 326.127 345.872C323.656 350.474 322.037 352.519 317.75 355.658C305.816 364.673 298.131 360.319 292.06 364.115C287.356 362.364 282.733 359.484 278.83 356.346C288.511 355.221 295.021 361.456 308.572 355.285C313.807 353.52 317.171 348.932 319.927 344.518Z\" fill=\"#C37412\"/><path d=\"M276.549 340.814C287.149 349.544 295.42 352.369 308.572 355.285C295.021 361.456 288.511 355.221 278.83 356.346L277.372 355.551C277.58 351.241 276.909 345.24 276.549 340.814Z\" fill=\"#DB8B20\"/><path d=\"M300.779 312.672C305.55 321.59 309.748 325.295 319.594 328.295C320.224 328.486 320.856 328.673 321.488 328.855L321.805 332.692L321.681 333.19C303.466 329.555 303.854 325.56 290.677 317.006L290.626 316.58C294.122 314.55 296.911 313.86 300.779 312.672Z\" fill=\"#DB8B20\"/><path d=\"M982.214 312.061C985.044 313.133 989.561 314.693 992.129 315.981L992.586 316.589C1000.64 324.304 1005.57 329.436 1006.31 341.448L1009.55 339.275L1010.54 339.804L1011.7 343.858C1011.81 345.888 1011.7 346.564 1012.57 348.339C1010.23 351.101 1009.13 352.184 1006.39 354.569L1003.89 356.374C989.979 367.18 972.298 371.918 954.849 369.516C945.878 368.364 936.156 364.82 928.707 359.544C927.215 355.638 925.01 343.022 925.668 338.911C928.266 330.779 927.895 329.056 934.075 323.1L937.934 320.763C942.699 325.296 947.185 328.223 953.929 329.029L960.488 328.98L961.037 328.963C961.578 328.834 962.112 328.69 962.646 328.533C972.677 325.644 977.318 320.926 982.214 312.061Z\" fill=\"#D98A1F\"/><path d=\"M982.214 312.061C985.044 313.133 989.561 314.693 992.129 315.981L992.586 316.589C1000.64 324.304 1005.57 329.436 1006.31 341.448L1009.55 339.275L1010.54 339.804L1011.7 343.858C1011.81 345.888 1011.7 346.564 1012.57 348.339C1010.23 351.101 1009.13 352.184 1006.39 354.569L1003.89 356.374C994.109 355.051 991.866 360.597 975.709 355.166C966.335 352.635 961.215 342.585 961.107 333.425L961.037 328.963C961.578 328.834 962.112 328.69 962.646 328.533C972.677 325.644 977.318 320.926 982.214 312.061Z\" fill=\"#FDB73F\"/><path d=\"M1006.31 341.448L1009.55 339.275L1010.54 339.804L1011.7 343.858C1011.81 345.888 1011.7 346.564 1012.57 348.339C1010.23 351.101 1009.13 352.184 1006.39 354.569L1003.89 356.374C994.109 355.051 991.866 360.597 975.709 355.166C990.242 351.698 993.591 350.313 1005.86 341.834L1006.31 341.448Z\" fill=\"#DB8B20\"/><path d=\"M1006.31 341.448L1009.55 339.275L1010.54 339.804L1011.7 343.858C1011.81 345.888 1011.7 346.564 1012.57 348.339C1010.23 351.101 1009.13 352.184 1006.39 354.569C1006.51 349.523 1006.41 346.848 1005.86 341.834L1006.31 341.448Z\" fill=\"#C37412\"/><path d=\"M982.214 312.061C985.044 313.133 989.561 314.693 992.129 315.981L992.586 316.589C989.902 318.565 988.223 320.735 985.733 322.831C978.099 329.257 970.69 331.581 961.107 333.425L961.037 328.963C961.578 328.834 962.112 328.69 962.646 328.533C972.677 325.644 977.318 320.926 982.214 312.061Z\" fill=\"#F0A93D\"/><path d=\"M937.934 320.763C942.699 325.296 947.185 328.223 953.929 329.029L954.2 329.782L954.177 333.755C955.399 343.86 958.322 349.355 966.204 356.088C954.548 355.455 929.148 352.172 925.668 338.911C928.266 330.779 927.895 329.056 934.075 323.1L937.934 320.763Z\" fill=\"#FDB73F\"/><path d=\"M937.934 320.763C942.699 325.296 947.185 328.223 953.929 329.029L954.2 329.782L954.177 333.755C945.12 331.444 940.68 329.622 934.075 323.1L937.934 320.763Z\" fill=\"#F0A93D\"/><path d=\"M953.929 329.029L960.488 328.98C960.318 332.096 960.836 331.968 959.111 334.143C956.729 334.347 957.673 334.507 955.484 333.215C955.082 332.106 954.679 330.846 954.2 329.783L953.929 329.029Z\" fill=\"#AE630A\"/><path d=\"M307.941 293.963C317.954 254.311 379.605 267.067 380.335 303.267C383.321 310.695 379.78 325.778 376.692 332.929C373.924 339.409 370.05 345.357 365.242 350.507C362.681 345.111 365.376 341.819 363.274 335.325L362.188 333.355C359.035 331.557 358.11 330.223 354.904 331.959C352.657 327.803 351.348 326.199 347.754 323.246L344.497 321.259C346.805 318.311 348.483 315.062 349.149 311.347C349.983 306.945 348.997 302.393 346.416 298.731C339.171 288.481 324.608 289.887 322.341 304.674L324.042 305.822L324.835 305.19C326.162 301.257 326.283 300.45 329.713 298.184C347.008 296.548 344.934 321.386 325.029 319.948C320.043 319.551 315.422 317.177 312.194 313.355C308.745 309.298 307.454 303.838 307.463 298.612C307.495 297.32 307.786 295.313 307.941 293.963Z\" fill=\"#FDB73F\"/><path d=\"M307.941 293.963C317.954 254.311 379.605 267.067 380.335 303.267C378.706 302.885 363.722 275.86 342.142 278.809C321.434 281.639 324.664 279.839 309.547 294.11L307.941 293.963Z\" fill=\"#FDCB7B\"/><path d=\"M322.341 304.674C322.151 300.243 321.836 296.326 325.009 292.748C331.095 285.886 342.107 287.925 347.982 293.829C351.758 297.676 353.839 302.873 353.762 308.264C353.717 311.071 352.488 315.244 351.553 317.943C357.615 322.614 359.865 325.92 362.188 333.355C359.035 331.557 358.11 330.223 354.904 331.959C352.657 327.803 351.348 326.199 347.754 323.246L344.497 321.259C346.805 318.311 348.483 315.062 349.149 311.347C349.983 306.945 348.997 302.393 346.416 298.731C339.171 288.481 324.608 289.887 322.341 304.674Z\" fill=\"#DB8B20\"/><path d=\"M329.713 298.184C347.008 296.548 344.934 321.386 325.029 319.948C320.043 319.551 315.422 317.177 312.194 313.355C308.745 309.298 307.454 303.838 307.463 298.612C312.171 307.666 318.638 314.918 330.673 312.447C334.968 311.565 335.921 306.329 334.057 302.607C332.068 301.148 330.753 300.505 329.713 298.184Z\" fill=\"#DB8B20\"/><path d=\"M380.335 303.267C383.321 310.695 379.78 325.778 376.692 332.929C373.924 339.408 370.05 345.356 365.242 350.507C362.681 345.11 365.376 341.819 363.274 335.325C369.599 328.654 380.871 312.252 380.335 303.267Z\" fill=\"#DB8B20\"/><path d=\"M902.148 304.64C902.813 294.598 908.776 283.829 916.634 277.619C924.801 271.263 935.135 268.363 945.421 269.543C956.922 270.899 964.386 276.176 971.308 285.027C973.195 288.854 973.845 290.098 974.796 294.207C974.951 295.823 975.175 297.694 975.245 299.297C974.936 305.948 973.768 310.595 968.547 315.258C964.742 318.695 959.707 320.429 954.594 320.059C945.39 319.332 940.069 311.855 942.204 302.92C947.015 296.78 950.549 296.326 956.876 300.665L957.75 305.116C959.343 305.045 958.562 305.282 959.985 303.939C957.974 290.963 948.484 289.62 938.445 295.952C933.874 302.476 932.953 305.704 934.346 313.778L934.462 314.384C933.634 316.363 933.325 316.385 931.383 317.547C924.314 322.146 922.404 326.282 920.114 334.495C917.779 341.34 921.29 348.728 919.202 352.004C915.28 348.155 911.931 343.773 909.232 338.991C904.182 330.154 899.312 314.751 902.148 304.64Z\" fill=\"#FDB73F\"/><path d=\"M902.147 304.64C902.813 294.598 908.776 283.829 916.634 277.619C924.801 271.263 935.135 268.363 945.421 269.543C956.922 270.899 964.386 276.176 971.308 285.027C973.195 288.854 973.845 290.098 974.796 294.207L974.023 295.063C971.834 294.038 969.406 290.489 967.781 288.439C949.915 274.586 925.815 275.2 909.928 292.853C908.35 294.607 904.916 300.191 904.909 302.495L902.627 304.999L902.147 304.64Z\" fill=\"#FDCB7B\"/><path d=\"M904.909 302.495L905.017 302.889C909.758 320.832 905.582 316.687 920.114 334.495C917.779 341.34 921.29 348.728 919.202 352.004C915.28 348.155 911.931 343.773 909.232 338.991C904.182 330.154 899.312 314.751 902.148 304.64L902.627 304.998L904.909 302.495Z\" fill=\"#DB8B20\"/><path d=\"M942.204 302.92C947.015 296.78 950.549 296.326 956.876 300.665C951.508 301.365 947.834 300.942 946.558 306.985C952.142 315.322 961.424 314.283 968.408 308.882C972.53 305.69 973.11 303.963 975.245 299.297C974.936 305.948 973.768 310.595 968.547 315.258C964.742 318.695 959.707 320.429 954.594 320.059C945.39 319.332 940.069 311.855 942.204 302.92Z\" fill=\"#DB8B20\"/><path d=\"M936.434 291.997L938.445 295.952C933.874 302.476 932.953 305.704 934.346 313.778L934.462 314.384C933.634 316.363 933.325 316.385 931.383 317.547C926.766 306.96 929.156 300.453 936.434 291.997Z\" fill=\"#DB8B20\"/><path d=\"M936.434 291.997C947.711 286.008 964.889 288.991 959.985 303.939C957.974 290.963 948.484 289.62 938.445 295.952L936.434 291.997Z\" fill=\"#C37412\"/><path d=\"M934.462 314.384L937.934 320.764L934.075 323.1C927.895 329.056 928.266 330.779 925.668 338.911C925.01 343.023 927.215 355.638 928.707 359.544C925.281 357.156 922.04 355.094 919.202 352.004C921.29 348.728 917.779 341.34 920.114 334.495C922.404 326.282 924.314 322.146 931.383 317.547C933.325 316.385 933.634 316.363 934.462 314.384Z\" fill=\"#C37412\"/>"},"eyeL":{"box":[1167.7,235.0,73.6,92.2],"svg":"<path d=\"M1199.94 241.477C1242 234.5 1248 314 1210.2 321.04C1167.88 326.394 1159.5 249 1199.94 241.477Z\" fill=\"#1E1E1E\"/><ellipse cx=\"1194.3\" cy=\"266.034\" rx=\"8.45384\" ry=\"11.6228\" transform=\"rotate(11.1145 1194.3 266.034)\" fill=\"#FCF9F2\"/>"},"eyeR":{"box":[1391.0,235.0,73.7,92.2],"svg":"<path d=\"M1423.3 241.477C1465.36 234.5 1471.36 314 1433.56 321.04C1391.23 326.394 1382.86 249 1423.3 241.477Z\" fill=\"#1E1E1E\"/><ellipse cx=\"1417.65\" cy=\"266.034\" rx=\"8.45384\" ry=\"11.6228\" transform=\"rotate(11.1145 1417.65 266.034)\" fill=\"#FCF9F2\"/>"},"nose":{"box":[1147.1,364.0,114.6,86.9],"svg":"<path d=\"M1184.66 370.766C1196.08 369.075 1215.51 370.534 1226.97 370.963C1282.7 373.042 1244.43 422.299 1220.65 439.203C1205.74 447.878 1196.78 446.565 1183.24 435.366C1171.51 425.657 1155.07 407.549 1153.25 392.062C1151.08 373.758 1171.83 371.819 1184.66 370.766Z\" fill=\"#1E1E1E\"/><path d=\"M1193.03 376.188C1206.25 375.575 1219.2 376.142 1232.38 377.353C1246.05 378.61 1254.28 385.865 1247.18 399.709C1238.88 415.87 1224.44 432.772 1207.07 439.078C1207.03 433.509 1207.2 427.658 1207.27 422.064C1206.93 418.397 1207.12 415.917 1204.74 413.317L1204.94 413.069L1204.91 413.037L1204.3 413.548C1201.59 420.205 1202.15 432.117 1202.09 439.626C1185.01 433.084 1162.76 410.073 1159.39 391.684C1156.48 375.801 1182.93 376.838 1193.03 376.188Z\" fill=\"#474646\"/><path d=\"M1232.27 396.526C1233.59 396.794 1233.56 396.948 1234.79 397.661L1235.09 399.437C1233.36 403.651 1222.29 408.863 1217.9 413.458L1216.27 413.777C1214.68 411.908 1215.09 412.824 1214.92 410.281C1217.82 403.136 1225.67 399.66 1232.27 396.526Z\" fill=\"#1E1E1E\"/><path d=\"M1175.01 396.318C1182.14 397.261 1196.59 405.482 1193.82 414.189C1191.33 412.98 1177.67 403.562 1175.18 400.934C1174.07 399.761 1174.74 397.958 1175.01 396.318Z\" fill=\"#1E1E1E\"/>"},"mouth":{"box":[1370.9,369.6,138.6,62.5],"svg":"<path d=\"M1437.46 375.581C1440.43 375.9 1440.3 375.429 1442.48 377.119C1445.02 382.009 1443.71 400.439 1443.65 407.116C1454.36 417.936 1467.95 421.679 1482.33 415.854C1488.05 413.539 1498.47 399.674 1503.39 404.09C1503.77 406.545 1503.62 408.57 1501.77 410.53C1483.93 429.387 1461.7 431.11 1441.63 415.943L1441.32 415.66C1438.2 415.236 1431.42 422.266 1424.29 424.103C1414.03 427.343 1402.12 426.828 1392.57 421.494C1388.19 419.04 1373.11 409.432 1377.85 403.138C1383.62 401.878 1393.92 415.114 1400.2 416.877C1414.71 420.949 1425.87 417.369 1436.4 407.238C1436.29 400.631 1435.43 380.375 1437.46 375.581Z\" fill=\"#0B0604\"/>"},"earL":{"box":[1104.0,478.9,169.1,117.3],"svg":"<path d=\"M1203.28 485.21C1213.59 483.684 1260.58 487.183 1267.16 493.552C1267.41 498.404 1255.61 508.291 1252.89 513.253C1232.57 550.366 1222.46 579.548 1175.98 589.011C1174.86 589.199 1173.73 589.366 1172.6 589.514C1154.93 591.807 1133.19 587.47 1118.73 576.734C1100.5 563.201 1114.94 540.552 1125.61 527.119C1145.51 502.055 1171.56 488.562 1203.28 485.21Z\" fill=\"#0B0604\"/><path d=\"M1139.64 580.038C1129.65 577.556 1112.12 569.151 1116.63 556.058C1128.21 522.59 1162.81 496.398 1197.71 491.988C1216.7 489.589 1237.67 491.565 1256.22 496.091L1257.93 496.586C1257.62 497.722 1248.92 507.769 1246.99 511.085C1240.9 521.537 1235.16 532.376 1229.39 542.968C1212.12 574.676 1177.21 590.613 1142.34 580.923C1141.42 580.668 1140.53 580.373 1139.64 580.038Z\" fill=\"#FCF9F2\"/><path d=\"M1229.1 524.086L1228.3 526.587C1224.85 533.493 1221.83 539.488 1217.38 545.783C1199.64 570.885 1167.28 579.359 1139.34 566.997C1137.65 566.25 1136.41 565.148 1135.3 563.685C1133.7 557.276 1145.5 546.757 1150.53 545.395L1148.93 547.919L1147.53 549.516L1147.7 550.338C1148.35 550.415 1149.75 550.464 1150.25 550.132C1158.28 544.886 1167.06 541.166 1176.11 538.04C1182.34 535.891 1190.02 536.741 1196.55 535.253C1207.85 532.678 1218.21 527.829 1229.1 524.086Z\" fill=\"#FEC3C1\"/><path d=\"M1256.22 496.091L1257.93 496.586C1257.62 497.722 1248.92 507.769 1246.99 511.085C1240.9 521.537 1235.16 532.376 1229.39 542.968C1212.12 574.675 1177.21 590.613 1142.34 580.923C1141.42 580.668 1140.53 580.373 1139.64 580.038C1146.87 578.66 1152.62 580.591 1159.66 580.642C1194.55 580.896 1218.43 561.458 1232.4 531.14C1230.69 527.882 1230.98 527.954 1228.3 526.587L1229.1 524.086C1230.5 521.25 1231.94 518.429 1233.4 515.625L1233.82 512.519C1235.06 511.202 1235.08 510.857 1235.64 509.197C1240.59 505.518 1254.29 498.204 1256.22 496.091Z\" fill=\"#EFE5DD\"/><path d=\"M1233.4 515.625C1236.12 514.184 1235.55 513.946 1238.12 514.167C1239.69 519.067 1233.17 525.313 1232.4 531.14C1230.69 527.882 1230.98 527.954 1228.3 526.587L1229.1 524.086C1230.5 521.25 1231.94 518.429 1233.4 515.625Z\" fill=\"#FCF9F2\"/><path d=\"M1148.93 547.92C1151 547.72 1164.54 538.425 1169 536.946C1197.96 527.333 1207.91 530.353 1233.82 512.52L1233.4 515.625C1231.94 518.429 1230.5 521.25 1229.1 524.086C1218.21 527.829 1207.85 532.678 1196.55 535.253C1190.02 536.741 1182.34 535.891 1176.11 538.04C1167.06 541.167 1158.28 544.886 1150.25 550.132C1149.75 550.464 1148.35 550.415 1147.7 550.338L1147.53 549.516L1148.93 547.92Z\" fill=\"#FCAFAE\"/><path d=\"M1235.64 509.197C1235.08 510.857 1235.06 511.202 1233.82 512.519C1207.91 530.352 1197.96 527.333 1169 536.946C1164.54 538.425 1151 547.72 1148.93 547.919L1150.53 545.395C1170.26 527.329 1183.45 527.963 1207.35 520.97C1215.7 518.528 1227.48 512.963 1235.64 509.197Z\" fill=\"#0B0604\"/>"},"earR":{"box":[1370.3,478.7,168.3,117.5],"svg":"<path d=\"M1420.61 485.237C1442.92 482.04 1477.7 492.649 1495.58 506.98C1510.54 518.413 1528.73 538.188 1532.3 557.062C1536.29 578.194 1503.49 587.844 1487.61 589.81C1431.88 594.036 1410.14 556.774 1389.76 513.134C1387.21 507.686 1375.68 499.926 1376.36 493.294C1381.68 488.799 1412.73 485.848 1420.61 485.237Z\" fill=\"#0B0604\"/><path d=\"M1386.18 498.154L1385.29 496.966C1387.25 495.497 1392.14 495.077 1394.93 494.579C1411.48 491.619 1427.41 490.045 1444.17 492.434C1472.05 496.215 1497.18 511.183 1513.79 533.892C1533.38 560.25 1531.04 570.395 1499.83 580.889C1464.07 591.143 1429.23 574.048 1411.99 542.082C1403.5 526.33 1397.87 512.055 1386.18 498.154Z\" fill=\"#FCF9F2\"/><path d=\"M1412.47 521.894C1430.89 533.77 1442.05 534.882 1463.07 538.072C1471.27 539.317 1476.89 544.377 1487.17 544.38L1487.08 544.098L1488.9 542.671L1492.15 545.281C1503.12 549.137 1515.47 563.918 1496.9 569.487C1457.4 581.327 1425.47 558.747 1412.47 521.894Z\" fill=\"#FEC3C1\"/><path d=\"M1488.9 542.671L1492.15 545.281L1493.06 547.375L1492.43 547.852L1487.17 544.38L1487.08 544.098L1488.9 542.671Z\" fill=\"#1E1E1E\"/><path d=\"M1386.18 498.154C1390.78 499.33 1402.95 506.86 1407.1 509.888L1409.32 513.308L1408.37 514.249L1406.15 514.398C1404.86 516.552 1404.62 517.595 1405.4 520.394C1410.97 540.409 1425.47 560.853 1443.6 571.202C1454.96 577.683 1469.75 580.959 1482.79 580.7C1488.88 580.579 1493.76 580.038 1499.83 580.89C1464.07 591.143 1429.23 574.048 1411.99 542.082C1403.5 526.33 1397.87 512.056 1386.18 498.154Z\" fill=\"#EFE5DD\"/><path d=\"M1409.32 513.308C1413.37 516.113 1424.63 523.249 1428.96 524.754C1450.26 532.143 1467.06 531.561 1487.08 544.098L1487.17 544.38C1476.89 544.377 1471.27 539.317 1463.07 538.072C1442.05 534.882 1430.89 533.77 1412.47 521.894L1408.37 514.249L1409.32 513.308Z\" fill=\"#FCAFAE\"/><path d=\"M1407.1 509.888C1414.11 512.864 1427.65 519.311 1434.24 521.33C1451.86 526.732 1475.31 527.665 1488.9 542.671L1487.08 544.098C1467.06 531.561 1450.26 532.143 1428.96 524.754C1424.63 523.249 1413.37 516.113 1409.32 513.308L1407.1 509.888Z\" fill=\"#0B0604\"/>"}};
 
 </script>
 <script>
@@ -4845,24 +5243,22 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
   const board = $('.fk-board', root), face = $('.fk-face', root), tray = $('.fk-tray', root), act = $('.js-act', root), hint = $('.fk-hint', root);
   const bubble = $('.fk-bubble', root), result = $('.fk-result', root);
   FX.soundButton($('.js-snd', root));
-  const INKC = '#161717';
-  // parts in face-SVG units (200 × 220 face); target = where they belong
-  const PARTS = [
-    { id: 'eyeL', name: '左目', w: 22, h: 28, tx: 76, ty: 118, tr: 0, svg: `<svg viewBox="0 0 22 28"><ellipse cx="11" cy="14" rx="10" ry="13" fill="${INKC}"/><circle cx="14" cy="9" r="3.5" fill="#fff"/></svg>` },
-    { id: 'eyeR', name: '右目', w: 22, h: 28, tx: 124, ty: 118, tr: 0, svg: `<svg viewBox="0 0 22 28"><ellipse cx="11" cy="14" rx="10" ry="13" fill="${INKC}"/><circle cx="14" cy="9" r="3.5" fill="#fff"/></svg>` },
-    { id: 'nose', name: '鼻', w: 30, h: 22, tx: 100, ty: 152, tr: 0, svg: `<svg viewBox="0 0 30 22"><path d="M3 4 Q15 -1 27 4 Q24 14 15 19 Q6 14 3 4Z" fill="#F08C97" stroke="${INKC}" stroke-width="2"/></svg>` },
-    { id: 'mouth', name: '口', w: 40, h: 18, tx: 100, ty: 178, tr: 0, svg: `<svg viewBox="0 0 40 18"><path d="M3 4 Q11 15 20 6 Q29 15 37 4" fill="none" stroke="${INKC}" stroke-width="3.2" stroke-linecap="round"/></svg>` },
-    { id: 'earL', name: '左耳', w: 54, h: 24, tx: 30, ty: 104, tr: -25, svg: `<svg viewBox="0 0 54 24"><path d="M52 12 Q30 -2 4 8 Q-1 12 4 16 Q30 26 52 12Z" fill="${INKC}"/><path d="M44 12 Q28 4 10 10 Q8 12 10 14 Q28 20 44 12Z" fill="#F7A9B4"/></svg>` },
-    { id: 'earR', name: '右耳', w: 54, h: 24, tx: 170, ty: 104, tr: 25, svg: `<svg viewBox="0 0 54 24"><path d="M2 12 Q24 -2 50 8 Q55 12 50 16 Q24 26 2 12Z" fill="${INKC}"/><path d="M10 12 Q26 4 44 10 Q46 12 44 14 Q26 20 10 12Z" fill="#F7A9B4"/></svg>` }
-  ];
+  // the illustration (head + parts) comes from the user's sprite sheet via tools/fuku_art.py → window.NENGA_FUKU.
+  // Everything is in sheet units: H = the head's box; each part's target = where its centre belongs on the head.
+  const ART = window.NENGA_FUKU, H = ART.head.box;
+  face.innerHTML = `<svg viewBox="${H.join(' ')}" aria-hidden="true">${ART.head.svg}</svg>`;
+  const TARGET = { eyeL: ['左目', 560, 480], eyeR: ['右目', 725, 480], nose: ['鼻', 642, 545], mouth: ['口', 642, 615], earL: ['左耳', 363, 485], earR: ['右耳', 920, 485] };
+  const PARTS = Object.keys(TARGET).map(id => { const b = ART[id].box, [name, tx, ty] = TARGET[id];
+    return { id, name, w: b[2], h: b[3], tx, ty, tr: 0, svg: `<svg viewBox="${b.join(' ')}">${ART[id].svg}</svg>` }; });
   let state = 'start', hidden = { dx: 0, dy: 0, s: 1, r: 0 };
   const els = PARTS.map(p => {
     const el = document.createElement('div'); el.className = 'fk-part home'; el.innerHTML = p.svg; el.setAttribute('aria-label', p.name);
     root.appendChild(el); return { p, el, x: 0, y: 0, rot: 0, placed: false };
   });
   // geometry in screen-local px
-  const faceBox = () => { const b = rectIn(root, board); const fw = b.w * .84; return { bx: b.x, by: b.y, bw: b.w, bh: b.h, fx: b.x + b.w * .08, fy: b.y + b.h * .06, fw, u: fw / 200 }; };
-  function place(o, x, y, rot) { o.x = x; o.y = y; o.rot = rot; const g = faceBox(); const w = o.p.w * g.u * 1.12, h = o.p.h * g.u * 1.12; Object.assign(o.el.style, { width: w + 'px', height: h + 'px', left: (x - w / 2) + 'px', top: (y - h / 2) + 'px', transform: `rotate(${rot}deg)` }); }
+  // face position from its layout box (offsets ignore the hidden nudge transform); u = screen px per sheet unit
+  const faceBox = () => { const b = rectIn(root, board), fw = face.offsetWidth; return { bx: b.x, by: b.y, bw: b.w, bh: b.h, fx: b.x + face.offsetLeft, fy: b.y + face.offsetTop, fw, fh: fw * H[3] / H[2], u: fw / H[2] }; };
+  function place(o, x, y, rot) { o.x = x; o.y = y; o.rot = rot; const g = faceBox(); const w = o.p.w * g.u, h = o.p.h * g.u; Object.assign(o.el.style, { width: w + 'px', height: h + 'px', left: (x - w / 2) + 'px', top: (y - h / 2) + 'px', transform: `rotate(${rot}deg)` }); }
   function homeSlots() {
     const t = rectIn(root, tray), n = els.length, pc = t.w < t.h;
     els.forEach((o, i) => {
@@ -4873,6 +5269,7 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
   }
   function layout() {
     homeSlots();
+    if (root.classList.contains('fk-fin')) return;   // placed parts ride inside the board then
     els.forEach(o => { if (o.placed) place(o, o.fxN * faceBox().bw + faceBox().bx, o.fyN * faceBox().bh + faceBox().by, o.rot); });
   }
   new ResizeObserver(layout).observe(root);
@@ -4905,11 +5302,11 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
       const inside = o.x > g.bx && o.x < g.bx + g.bw && o.y > g.by && o.y < g.by + g.bh;
       if (inside && state === 'blind') {
         // the hand slips a little — that's the fun of it
-        const slip = g.fw * .05;
+        const slip = g.fw * .022;
         const nx = clamp(o.x + rand(-slip, slip), g.bx + 8, g.bx + g.bw - 8), ny = clamp(o.y + rand(-slip, slip), g.by + 8, g.by + g.bh - 8);
         o.placed = true; o.fxN = (nx - g.bx) / g.bw; o.fyN = (ny - g.by) / g.bh;
         o.el.style.transition = 'left .25s ease-out, top .25s ease-out, transform .25s ease-out';
-        place(o, nx, ny, o.p.tr + rand(-22, 22));
+        place(o, nx, ny, o.p.tr + rand(-9, 9));
         setTimeout(() => { o.el.style.transition = ''; }, 260);
         o.el.classList.add('placed', 'blind');
         play('stamp', { vol: .45, rate: .95 + placedCount() * .06 }); buzz(10);
@@ -4929,13 +5326,13 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
     sfx.whoosh();
     // score: distance of each placed part to its target, in face units (taking the hidden nudge into account)
     const g = faceBox(); let err = 0, n = 0;
-    const cx = g.fx + g.fw / 2, cy = g.fy + g.fw * 1.1 / 2, ang = -hidden.r * Math.PI / 180;
+    const cx = g.fx + g.fw / 2, cy = g.fy + g.fh / 2, ang = -hidden.r * Math.PI / 180;
     els.forEach(o => {
       if (!o.placed) { err += .5; n++; return; }
-      let x = o.x - cx - hidden.dx * g.fw, y = o.y - cy - hidden.dy * g.fw * 1.1;
+      let x = o.x - cx - hidden.dx * g.fw, y = o.y - cy - hidden.dy * g.fh;
       const xr = x * Math.cos(ang) - y * Math.sin(ang), yr = x * Math.sin(ang) + y * Math.cos(ang);
-      const fx = xr / (g.u * hidden.s) + 100, fy = yr / (g.u * hidden.s) + 110;
-      err += Math.hypot(fx - o.p.tx, fy - o.p.ty) / 200; n++;
+      const fx = xr / (g.u * hidden.s) + H[0] + H[2] / 2, fy = yr / (g.u * hidden.s) + H[1] + H[3] / 2;
+      err += Math.hypot(fx - o.p.tx, fy - o.p.ty) / H[2]; n++;
     });
     const avg = err / n;
     const R = avg < .07 ? { k: '名人級', s: 'そっくりなひつじになりました', c: '#0066FF' } : avg < .15 ? { k: '福々しい', s: 'なかなか、いい顔です', c: '#D9332B' } : { k: '大わらい', s: 'これは…福がきました', c: '#D9332B' };
@@ -4950,13 +5347,27 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
         <div class="kw">笑う門には、福来たる。</div>
         <p>${R.s}。あけましておめでとうございます。2027年は未年、「未来」の年。今年もbravesoftは、皆さまと一緒に笑える、オモシロい体験をつくっていきます。</p>
         <span class="sig">${SIG}</span>`;
+      fin();
       result.hidden = false;
       if (!RM) result.animate([{ transform: 'translateY(30px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 380, easing: 'cubic-bezier(.2,1.2,.4,1)' });
       act.textContent = 'もう一回あそぶ';
     }, 2400);
     act.textContent = '…'; act.disabled = true; setTimeout(() => { act.disabled = false; }, 2400);
   }
+  // result layout: move the placed parts into the board so they travel with it as it shrinks aside
+  function fin() {
+    const b = rectIn(root, board);
+    els.forEach(o => { if (!o.placed) return;
+      o.el.style.left = (parseFloat(o.el.style.left) - b.x) + 'px'; o.el.style.top = (parseFloat(o.el.style.top) - b.y) + 'px'; board.appendChild(o.el); });
+    root.classList.add('fk-fin');
+  }
+  function unfin() {
+    if (!root.classList.contains('fk-fin')) return;
+    root.classList.remove('fk-fin');
+    els.forEach(o => { if (o.el.parentNode !== root) root.appendChild(o.el); });
+  }
   function again() {
+    unfin();
     result.hidden = true; face.classList.remove('laugh'); face.style.transform = '';
     els.forEach(o => { o.placed = false; o.el.classList.remove('placed', 'blind'); o.el.classList.add('home'); });
     homeSlots(); board.classList.remove('reveal'); state = 'start';
@@ -5515,27 +5926,68 @@ N3.stage('#mochi', (r, renderer, cv) => {
   [[-.02, .13], [.24, -.13]].forEach(([x, z]) => kineCells.push({ x, y: 0, z, s: .22, c: hex(DARK) }));   // hooves on the grip
   const kineV = vox(kineCells, kine, { k: 240, d: 12 });
 
-  /* ---------- the helper lamb (four legs, like the reference) who turns the mochi between beats ---------- */
-  const LB = new T.Group(); LB.position.set(2.7, 0, -1.25); LB.rotation.y = -1.85; world.add(LB); LB.updateMatrixWorld(true);
-  const lambCells = [], CL = .15;
-  [[-.24, -.16], [-.24, .16], [.22, -.16], [.22, .16]].forEach(([x, z]) => [0, 1].forEach(y => lambCells.push({ x, y: .075 + y * CL, z, s: CL, c: hex(DARK) })));
-  roundBox(lambCells, 0, .62, 0, .5, .36, .38, CL);
-  [[.0, -.08], [.12, .08], [-.1, .06]].forEach(([x, z]) => lambCells.push({ x, y: 1.0, z, s: .16, c: hex(0xFFFFFF) }));
-  makeHead(LB, .5, .92, 0, .46, .44, .5);
-  [-1, 1].forEach(s => lambCells.push({ x: .4, y: .98, z: s * .32, s: .14, c: hex(DARK) }));
-  const lambV = vox(lambCells, LB, { k: 160, d: 10 });
-  // arm: dark cubes with a white tenugui-wrapped hoof, from the lamb's shoulder toward the mochi
-  const arm = new T.Group(); world.add(arm);
-  const armCells = []; for (let k = 0; k < 9; k++) armCells.push({ x: k * .14, y: 0, z: 0, s: .15, c: hex(k > 6 ? 0xFFFFFF : DARK) });
-  const armV = vox(armCells, arm, { k: 200, d: 12 });
-  const SHOULDER = LB.localToWorld(new T.Vector3(.36, .7, 0)), REACH = new T.Vector3(U.x + .1, MOCHI_TOP - .05, U.z - .05);
-  arm.position.copy(SHOULDER);
+  /* ---------- the helper lamb who turns the mochi between beats ----------
+     Built from parts so it can move like an animal: hind legs stay planted, the torso (body, wool, head, front legs)
+     pivots at the hip. While the game runs it walks up to the mortar and stands on its hind legs; on each beat's
+     "hand in" window it leans over the rim and puts both front hooves (wrapped in white tenugui) on the mochi. */
+  const LS = 1.3, CL = .15;                                  // lamb scale, cube size
+  const LB = new T.Group(); LB.scale.setScalar(LS); world.add(LB);
+  const LB_HOME = new T.Vector3(2.7, 0, -1.25), LB_YAW0 = -1.85;
+  // it works from the mortar's right-hand side, so the camera sees it side-on (front legs and hooves against the mochi)
+  const toLamb = new T.Vector3(1, 0, -.3).normalize();
+  const LB_YAW1 = Math.atan2(toLamb.z, -toLamb.x);        // facing the mortar (local +x → toward its centre)
+  const HIP = new T.Vector3(-.24, .45, 0), SHO = new T.Vector3(.22, .45, 0), NECK = new T.Vector3(.36, .8, 0), LEG = .45;
+  const HIP_D = 1.5;                                          // hip's distance from the mortar's axis while standing beside it
+  const LB_NEAR = new T.Vector3(U.x, 0, U.z).addScaledVector(toLamb, HIP_D + HIP.x * LS);   // origin there (hip is behind the origin)
+  // hind legs (planted)
+  const hindCells = [];
+  [-.16, .16].forEach(z => [0, 1, 2].forEach(y => hindCells.push({ x: HIP.x, y: .075 + y * CL, z, s: CL, c: hex(DARK) })));
+  const hindV = vox(hindCells, LB, { k: 160, d: 10 });
+  // torso: pivots at the hip; cells are relative to the hip
+  const torso = new T.Group(); torso.position.copy(HIP); LB.add(torso);
+  const torsoCells = [];
+  roundBox(torsoCells, -HIP.x, .62 - HIP.y, 0, .5, .36, .38, CL);
+  [[.0, -.08], [.12, .08], [-.1, .06]].forEach(([x, z]) => torsoCells.push({ x: x - HIP.x, y: 1.0 - HIP.y, z, s: .16, c: hex(0xFFFFFF) }));
+  const torsoV = vox(torsoCells, torso, { k: 160, d: 10 });
+  // head: pivots at the neck so it can keep looking at the mochi while the body rears up
+  const headG = new T.Group(); headG.position.copy(NECK).sub(HIP); torso.add(headG);
+  makeHead(headG, .5 - NECK.x, .92 - NECK.y, 0, .46, .44, .5);
+  const headV = vox([-1, 1].map(s => ({ x: .4 - NECK.x, y: .98 - NECK.y, z: s * .32, s: .14, c: hex(DARK) })), headG, { k: 160, d: 10 });
+  // front legs: pivot at the shoulder, hang along local -y; a white tenugui band above the dark hoof
+  const legs = [-.16, .16].map(z => {
+    const g = new T.Group(); g.position.set(SHO.x - HIP.x, SHO.y - HIP.y, z); torso.add(g);
+    const v = vox([0, 1, 2].map(k => ({ x: 0, y: -.075 - k * CL, z: 0, s: CL, c: hex(k === 1 ? 0xFFFFFF : DARK) })), g, { k: 200, d: 12 });
+    return { g, v, z };
+  });
+  // where the hooves go: on the mochi just inside the rim, on the lamb's side (world), one per leg
+  const hoofAt = (r, side) => { const perp = new T.Vector3(-toLamb.z, 0, toLamb.x);
+    return new T.Vector3(U.x, MOCHI_Y + MR * .62 * Math.sqrt(Math.max(0, 1 - (r / MR) ** 2)) - .02, U.z).addScaledVector(toLamb, r).addScaledVector(perp, side * .3); };
+  const HOOF = legs.map(l => hoofAt(.66, -Math.sign(l.z)));   // local +z points to -perp in world
+  // stance helpers: torso pitch while standing up (waiting) and while reaching (solved so the legs just reach the hooves' spot)
+  const PITCH_UP = 1.3;
+  let PITCH_REACH = 1.0;
+  { // with the lamb at LB_NEAR, pick the pitch whose shoulder→hoof distance is closest to the leg length
+    const tgtD = (HIP_D - .66) / LS, tgtY = (HOOF[0].y) / LS - HIP.y;   // hoof relative to the hip, in lamb units (x toward the mortar)
+    let best = 1e9;
+    for (let ph = 1.05; ph <= 1.5; ph += .01) {   // never lean further than this: the front legs reach, the face stays back from the mortar
+      const sx = (SHO.x - HIP.x) * Math.cos(ph), sy = (SHO.x - HIP.x) * Math.sin(ph), d = Math.abs(Math.hypot(tgtD - sx, tgtY - sy) - LEG);
+      if (d < best) { best = d; PITCH_REACH = ph; }
+    }
+  }
+  let ready = 0, testHand = null;   // testHand: test hook override for the lamb's reach (0–1)
+  const _v = new T.Vector3();
 
   /* ---------- rings, steam, debris ---------- */
-  const ringMat = c => new T.MeshBasicMaterial({ color: c, transparent: true, opacity: .9, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide });
-  const target = new T.Mesh(new T.RingGeometry(.93, 1.0, 64), ringMat(0x7FE0FF)); target.rotation.x = -Math.PI / 2; target.position.set(U.x, MOCHI_TOP + .03, U.z); world.add(target);
+  // ring colours are picked to stand out from the blue floor and the white mochi: solid (not additive) strokes with a
+  // navy outline underneath; yellow while closing in, green = tap now, red = あぶない, pink in FEVER
+  const RC = { idle: 0xFFE14A, hit: 0x22E07A, danger: 0xFF3344, fever: 0xFF5FD2, base: 0xFFFFFF, line: 0x0B1C3F };
+  const ringMat = (c, add = true) => new T.MeshBasicMaterial({ color: c, transparent: true, opacity: .9, blending: add ? T.AdditiveBlending : T.NormalBlending, depthWrite: false, side: T.DoubleSide });
+  const flat = (m, y = 0) => { m.rotation.x = -Math.PI / 2; m.position.set(U.x, MOCHI_TOP + .03 + y, U.z); world.add(m); return m; };
+  const targetLine = flat(new T.Mesh(new T.RingGeometry(.9, 1.03, 64), ringMat(RC.line, false)), -.003); targetLine.material.opacity = .6;
+  const approachLine = flat(new T.Mesh(new T.RingGeometry(.92, 1.07, 64), ringMat(RC.line, false)), -.002); approachLine.material.opacity = .6;
+  const target = new T.Mesh(new T.RingGeometry(.93, 1.0, 64), ringMat(RC.base, false)); target.rotation.x = -Math.PI / 2; target.position.set(U.x, MOCHI_TOP + .03, U.z); world.add(target);
   const targetGlow = new T.Mesh(new T.RingGeometry(.86, 1.08, 64), ringMat(0x3FA0FF)); targetGlow.rotation.x = -Math.PI / 2; targetGlow.position.copy(target.position); targetGlow.material.opacity = .25; world.add(targetGlow);
-  const approach = new T.Mesh(new T.RingGeometry(.95, 1.04, 64), ringMat(0x9FEAFF)); approach.rotation.x = -Math.PI / 2; approach.position.copy(target.position); world.add(approach);
+  const approach = new T.Mesh(new T.RingGeometry(.95, 1.04, 64), ringMat(RC.idle, false)); approach.rotation.x = -Math.PI / 2; approach.position.copy(target.position); world.add(approach);
   const approachGlow = new T.Mesh(new T.RingGeometry(.88, 1.12, 64), ringMat(0x3FA0FF)); approachGlow.rotation.x = -Math.PI / 2; approachGlow.position.copy(target.position); approachGlow.material.opacity = .2; world.add(approachGlow);
   const zone = new T.Mesh(new T.RingGeometry(.86, 1.24, 64), ringMat(0x7FE0FF)); zone.rotation.x = -Math.PI / 2; zone.position.copy(target.position); zone.position.y -= .005; zone.material.opacity = .12; world.add(zone);
   const starTex2 = N3.canvasTex(256, 256, (g, w) => { const c = w / 2; const gr = g.createRadialGradient(c, c, 0, c, c, c); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.25, 'rgba(200,240,255,.6)'); gr.addColorStop(1, 'rgba(120,200,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, w);
@@ -5584,7 +6036,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
 
   /* ---------- game state ---------- */
   let missedUpTo = -1, state = 'idle', t0 = 0, now = 0, period = .92, prog = 0, combo = 0, maxCombo = 0, shown = 0, lastBeat = -1, judgedBeat = -1;
-  let swingT = 9, hitStop = 0, shakeA = 0, squashV = 0, squashY = 0, flashT = 0, doneT = 0, fever = false;
+  let swingT = 9, hitStop = 0, slowT = 0, slowDur = 1, slowMin = 1, slowAmt = 0, shakeA = 0, squashV = 0, squashY = 0, flashT = 0, doneT = 0, fever = false;
   const stats = { perfect: 0, good: 0, weak: 0, miss: 0, danger: 0 };
   const beatAt = n => t0 + n * period;
   const phase = () => (now - t0) / period;                         // beat n happens at integer phases
@@ -5603,7 +6055,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     finalEl.hidden = true; msgEl.classList.remove('on'); updHud();
     mikanV.mesh.visible = false; mochiV.cells.forEach((c, i) => { mochiV.sc[i] = 1; c.x = c.bx; c.y = c.by; c.z = c.bz; });
     setMochiLook(0);
-    btn.textContent = 'ぺったん!'; howEl.innerHTML = '<b>青い輪</b>が重なった<br>瞬間にタップ';
+    btn.textContent = 'ぺったん!'; howEl.innerHTML = '<b>黄色い輪</b>が重なった<br>瞬間にタップ';
     judge('よーい…', '', 'weak', 900);
   }
   function updHud() {
@@ -5682,18 +6134,18 @@ N3.stage('#mochi', (r, renderer, cv) => {
     shakeA = Math.max(shakeA, .12 * P);
     if (q === 'danger') {
       stats.danger++; combo = 0; fever = false; root.classList.remove('fever');
-      kick(lambV, 0, .8, 0, 4, 2, 1.4, .5); armRecoil = 1; rebound = 1; shakeA = .3;
+      kick(torsoV, .3, .3, 0, 4, 2, 1.4, .5); armRecoil = 1; rebound = 1; shakeA = .3;
       judge('あぶない!', 'こひつじの手が！', 'danger', 1000); vignette('danger'); buzz([50, 40, 50]);
       fx2d('danger');
       play('mc_danger', { vol: .7 });
       updHud(); return;
     }
     let gain = 0;
-    if (q === 'perfect') { stats.perfect++; combo++; gain = 7; hitStop = .11; judge('ぺったん!', combo > 1 ? `PERFECT ・ ${combo} COMBO` : 'PERFECT', 'perfect', 900); flash('#FFFFFF', .5); buzz(35);
+    if (q === 'perfect') { stats.perfect++; combo++; gain = 7; hitStop = .11; slowmo(.5, .2); judge('ぺったん!', combo > 1 ? `PERFECT ・ ${combo} COMBO` : 'PERFECT', 'perfect', 900); flash('#FFFFFF', .5); buzz(35);
       burst(top, 34, fever ? [0xFFFFFF, 0xFFE94A, 0xFFB800] : [0xFFFFFF, 0xF3F1EA, 0x9FEAFF, 0x3FA0FF], 3.4, .13, 5.5); shock.material.opacity = 1; shock.scale.setScalar(.6); shockT = 0;
       zoomP = .09; starT = 0; starK = 1.2; sheepHop = 1; shakeA = .22; fx2d('perfect');
       play('mc_pound', { vol: 1 }); play('mc_kiran', { vol: .5, rate: lift() }); play('mc_good', { vol: .45, rate: 1.19 * lift(), delay: .03 }); }
-    else if (q === 'good') { stats.good++; combo++; gain = 4.5; hitStop = .05; judge('いいね!', combo > 1 ? `GOOD ・ ${combo} COMBO` : 'GOOD', 'good', 750); buzz(20);
+    else if (q === 'good') { stats.good++; combo++; gain = 4.5; hitStop = .05; slowmo(.34, .4); judge('いいね!', combo > 1 ? `GOOD ・ ${combo} COMBO` : 'GOOD', 'good', 750); buzz(20);
       burst(top, 16, [0xFFFFFF, 0xF3F1EA, 0x9FEAFF], 2.4, .11, 3.8); zoomP = .045; starT = 0; starK = .7; fx2d('good'); play('mc_pound', { vol: .85, rate: .98 }); play('mc_good', { vol: .55, rate: lift(), delay: .01 }); }
     else if (q === 'early' || q === 'late') { stats.weak++; combo = 0; gain = 1.5; judge(q === 'early' ? 'はやい' : 'おそい', q === 'early' ? '◀ EARLY' : 'LATE ▶', 'weak', 620); buzz(8);
       burst(top, 5, [0xF3F1EA], 1.4, .08, 2); zoomP = .015; play('mc_pound', { vol: .45, rate: 1.1 }); }
@@ -5710,6 +6162,10 @@ N3.stage('#mochi', (r, renderer, cv) => {
     updHud();
     if (prog >= 100) finish();
   }
+  // slow motion after a solid hit: animation time drops to `min` and eases back to full speed over `dur` seconds.
+  // Only the picture slows down (cube springs, particles, squash, the swing, the camera punch) — the beat clock,
+  // the rings and the judgement windows keep real time, so the rhythm never drifts.
+  function slowmo(dur, min) { slowDur = slowT = dur; slowMin = min; }
   // reward sparkles climb a little in pitch as the combo builds (up to ~a minor third at 10)
   function lift() { return 1 + Math.min(combo, 10) * .019; }
   function showLine(i) {
@@ -5755,7 +6211,11 @@ N3.stage('#mochi', (r, renderer, cv) => {
   let lastT = 0;
   function frame(dt, t) {
     dt = dt || 0; now = t; if (!lastT) lastT = t;
-    if (hitStop > 0) { hitStop -= dt; dt *= .05; }     // brief freeze-frame on a solid hit
+    if (hitStop > 0) { hitStop -= dt; dt *= .05; slowAmt = 1; }     // brief freeze-frame on a solid hit…
+    else if (slowT > 0) {                                             // …then slow motion easing back to normal speed
+      slowT = Math.max(0, slowT - dt); const u = 1 - slowT / slowDur;
+      dt *= slowMin + (1 - slowMin) * u * u; slowAmt = 1 - u;
+    } else slowAmt = 0;
     // beats: tick + miss detection
     if (state === 'play' && now >= t0 - .001) {
       const n = Math.floor(phase() + .5);
@@ -5787,28 +6247,48 @@ N3.stage('#mochi', (r, renderer, cv) => {
     SH.rotation.z = -clamp((RA - ang) / 1.5, 0, 1) * .12;
     SH.position.y = Math.sin(sheepHop * Math.PI) * .25 + (playing ? Math.abs(Math.sin(t * Math.PI / period)) * .03 : Math.sin(t * 2) * .02);
     sheepHead.rotation.z = Math.sin(t * 3) * .03 + (danger ? .08 : 0);
-    // lamb hand: reaches in while the ring is big
-    const hand = handIn() * (1 - armRecoil);
+    // the lamb: walks up to the mortar and stands on its hind legs while the game runs; on each "hand in" window it
+    // leans over the rim and puts both front hooves on the mochi. あぶない → it jerks its hooves back and hops.
+    const hand = (testHand == null ? handIn() : testHand) * (1 - armRecoil);
     armRecoil = Math.max(0, armRecoil - dt * 2.5);
-    const dir = REACH.clone().sub(SHOULDER), len = dir.length();
-    arm.quaternion.setFromUnitVectors(new T.Vector3(1, 0, 0), dir.normalize());
-    arm.scale.set(.15 + (len / (9 * .14) - .15) * hand, 1, 1);
-    LB.position.y = Math.abs(Math.sin(t * Math.PI / period + 1.2)) * .03 + Math.sin(Math.min(1, armRecoil * 1.2) * Math.PI) * .45;
+    ready += ((state === 'play' ? 1 : 0) - ready) * Math.min(1, dt * 2.2);
+    const rear = clamp(ready * 1.7, 0, 1), walk = clamp((ready - .25) / .75, 0, 1), ew = walk * walk * (3 - 2 * walk);
+    LB.position.lerpVectors(LB_HOME, LB_NEAR, ew);
+    LB.rotation.y = LB_YAW0 + (LB_YAW1 - LB_YAW0) * clamp(ready * 1.4, 0, 1);
+    const stepBob = ready > .02 && ready < .98 ? Math.abs(Math.sin(t * 14)) * .05 : 0;
+    LB.position.y = stepBob + Math.abs(Math.sin(t * Math.PI / period + 1.2)) * .02 + Math.sin(Math.min(1, armRecoil * 1.2) * Math.PI) * .4;
+    const eh = hand * hand * (3 - 2 * hand);
+    const pitch = rear * (PITCH_UP + (PITCH_REACH - PITCH_UP) * eh) + Math.sin(t * 2.4) * .03 * rear;
+    torso.rotation.z = pitch;
+    headG.rotation.z = -pitch * .75 + Math.sin(t * 3) * .04;                // keep looking at the mochi
+    LB.updateMatrixWorld(true);
+    legs.forEach((l, k) => {
+      // rest: hanging along the torso (standing on four legs it is straight down; reared up it is a "begging" paw)
+      // reach: aim the leg at its hoof spot; length follows the distance (only a few % either way)
+      _v.copy(HOOF[k]); l.g.parent.worldToLocal(_v); _v.sub(l.g.position);
+      const aim = Math.atan2(_v.x, -_v.y), len = clamp(Math.hypot(_v.x, _v.y) / LEG, .8, 1.2);
+      const beg = rear * (.35 + Math.sin(t * 5 + k) * .06);
+      l.g.rotation.z = beg + (aim - beg) * eh;
+      l.g.scale.y = 1 + (len - 1) * eh;
+    });
     // ring visuals
-    approach.visible = approachGlow.visible = playing;
-    approach.scale.setScalar(rr); approachGlow.scale.setScalar(rr);
-    approach.material.color.setHex(danger ? 0xFF6B6B : inZone ? 0xFFFFFF : fever ? 0xFFE94A : 0x9FEAFF);
-    approachGlow.material.color.setHex(danger ? 0xFF3B3B : fever ? 0xFFB800 : 0x3FA0FF);
-    approach.material.opacity = trailing ? (1 - p / .16) * .9 : .4 + .55 * closing;
+    const ringC = danger ? RC.danger : inZone ? RC.hit : fever ? RC.fever : RC.idle;
+    approach.visible = approachGlow.visible = approachLine.visible = playing;
+    approach.scale.setScalar(rr); approachGlow.scale.setScalar(rr); approachLine.scale.setScalar(rr);
+    approach.material.color.setHex(ringC); approachGlow.material.color.setHex(ringC);
+    approach.material.opacity = trailing ? (1 - p / .16) : .55 + .45 * closing;
+    approachLine.material.opacity = approach.material.opacity * .6;
     approachGlow.material.opacity = trailing ? (1 - p / .16) * .3 : .12 + .25 * closing;
-    target.material.color.setHex(danger ? 0xFF8A8A : inZone ? 0xFFFFFF : fever ? 0xFFE94A : 0x7FE0FF);
-    target.scale.setScalar(inZone ? 1.04 + Math.sin(t * 30) * .01 : 1); targetGlow.material.opacity = inZone ? .6 : .22;
-    zone.material.color.setHex(danger ? 0xFF5A5A : fever ? 0xFFD84A : 0x7FE0FF); zone.material.opacity = !playing ? .1 : danger ? .14 : inZone ? .38 : .1 + .12 * closing;
-    target.visible = targetGlow.visible = zone.visible = state !== 'done';
+    target.material.color.setHex(danger ? RC.danger : inZone ? RC.hit : fever ? RC.fever : RC.base);
+    targetGlow.material.color.setHex(danger ? RC.danger : inZone ? RC.hit : fever ? RC.fever : RC.idle);
+    const ts = inZone ? 1.04 + Math.sin(t * 30) * .01 : 1; target.scale.setScalar(ts); targetLine.scale.setScalar(ts);
+    targetGlow.material.opacity = inZone ? .6 : .22;
+    zone.material.color.setHex(danger ? RC.danger : inZone ? RC.hit : fever ? RC.fever : RC.idle); zone.material.opacity = !playing ? .1 : danger ? .16 : inZone ? .35 : .08 + .1 * closing;
+    target.visible = targetGlow.visible = targetLine.visible = zone.visible = state !== 'done';
     // impact star
     starT += dt; if (starT < .35) { const u = starT / .35; star.visible = true; star.scale.setScalar(.6 + u * 2.4 * starK); star.material.opacity = 1 - u; star.quaternion.copy(camera.quaternion); } else star.visible = false;
     // camera punch
-    zoomP = Math.max(0, zoomP - dt * .5); camera.zoom = 1 + zoomP; camera.updateProjectionMatrix();
+    zoomP = Math.max(0, zoomP - dt * .5); camera.zoom = 1 + zoomP + slowAmt * slowAmt * .05; camera.updateProjectionMatrix();
     // shockwave on the floor
     shockT += dt; if (shockT < .6) { shock.scale.setScalar(.8 + shockT * 6); shock.material.opacity = 1 - shockT / .6; } else shock.material.opacity = 0;
     // squash the whole mochi (spring)
@@ -5847,12 +6327,12 @@ N3.stage('#mochi', (r, renderer, cv) => {
     }
     debris.instanceMatrix.needsUpdate = true;
     // springs
-    [tileV, usuV, mochiV, sheepV, kineV, lambV, armV, mikanV].forEach(v => stepVox(v, dt));
+    [tileV, usuV, mochiV, sheepV, kineV, hindV, torsoV, headV, legs[0].v, legs[1].v, mikanV].forEach(v => stepVox(v, dt));
     // camera shake
     shakeA = Math.max(0, shakeA - dt * .6);
     world.position.set(rand(-1, 1) * shakeA, rand(-1, 1) * shakeA * .6, 0);
   }
-  root._mc = { hit: q => { swingT = 0; impact(q, 0); }, setProg: v => { prog = v; }, get state() { return state; }, get beat() { return { t0, period, now }; } };   // test hook
+  root._mc = { hit: q => { swingT = 0; impact(q, 0); }, setProg: v => { prog = v; }, get state() { return state; }, get beat() { return { t0, period, now }; }, get lamb() { return { ready, pitch: torso.rotation.z, hand: handIn() }; }, set testHand(v) { testHand = v; }, get legs() { return legs.map((l, k) => ({ tip: l.g.localToWorld(new T.Vector3(0, -LEG, 0)).toArray().map(v => +v.toFixed(2)), hoof: HOOF[k].toArray().map(v => +v.toFixed(2)), rot: +l.g.rotation.z.toFixed(2), sy: +l.g.scale.y.toFixed(2) })); }, get lambPos() { return { lb: LB.position.toArray().map(v => +v.toFixed(2)), yaw: +LB.rotation.y.toFixed(2), U: [U.x, U.z] }; } };   // test hook
   resize(root.clientWidth || 322, root.clientHeight || 608);
   return { scene, camera, frame, resize, onMode() { resize(root.clientWidth, root.clientHeight); updHud(); } };
 });
