@@ -56,7 +56,11 @@ const SIG = 'bravesoft株式会社 代表取締役 〇〇 〇〇';
     els.forEach((o, i) => {
       if (o.placed) return;
       const cols = pc ? 2 : 3, rows = Math.ceil(n / cols), c = i % cols, r = Math.floor(i / cols);
-      place(o, t.x + t.w * (c + .5) / cols, t.y + 14 + (t.h - 14) * (r + .5) / rows, 0);
+      const cw = t.w / cols, ch = (t.h - 14) / rows;
+      place(o, t.x + cw * (c + .5), t.y + 14 + ch * (r + .5), 0);
+      // in the dock the whole grid cell is the touch area (the eyes alone are tiny); see .fk-part.home::before
+      const w = parseFloat(o.el.style.width), h = parseFloat(o.el.style.height);
+      o.el.style.setProperty('--hx', Math.max(0, (cw - w) / 2 - 2) + 'px'); o.el.style.setProperty('--hy', Math.max(0, (ch - h) / 2 - 2) + 'px');
     });
   }
   function layout() {

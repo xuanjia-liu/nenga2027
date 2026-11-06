@@ -944,6 +944,7 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 .fk-part.drag{cursor:grabbing;z-index:9;filter:drop-shadow(0 10px 10px rgba(0,0,0,.35))}
 .fk-part.placed.blind{opacity:.45;filter:blur(.6px)}
 .fk-part.home{animation:fkWob 2.4s ease-in-out infinite}
+.fk-part.home::before{content:"";position:absolute;top:calc(-1 * var(--hy,0px));bottom:calc(-1 * var(--hy,0px));left:calc(-1 * var(--hx,0px));right:calc(-1 * var(--hx,0px))}   /* touch area = its dock cell */
 /* result: the board shrinks out of the way, the tray (and any part left in it) fades out, the message takes its place */
 .s-fuku.fk-fin .fk-board{transform:translateX(-50%) scale(.72)}
 .s-fuku.fk-fin .fk-tray,.s-fuku.fk-fin .fk-part.home{opacity:0;transform:translateY(16px);pointer-events:none}
