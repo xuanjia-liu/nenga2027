@@ -265,7 +265,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     }
     debris.instanceColor.needsUpdate = true;
   };
-  // kagami-mochi targets (the mochi cubes regroup into this on completion) + a voxel mikan
+  // kagami-mochi targets (the mochi cubes regroup into this on completion) + the bravesoft mark on top
   const kagami = [];
   [[.62, 0, .3], [.46, .34, .26]].forEach(([rr, y0, h]) => {
     for (let ix = -6; ix <= 6; ix++) for (let iz = -6; iz <= 6; iz++) for (let iy = 0; iy * CM < h; iy++) {
@@ -273,10 +273,23 @@ N3.stage('#mochi', (r, renderer, cv) => {
       if (d > 1 || iy * CM > h * (.55 + .45 * top)) continue; kagami.push(new T.Vector3(U.x + x, USU_TOP + .02 + y0 + iy * CM + CM / 2, U.z + z));
     }
   });
-  const mikanCells = [];
-  for (let ix = -1; ix <= 1; ix++) for (let iy = 0; iy <= 2; iy++) for (let iz = -1; iz <= 1; iz++) if (Math.abs(ix) + Math.abs(iz) + Math.abs(iy - 1) < 3) mikanCells.push({ x: U.x + ix * .15, y: USU_TOP + .72 + iy * .15, z: U.z + iz * .15, s: .15, c: hex(0xFF9A1F, .03) });
-  mikanCells.push({ x: U.x + .12, y: USU_TOP + 1.1, z: U.z, s: .13, sx: 1.6, sy: .5, c: hex(0x2F9E4A) });
-  const mikanV = vox(mikanCells, world, { k: 200, d: 10 }); mikanV.mesh.visible = false;
+  // the bravesoft mark, voxelised from its SVG paths, stands on top in place of the mikan (faces the camera)
+  const MK_W = 1.34, MK_COLS = 40, MK_C = MK_W / MK_COLS, MK_ROWS = Math.round(MK_COLS * 343 / 646), MK_Y = .05;   // local y of the mark's bottom row (group sits on the top tier)
+  const markCells = [];
+  if (N3 && N3.LOGO) {
+    const SS = 8, cw = MK_COLS * SS, ch = MK_ROWS * SS, cvs = document.createElement('canvas'); cvs.width = cw; cvs.height = ch;
+    const g = cvs.getContext('2d'); g.scale(cw / 646, ch / 343); N3.LOGO.forEach(d => g.fill(new Path2D(d)));
+    const px = g.getImageData(0, 0, cw, ch).data;
+    for (let r = 0; r < MK_ROWS; r++) for (let q = 0; q < MK_COLS; q++) {
+      let a = 0; for (let y = 0; y < SS; y++) for (let x = 0; x < SS; x++) a += px[((r * SS + y) * cw + q * SS + x) * 4 + 3];
+      if (a / (SS * SS * 255) < .42) continue;
+      const x = (q + .5 - MK_COLS / 2) * MK_C, y = MK_Y + (MK_ROWS - r - .5) * MK_C;
+      [-.5, .5].forEach(k => markCells.push({ x, y, z: k * MK_C, s: MK_C * 1.02, c: hex(k > 0 ? 0x0066FF : 0x003FA8, .02) }));
+    }
+  }
+  // pivot on the top of the upper tier, turned toward the camera (offset direction in resize) and leaning back a little
+  const markG = new T.Group(); markG.position.set(U.x, USU_TOP + .58, U.z - .06); markG.rotation.order = 'YXZ'; markG.rotation.set(-.32, Math.atan2(7.2, 10.5), 0); world.add(markG);
+  const markV = vox(markCells.length ? markCells : [{ x: 0, y: MK_Y, z: 0, s: 0, c: hex(0x0066FF) }], markG, { k: 200, d: 10 }); markV.mesh.visible = false;
 
   /* ---------- camera / layout ---------- */
   let W = 1, H = 1;
@@ -316,7 +329,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     Object.keys(stats).forEach(k => stats[k] = 0);
     period = PERIOD0; t0 = now + period * 1.6; lastBeat = -1; judgedBeat = -1;
     finalEl.hidden = true; msgEl.classList.remove('on'); updHud();
-    mikanV.mesh.visible = false; mochiV.cells.forEach((c, i) => { mochiV.sc[i] = 1; c.x = c.bx; c.y = c.by; c.z = c.bz; });
+    markV.mesh.visible = false; mochiV.cells.forEach((c, i) => { mochiV.sc[i] = 1; c.x = c.bx; c.y = c.by; c.z = c.bz; });
     setMochiLook(0);
     btn.textContent = 'ぺったん!'; howEl.innerHTML = '<b>黄色い輪</b>が重なった<br>瞬間にタップ';
     judge('よーい…', '', 'weak', 900);
@@ -574,7 +587,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
       }
       if (front > 9) tileWave.splice(w, 1);
     }
-    // completion: mochi cubes fly into the kagami-mochi shape, a mikan pops on top
+    // completion: mochi cubes fly into the kagami-mochi shape, the bravesoft mark pops on top
     if (state === 'done') {
       doneT += dt;
       mochiV.cells.forEach((c, i) => {
@@ -582,7 +595,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
         if (c.to) { c.x = c.from.x + (c.to.x - c.from.x) * e; c.y = c.from.y + (c.to.y - c.from.y) * e + Math.sin(e * Math.PI) * .8; c.z = c.from.z + (c.to.z - c.from.z) * e; }
         else mochiV.sc[i] = 1 - e;
       });
-      if (doneT > 1.4 && !mikanV.mesh.visible) { mikanV.mesh.visible = true; kick(mikanV, U.x, USU_TOP + .9, U.z, 3, 1, 1.5, .3); burst(new T.Vector3(U.x, USU_TOP + 1, U.z), 40, [0xFFE94A, 0x0066FF, 0xFFFFFF, 0xE5322D], 3.5, .12, 5); sfx.pop(); }
+      if (doneT > 1.4 && !markV.mesh.visible) { markV.mesh.visible = true; kick(markV, 0, MK_Y + .25, 0, 3, 1.2, 1.5, .3); burst(new T.Vector3(U.x, USU_TOP + .95, U.z), 40, [0xFFE94A, 0x0066FF, 0xFFFFFF, 0xE5322D], 3.5, .12, 5); sfx.pop(); }
       if (Math.random() < .2) burst(new T.Vector3(rand(-3, 3), 4.5, rand(-2, 2)), 1, [0xFFE94A, 0x7FE0FF, 0xFFFFFF, 0xE5322D], .6, .1, -.2);
     }
     // steam rising from the mochi (more when the mochi is hot / fever)
@@ -598,7 +611,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     }
     debris.instanceMatrix.needsUpdate = true;
     // springs
-    [tileV, usuV, mochiV, sheepV, kineV, hindV, torsoV, headV, legs[0].v, legs[1].v, mikanV].forEach(v => stepVox(v, dt));
+    [tileV, usuV, mochiV, sheepV, kineV, hindV, torsoV, headV, legs[0].v, legs[1].v, markV].forEach(v => stepVox(v, dt));
     // camera shake
     shakeA = Math.max(0, shakeA - dt * .6);
     world.position.set(rand(-1, 1) * shakeA, rand(-1, 1) * shakeA * .6, 0);
