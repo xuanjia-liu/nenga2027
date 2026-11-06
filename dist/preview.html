@@ -1202,18 +1202,18 @@ html.sp .sp-bar{display:flex;align-items:center;gap:8px;position:fixed;z-index:8
 .sp-ttl[aria-expanded="true"] svg{transform:rotate(180deg)}
 .sp-ttl b{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sp-ttl small{font-family:var(--mono);font-size:11px;letter-spacing:.04em;opacity:.65}
-/* page list (opens upward from the title) */
-.sp-menu{position:fixed;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:calc(68px + env(safe-area-inset-bottom,0px));
+/* page list (opens upward from the title) — phone layout only */
+html.sp .sp-menu{position:fixed;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:calc(68px + env(safe-area-inset-bottom,0px));
   max-height:calc(100dvh - 92px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain;
   display:grid;gap:2px;padding:8px;background:var(--surface);color:var(--ink);border-radius:18px;box-shadow:0 -12px 40px rgba(0,0,0,.3);transform-origin:50% 100%;animation:spMenu .2s cubic-bezier(.2,.9,.3,1)}
-.sp-menu[hidden]{display:none}
+html.sp .sp-menu[hidden]{display:none}
 @keyframes spMenu{from{opacity:0;transform:translateY(12px) scale(.98)}}
-.sp-bar .sp-menu button{display:flex;align-items:center;gap:12px;min-height:46px;padding:6px 12px;border-radius:12px;background:none;text-align:left;font:inherit;font-size:14px;font-weight:700;line-height:1.35}
-.sp-menu button:active{background:var(--chip)}
-.sp-menu .c{flex:none;min-width:40px;height:26px;padding:0 6px;border-radius:99px;background:var(--chip);display:grid;place-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--grey-700)}
-.sp-menu .t{min-width:0}
-.sp-menu button[aria-current]{background:var(--blue-soft);color:var(--blue)}
-.sp-menu button[aria-current] .c{background:var(--blue);color:#fff}
+html.sp .sp-bar .sp-menu button{display:flex;align-items:center;gap:12px;min-height:46px;padding:6px 12px;border-radius:12px;background:none;text-align:left;font:inherit;font-size:14px;font-weight:700;line-height:1.35}
+html.sp .sp-menu button:active{background:var(--chip)}
+html.sp .sp-menu .c{flex:none;min-width:40px;height:26px;padding:0 6px;border-radius:99px;background:var(--chip);display:grid;place-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--grey-700)}
+html.sp .sp-menu .t{min-width:0}
+html.sp .sp-menu button[aria-current]{background:var(--blue-soft);color:var(--blue)}
+html.sp .sp-menu button[aria-current] .c{background:var(--blue);color:#fff}
 
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="bs-logo" viewBox="312 116 1352 590"><g fill="currentColor"><path d="M916.183 349.662C924.659 354.203 932 358.135 937.933 360.982H937.964C985.053 383.561 1031.960 377.462 1057.330 374.163C1063.120 373.410 1067.800 372.802 1071.090 372.716C1070.520 373.258 1069.870 373.891 1069.140 374.603C1057.290 386.160 1024.110 418.542 952.188 420.451C869.462 422.663 830.393 455.500 819.309 465.975L748.344 294.755C810.607 293.107 876.099 328.190 916.183 349.662Z"/>
