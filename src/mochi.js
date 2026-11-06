@@ -274,7 +274,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     }
   });
   // the bravesoft mark, voxelised from its SVG paths, stands on top in place of the mikan (faces the camera)
-  const MK_W = 1.34, MK_COLS = 40, MK_C = MK_W / MK_COLS, MK_ROWS = Math.round(MK_COLS * 343 / 646), MK_Y = .05;   // local y of the mark's bottom row (group sits on the top tier)
+  const MK_W = 1.34, MK_COLS = 72, MK_C = MK_W / MK_COLS, MK_ROWS = Math.round(MK_COLS * 343 / 646), MK_Y = .05;   // local y of the mark's bottom row (group sits on the top tier)
   const markCells = [];
   if (N3 && N3.LOGO) {
     const SS = 8, cw = MK_COLS * SS, ch = MK_ROWS * SS, cvs = document.createElement('canvas'); cvs.width = cw; cvs.height = ch;
@@ -284,11 +284,11 @@ N3.stage('#mochi', (r, renderer, cv) => {
       let a = 0; for (let y = 0; y < SS; y++) for (let x = 0; x < SS; x++) a += px[((r * SS + y) * cw + q * SS + x) * 4 + 3];
       if (a / (SS * SS * 255) < .42) continue;
       const x = (q + .5 - MK_COLS / 2) * MK_C, y = MK_Y + (MK_ROWS - r - .5) * MK_C;
-      [-.5, .5].forEach(k => markCells.push({ x, y, z: k * MK_C, s: MK_C * 1.02, c: hex(k > 0 ? 0x0066FF : 0x003FA8, .02) }));
+      [-1, 0, 1].forEach(k => markCells.push({ x, y, z: k * MK_C, s: MK_C * 1.02, c: hex(k > 0 ? 0x0066FF : k < 0 ? 0x003FA8 : 0x0052D6, .015) }));   // 3 layers: brand blue in front
     }
   }
   // pivot on the top of the upper tier, turned toward the camera (offset direction in resize) and leaning back a little
-  const markG = new T.Group(); markG.position.set(U.x, USU_TOP + .58, U.z - .06); markG.rotation.order = 'YXZ'; markG.rotation.set(-.32, Math.atan2(7.2, 10.5), 0); world.add(markG);
+  const markG = new T.Group(); markG.position.set(U.x, USU_TOP + .66, U.z - .06); markG.rotation.order = 'YXZ'; markG.rotation.set(-.32, Math.atan2(7.2, 10.5), 0); world.add(markG);
   const markV = vox(markCells.length ? markCells : [{ x: 0, y: MK_Y, z: 0, s: 0, c: hex(0x0066FF) }], markG, { k: 200, d: 10 }); markV.mesh.visible = false;
 
   /* ---------- camera / layout ---------- */
