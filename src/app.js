@@ -587,6 +587,14 @@ function local(el, e) {
     el('circle', { cx: G.tx, cy: ty, r: G.pc ? 3.2 : 2.2, fill: '#FFF1B8', class: 'takeoff' }, fxSvg);
     trail = el('g', { fill: '#FFD86B' }, fxSvg);
     // counter position + size
+    // phone: sit in the grass band between the hill ridge and the bottom bar
+    if (!G.pc) {
+      const sb = $('.sbar', root), floor = sb ? sb.offsetTop - 8 : G.H * .9;
+      const x0 = G.num[0], x1 = x0 + G.numS * 3.4;
+      let ridgeY = 0; for (let k = 0; k <= 8; k++) ridgeY = Math.max(ridgeY, G.hy(x0 + (x1 - x0) * k / 8));
+      const band = floor - ridgeY - 6;
+      if (band > 0) { G.numS = Math.min(G.numS, band / 1.02); G.num[1] = floor - G.numS * .98; }   // .98 leaves room for the comma
+    }
     numEl.style.left = G.num[0] + 'px'; numEl.style.top = G.num[1] + 'px'; numEl.style.fontSize = G.numS + 'px';
   }
   let trail = null;

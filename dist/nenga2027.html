@@ -266,7 +266,7 @@ html.pc .expl > dl{grid-column:2;grid-row:1 / span 3}
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
 .c-actors{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
 .runner{position:absolute;left:0;top:0;will-change:transform;filter:drop-shadow(0 8px 8px rgba(4,9,28,.4))}
-.c-top{position:absolute;z-index:4;left:20px;right:20px;top:22px;pointer-events:none}
+.c-top{position:absolute;z-index:4;left:20px;right:20px;top:50px;pointer-events:none}
 .c-hint{margin:0;padding-right:38px;font-size:12px;font-weight:700;color:rgba(214,226,255,.75);transition:opacity .4s}
 .c-hint[hidden]{display:block;opacity:0}
 .c-lines{display:grid;margin-top:-1.4em}
@@ -2424,6 +2424,14 @@ function local(el, e) {
     el('circle', { cx: G.tx, cy: ty, r: G.pc ? 3.2 : 2.2, fill: '#FFF1B8', class: 'takeoff' }, fxSvg);
     trail = el('g', { fill: '#FFD86B' }, fxSvg);
     // counter position + size
+    // phone: sit in the grass band between the hill ridge and the bottom bar
+    if (!G.pc) {
+      const sb = $('.sbar', root), floor = sb ? sb.offsetTop - 8 : G.H * .9;
+      const x0 = G.num[0], x1 = x0 + G.numS * 3.4;
+      let ridgeY = 0; for (let k = 0; k <= 8; k++) ridgeY = Math.max(ridgeY, G.hy(x0 + (x1 - x0) * k / 8));
+      const band = floor - ridgeY - 6;
+      if (band > 0) { G.numS = Math.min(G.numS, band / 1.02); G.num[1] = floor - G.numS * .98; }   // .98 leaves room for the comma
+    }
     numEl.style.left = G.num[0] + 'px'; numEl.style.top = G.num[1] + 'px'; numEl.style.fontSize = G.numS + 'px';
   }
   let trail = null;
