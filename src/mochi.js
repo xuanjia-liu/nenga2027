@@ -79,6 +79,26 @@ N3.stage('#mochi', (r, renderer, cv) => {
   const tileWave = [];   // impact shockwaves travelling out across the floor
   const tileBase = tiles.map(c => new T.Color(c.c)), tileD = new Float32Array(tiles.length);
   const CREST = new T.Color(0xE8F8FF), CREST_F = new T.Color(0xFFE0F0), TROUGH = new T.Color(0x3F7FE8);
+  // the floor's shockwave at (x, z) for one wave: [height, distance behind the crest]
+  const waveAt = (wv, x, z) => {
+    const d = Math.hypot(x - wv.x, z - wv.z), u = d - wv.t * 6.5;
+    if (u > 1.6 || u < -3) return [0, u, d];
+    const amp = .5 * wv.a * Math.exp(-wv.t * 1.1), near = clamp((d - .7) / .8, 0, 1);
+    return [amp * near / (1 + d * .18) * Math.exp(-u * u / .55) * Math.cos(u * 1.9), u, d];
+  };
+  // things standing on the floor ride the wave on a spring: y (height) and a tip (tx, tz = which way the top leans).
+  // The two sheep get thrown up and tipped away from the mortar when the crest reaches them; the mortar group hops on the hit.
+  const shockBody = () => ({ y: 0, v: 0, tx: 0, tz: 0, tvx: 0, tvz: 0 });
+  const shSheep = shockBody(), shLamb = shockBody(), usuS = shockBody();
+  const stepBody = (b, target, dt, k = 150, c = 8) => {
+    b.v += ((target - b.y) * k - b.v * c) * dt; b.y += b.v * dt; if (b === usuS && b.y < 0) { b.y = 0; b.v = Math.abs(b.v) * .3; }
+    b.tvx += (-b.tx * 140 - b.tvx * 7) * dt; b.tvz += (-b.tz * 140 - b.tvz * 7) * dt; b.tx += b.tvx * dt; b.tz += b.tvz * dt;
+  };
+  // tip a group toward world direction (tx, tz) (its rotation.y is `yaw`, Euler order YXZ)
+  const tip = (g, b, yaw = 0) => {
+    const c = Math.cos(yaw), sn = Math.sin(yaw), lx = b.tx * c - b.tz * sn, lz = b.tx * sn + b.tz * c;
+    g.rotation.x = lz; g.rotation.z = -lx;
+  };
 
   /* ---------- usu (octagonal wooden mortar) ---------- */
   const U = { x: 1.15, z: .25 }, CU = .22, R_OUT = 1.08, R_IN = .74, U_LAYERS = 6;
@@ -92,7 +112,10 @@ N3.stage('#mochi', (r, renderer, cv) => {
     const band = ly === 1 || ly === U_LAYERS - 2;
     usuCells.push({ x: U.x + x, y: CU / 2 + ly * CU, z: U.z + z, s: CU * .98, c: hex(band ? 0xA9653A : (sector % 2 ? 0xDB9A63 : 0xC8844F), .025) });
   }
-  const usuV = vox(usuCells, world, { k: 300, d: 14 });
+  // the mortar, the mochi in it and (at the end) the mark all sit in one pivot group on the mortar's axis, so the
+  // impact can hop and rock them together
+  const usuG = new T.Group(); usuG.position.set(U.x, 0, U.z); world.add(usuG);
+  const usuV = vox(usuCells, usuG, { k: 300, d: 14 }); usuV.mesh.position.set(-U.x, 0, -U.z);
   const USU_TOP = U_LAYERS * CU;
   /* ---------- mochi (a dome of small cubes; bumpy at first, smooth when done) ---------- */
   const CM = .16, MR = .8, MOCHI_Y = USU_TOP - .12;
@@ -103,10 +126,10 @@ N3.stage('#mochi', (r, renderer, cv) => {
     if (d < .72 && iy < 4) continue;     // hollow inside (never visible)
     mochiCells.push({ x: U.x + x, y: MOCHI_Y + y, z: U.z + z, bx: U.x + x, by: MOCHI_Y + y, bz: U.z + z, s: CM * .99, c: hex(0xF3F1EA, .02), bump: Math.random() < .35 ? rand(.03, .09) : 0 });
   }
-  const mochiG = new T.Group(); world.add(mochiG);
+  const mochiG = new T.Group(); usuG.add(mochiG);
   const mochiV = vox(mochiCells, mochiG, { k: 210, d: 11 });
   const MOCHI_TOP = MOCHI_Y + MR * .62 + CM / 2;
-  mochiG.position.set(U.x, 0, U.z); mochiV.mesh.position.set(-U.x, 0, -U.z);   // squash around the mortar's axis
+  mochiV.mesh.position.set(-U.x, 0, -U.z);   // squash around the mortar's axis (mochiG sits on it)
   const setMochiLook = p => {
     for (let i = 0; i < mochiV.n; i++) {
       const c = mochiV.cells[i]; mochiV.rest[i * 3 + 1] = c.bump * (1 - p);
@@ -144,7 +167,9 @@ N3.stage('#mochi', (r, renderer, cv) => {
   };
 
   /* ---------- the sheep (stands on two legs, hachimaki, holds the kine in front of its chest) ---------- */
-  const SH = new T.Group(); SH.position.set(-1.8, 0, -.12); SH.rotation.y = -.62; world.add(SH); SH.updateMatrixWorld(true);
+  // SHW stands on the floor (the shockwave bounces and tips it); SH inside it is turned toward the mortar
+  const SHW = new T.Group(); SHW.position.set(-1.8, 0, -.12); world.add(SHW);
+  const SH = new T.Group(); SH.rotation.y = -.62; SHW.add(SH); SHW.updateMatrixWorld(true);
   const sheepCells = [], CS = .18;
   const put = (x, y, z, c, s = CS) => sheepCells.push({ x, y, z, s, c: hex(c) });
   // legs + chunky feet
@@ -178,6 +203,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
   let A0 = 0; for (let a = 0; a < 1.2; a += .002) { if (PIV.y + DH * Math.tan(a) - .5 * Math.cos(a) >= MOCHI_TOP) { A0 = a; break; } }
   const KL = DH / Math.cos(A0), YAW = Math.atan2(-(U.z - PIV.z), U.x - PIV.x);
   const kine = new T.Group(); kine.rotation.order = 'YZX'; kine.position.copy(PIV); kine.rotation.y = YAW; world.add(kine);
+  const PIV_L = PIV.clone().sub(SHW.position);   // the grip in SHW's frame: the kine follows the sheep when the floor throws it
   const kineCells = [];
   for (let x = -.22; x <= KL - .3; x += .14) kineCells.push({ x, y: 0, z: 0, s: .13, c: hex(Math.round(x / .14) & 1 ? 0xE3AE78 : 0xD69C64, .015) });
   for (let ix = -1; ix <= 1; ix++) for (let iy = -2; iy <= 2; iy++) for (let iz = -1; iz <= 1; iz++) kineCells.push({ x: KL + ix * .2, y: iy * .2, z: iz * .2, s: .2, c: hex(iy === -2 || iy === 2 ? 0xC98A55 : 0xE2AA73, .03) });
@@ -189,7 +215,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
      pivots at the hip. While the game runs it walks up to the mortar and stands on its hind legs; on each beat's
      "hand in" window it leans over the rim and puts both front hooves (wrapped in white tenugui) on the mochi. */
   const LS = 1.3, CL = .15;                                  // lamb scale, cube size
-  const LB = new T.Group(); LB.scale.setScalar(LS); world.add(LB);
+  const LB = new T.Group(); LB.scale.setScalar(LS); LB.rotation.order = 'YXZ'; world.add(LB);
   const LB_HOME = new T.Vector3(2.7, 0, -1.25), LB_YAW0 = -1.85;
   // it works from the mortar's right-hand side, so the camera sees it side-on (front legs and hooves against the mochi)
   const toLamb = new T.Vector3(1, 0, -.3).normalize();
@@ -290,33 +316,65 @@ N3.stage('#mochi', (r, renderer, cv) => {
     }
   }
   // pivot on the top of the upper tier, turned toward the camera (offset direction in resize) and leaning back a little
-  const markG = new T.Group(); markG.position.set(U.x, USU_TOP + .66, U.z - .06); markG.rotation.order = 'YXZ'; markG.rotation.set(-.32, Math.atan2(7.2, 10.5), 0); world.add(markG);
+  const markG = new T.Group(); markG.position.set(0, USU_TOP + .66, -.06); markG.rotation.order = 'YXZ'; markG.rotation.set(-.32, Math.atan2(7.2, 10.5), 0); usuG.add(markG);
   const markV = vox(markCells.length ? markCells : [{ x: 0, y: MK_Y, z: 0, s: 0, c: hex(0x0066FF) }], markG, { k: 200, d: 10 }); markV.mesh.visible = false;
 
+  // 初日の出 behind the mark for the closing shot: warm rays that fade in and turn slowly (it also lifts the blue mark off
+  // the blue sky once the camera drops low)
+  const sunTex = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d'), R = 256;
+    g.translate(R, R);
+    for (let k = 0; k < 18; k++) {
+      g.rotate(Math.PI * 2 / 18); const gr = g.createLinearGradient(0, 0, R, 0);
+      gr.addColorStop(0, 'rgba(255,233,74,.95)'); gr.addColorStop(1, 'rgba(255,233,74,0)');
+      g.fillStyle = gr; g.beginPath(); g.moveTo(0, 0); g.lineTo(R, -R * .1); g.lineTo(R, R * .1); g.closePath(); g.fill();
+    }
+    const gl = g.createRadialGradient(0, 0, 0, 0, 0, R);
+    gl.addColorStop(0, 'rgba(255,255,255,1)'); gl.addColorStop(.22, 'rgba(255,246,190,.95)'); gl.addColorStop(.5, 'rgba(255,214,90,.35)'); gl.addColorStop(1, 'rgba(255,200,80,0)');
+    g.fillStyle = gl; g.beginPath(); g.arc(0, 0, R, 0, 7); g.fill();
+    const t = new T.CanvasTexture(c); return t;
+  })();
+  const rise = new T.Mesh(new T.PlaneGeometry(3.6, 3.6), new T.MeshBasicMaterial({ map: sunTex, transparent: true, opacity: 0, depthWrite: false, fog: false }));
+  rise.position.set(0, MK_Y + MK_ROWS * MK_C / 2, -.35); rise.renderOrder = -1; rise.visible = false; markG.add(rise);
+
   /* ---------- camera / layout ---------- */
-  let W = 1, H = 1, viewX = 0, viewY = 0, camShift = 0, camShiftTo = 0;   // camShift: px the scene is moved down (phone, final card)
-  const applyView = () => camera.setViewOffset(W, H, viewX, viewY - camShift, W, H);
+  // play view: an isometric-ish orthographic camera from D0. Closing shot ("hero", after the final card appears): it swoops
+  // around and down to a low angle facing the mark, zooms in, and puts the mark in the free space beside / under the card.
+  let W = 1, H = 1;
+  const D0 = new T.Vector3(7.2, 7.6, 10.5), DL = D0.length(), AZ0 = Math.atan2(7.2, 10.5), EL0 = Math.asin(7.6 / DL), EL1 = .3;
+  const base = { tgt: new T.Vector3(), ox: 0, oy: 0 }, hero = { k: 0, to: 0, ox: 0, oy: 0, zoom: 1.8 };
+  const MARK_C = new T.Vector3(), _f = new T.Vector3();
+  const markCenter = v => { usuG.updateMatrixWorld(true); return markG.localToWorld(v.set(0, MK_Y + MK_ROWS * MK_C / 2, 0)); };
+  function placeCam(t) {
+    const u = hero.k, e = u * u * (3 - 2 * u), arc = Math.sin(Math.PI * e);
+    const az = AZ0 - arc * .55 + e * Math.sin(t * .35) * .06, el = EL0 + (EL1 - EL0) * e;
+    _f.copy(base.tgt); if (e > 0) _f.lerp(markCenter(MARK_C), e);
+    camera.position.set(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el)).multiplyScalar(DL).add(_f);
+    camera.lookAt(_f);
+    camera.setViewOffset(W, H, base.ox + (hero.ox - base.ox) * e, base.oy + (hero.oy - base.oy) * e, W, H);
+    return 1 + (hero.zoom - 1) * e;
+  }
   function resize(w, h) {
     W = w; H = h;
     const pc = isPC(), vh = pc ? 7.6 : 11.2, aspect = w / h;
     camera.left = -vh * aspect / 2; camera.right = vh * aspect / 2; camera.top = vh / 2; camera.bottom = -vh / 2;
-    const tgt = new T.Vector3(pc ? .05 : .3, pc ? .95 : .55, .1);
-    camera.position.copy(tgt).add(new T.Vector3(7.2, 7.6, 10.5)); camera.lookAt(tgt);
-    if (pc) { viewX = -150; viewY = 6; } else { viewX = 0; viewY = -h * .1; }
-    applyView(); camera.updateProjectionMatrix();
-    if (state === 'done') requestAnimationFrame(fitDone);
+    base.tgt.set(pc ? .05 : .3, pc ? .95 : .55, .1);
+    if (pc) { base.ox = -150; base.oy = 6; } else { base.ox = 0; base.oy = -h * .1; }
+    hero.zoom = pc ? 1.7 : 1.9;
+    camera.zoom = placeCam(0); camera.updateProjectionMatrix();
+    if (state === 'done') requestAnimationFrame(heroFrame);
   }
-  // phone: when the final card is up, slide the scene down so the bravesoft mark sits in the middle of the
-  // space between the card and the button (on PC the card sits beside the mortar)
-  const MARK_C = new T.Vector3();
-  function fitDone() {
-    camShiftTo = 0;
-    if (state !== 'done' || finalEl.hidden || isPC()) return;
+  // where the mark should land on screen for the closing shot: the middle of the space the final card leaves free
+  // (under it on a phone, to its right on PC, above the button either way); the view offset puts the look-at point there
+  function heroFrame() {
+    if (state !== 'done' || finalEl.hidden) return;
     const rr = root.getBoundingClientRect(), k = root.clientWidth / (rr.width || 1);
-    const top = (finalEl.getBoundingClientRect().bottom - rr.top) * k, bot = (btn.getBoundingClientRect().top - rr.top) * k;
-    markG.localToWorld(MARK_C.set(0, MK_Y + MK_ROWS * MK_C / 2, 0)).project(camera);
-    const yBase = (1 - MARK_C.y) / 2 * H - camShift;
-    camShiftTo = clamp((top + bot) / 2 - yBase, 0, H * .35);
+    const fr = finalEl.getBoundingClientRect(), br = btn.getBoundingClientRect();
+    const cardR = (fr.right - rr.left) * k, cardB = (fr.bottom - rr.top) * k, btnT = (br.top - rr.top) * k;
+    let x, y;
+    if (cardR < W * .7) { x = (cardR + W) / 2; y = Math.min(H * .42, btnT * .55); }   // card on the left (PC)
+    else { x = W / 2; y = (cardB + btnT) / 2 + 10; }                                     // card on top (phone)
+    hero.ox = W / 2 - x; hero.oy = H / 2 - y; hero.to = 1;
   }
 
   /* ---------- game state ---------- */
@@ -344,7 +402,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     state = 'play'; missedUpTo = -1; prog = 0; combo = 0; maxCombo = 0; shown = 0; fever = false; root.classList.remove('fever', 'done');
     Object.keys(stats).forEach(k => stats[k] = 0);
     period = PERIOD0; t0 = now + period * 1.6; lastBeat = -1; judgedBeat = -1;
-    finalEl.hidden = true; camShiftTo = 0; msgEl.classList.remove('on'); updHud();
+    finalEl.hidden = true; hero.to = 0; msgEl.classList.remove('on'); updHud();
     markV.mesh.visible = false; mochiV.cells.forEach((c, i) => { mochiV.sc[i] = 1; c.x = c.bx; c.y = c.by; c.z = c.bz; });
     setMochiLook(0);
     btn.textContent = 'ぺったん!'; howEl.innerHTML = '<b>黄色い輪</b>が重なった<br>瞬間にタップ';
@@ -423,7 +481,9 @@ N3.stage('#mochi', (r, renderer, cv) => {
     kick(mochiV, U.x, MOCHI_TOP - .1, U.z, 4.2 * P, 1.2, -.3, 1);
     kick(usuV, U.x, USU_TOP, U.z, 2.4 * P, 2.0, .9, .45);
     kick(kineV, KL, 0, 0, 2.4 * P, .7, .6, .6);
-    tileWave.push({ t: 0, x: U.x, z: U.z, a: P, hit: new Uint8Array(tileV.n) });
+    tileWave.push({ t: 0, x: U.x, z: U.z, a: P, hit: new Uint8Array(tileV.n), bh: [0, 0] });
+    // the mortar (with the mochi) jumps off the floor and rocks
+    usuS.v += 1.5 * P; const ra = rand(0, 6.28); usuS.tvx += Math.cos(ra) * 1.2 * P; usuS.tvz += Math.sin(ra) * 1.2 * P;
     shakeA = Math.max(shakeA, .12 * P);
     if (q === 'danger') {
       stats.danger++; combo = 0; fever = false; root.classList.remove('fever');
@@ -488,7 +548,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     setTimeout(() => {
       finalEl.innerHTML = `<span class="k">MOCHITSUKI COMPLETE</span><h5>つきたての一年を。</h5><ol>${LINES.map(l => `<li>${l}</li>`).join('')}</ol><span class="sig">${SIG}</span>
         <div class="stats"><span>ぺったん ${stats.perfect}</span><span>いいね ${stats.good}</span><span>最大 ${maxCombo} コンボ</span>${stats.danger ? `<span>あぶない ${stats.danger}</span>` : ''}</div>`;
-      finalEl.hidden = false; fitDone();
+      finalEl.hidden = false; heroFrame();
       if (!RM) finalEl.animate([{ opacity: 0, transform: 'translateY(24px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.2,1.2,.4,1)' });
     }, RM ? 100 : 2200);
   }
@@ -587,8 +647,11 @@ N3.stage('#mochi', (r, renderer, cv) => {
     // impact star
     starT += dt; if (starT < .35) { const u = starT / .35; star.visible = true; star.scale.setScalar(.6 + u * 2.4 * starK); star.material.opacity = 1 - u; star.quaternion.copy(camera.quaternion); } else star.visible = false;
     // camera punch
-    if (Math.abs(camShiftTo - camShift) > .2) { camShift += (camShiftTo - camShift) * (1 - Math.exp(-dt * 3.5)); applyView(); }
-    zoomP = Math.max(0, zoomP - dt * .5); camera.zoom = 1 + zoomP + slowAmt * slowAmt * .05; camera.updateProjectionMatrix();
+    // closing shot: ease the camera into / out of the hero framing; the sunrise fades in behind the mark
+    hero.k = hero.to ? Math.min(1, hero.k + dt / 1.8) : Math.max(0, hero.k - dt / .8);
+    const heroZ = placeCam(t);
+    rise.visible = hero.k > 0; if (rise.visible) { const e = clamp((hero.k - .3) / .7, 0, 1); rise.material.opacity = e * .95; rise.scale.setScalar(.6 + e * .4 + Math.sin(t * 1.3) * .02); rise.rotation.z = t * .12; }
+    zoomP = Math.max(0, zoomP - dt * .5); camera.zoom = heroZ * (1 + zoomP + slowAmt * slowAmt * .05); camera.updateProjectionMatrix();
     // shockwave on the floor
     shockT += dt; if (shockT < .6) { shock.scale.setScalar(.8 + shockT * 6); shock.material.opacity = 1 - shockT / .6; } else shock.material.opacity = 0;
     // squash the whole mochi (spring)
@@ -615,6 +678,23 @@ N3.stage('#mochi', (r, renderer, cv) => {
       tileV.mesh.setColorAt(i, COL);
     }
     tileV.mesh.instanceColor.needsUpdate = true;
+    // the sheep and the lamb ride the shockwave
+    [[shSheep, SHW.position.x, SHW.position.z, 0], [shLamb, LB.position.x, LB.position.z, 1]].forEach(([b, x, z, n]) => {
+      let h = 0;
+      tileWave.forEach(wv => {
+        const [y, u, d] = waveAt(wv, x, z); h += y;
+        if (!wv.bh[n] && u < .3) {                                   // the crest arrives: thrown up, top tipped away from the mortar
+          wv.bh[n] = 1; const f = wv.a * Math.max(0, 1 - d / 9), l = d || 1;
+          b.v += 3.2 * f; b.tvx += (x - wv.x) / l * 2.4 * f; b.tvz += (z - wv.z) / l * 2.4 * f;
+        }
+      });
+      stepBody(b, Math.max(0, h) * 1.3, dt);
+    });
+    stepBody(usuS, 0, dt, 260, 9);
+    usuG.position.y = usuS.y; tip(usuG, usuS);
+    SHW.position.y = shSheep.y; tip(SHW, shSheep);
+    LB.position.y += shLamb.y; tip(LB, shLamb, LB.rotation.y);
+    kine.position.copy(PIV_L).applyMatrix4(SHW.matrix.compose(SHW.position, SHW.quaternion, SHW.scale));
     // completion: mochi cubes fly into the kagami-mochi shape, the bravesoft mark pops on top
     if (state === 'done') {
       doneT += dt;
