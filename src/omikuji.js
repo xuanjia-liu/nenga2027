@@ -122,6 +122,9 @@ if (T && N3 && N3.stage) N3.stage('#omikuji', (r, renderer, cv) => {
   const off = new T.Vector3(), vel = new T.Vector3(), tgt = new T.Vector3();   // pivot offset from its rest point (spring)
   let rotZ = 0, rotV = 0, rotX = 0, flipT = 0, flip = null, lastSign = 0, swing = 0, shakes = 0, rattleT = 0;
   let stickSim = null, settleT = 0, revealT = 0;
+  // phone sensors (NENGA.motion): the tube leans with the phone's tilt, and shaking the phone shakes the tube
+  const MO = window.NENGA && window.NENGA.motion;
+  let moSeen = MO ? MO.shakes : 0, moHint = false;
   cv.addEventListener('pointerdown', e => {
     if (state !== 'idle') return;
     const p = worldAt(e);
@@ -202,9 +205,19 @@ if (T && N3 && N3.stage) N3.stage('#omikuji', (r, renderer, cv) => {
     const K = drag ? 160 : 70, Cd = drag ? 16 : 7;
     vel.x += ((tgt.x - off.x) * K - vel.x * Cd) * dt; vel.y += ((tgt.y - off.y) * K - vel.y * Cd) * dt;
     off.addScaledVector(vel, dt);
+    let lean = 0;
+    if (MO && MO.on) {
+      if (!moHint && state === 'idle') { moHint = true; MO.hint('スマホごとふっても、おみくじが引けます'); }
+      lean = clamp(-MO.roll * .7, -.5, .5);
+      if (MO.fresh(moSeen) && state === 'idle' && !drag) {
+        const pw = MO.shakePow, sg = MO.shakeDir.x ? -Math.sign(MO.shakeDir.x) : (Math.random() < .5 ? -1 : 1);
+        rotV += sg * (6 + pw * 6); vel.x += sg * pw * 2.5; vel.y += 1.2 + pw * 1.6; onShake();
+      }
+      moSeen = MO.shakes;
+    }
     if (state === 'idle' || state === 'reveal' || state === 'tie') {
-      // the tube leans against the motion (inertia) and wobbles back upright
-      const want = clamp(-vel.x * .22, -.75, .75);
+      // the tube leans against the motion (inertia) and with the phone's tilt, and wobbles back upright
+      const want = clamp(-vel.x * .22 + lean, -.75, .75);
       rotV += ((want - rotZ) * 120 - rotV * 9) * dt; rotZ += rotV * dt;
       rotX += ((clamp(vel.y * .08, -.3, .3)) - rotX) * Math.min(1, dt * 8);
       if (!drag && state === 'idle') { rotZ += Math.sin(t * 1.3) * .0006; }

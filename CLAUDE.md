@@ -75,6 +75,11 @@ docs/references/     reference images the user gave for recent redesigns
   Every play picks a random take (never the same twice) with ±4% pitch / −15% volume unless `exact` (the mochi metronome).
   Each demo has a background loop, played only for the demo filling the screen; `bgmDuck(id, k)` turns it down (mochi in play).
   Every demo uses the same round `.snd-ico js-snd` toggle, top-right (first child of the `.scr` root); all toggles share one setting. PC `.pcbrand` / `.mc-ny` labels sit at `right:84px` to clear it.
+- Phone sensors: `NENGA.motion` (three-demos.js) reads tilt (`roll`, relative `pitch`/`droll`) and shakes (`shakes` counter, `fresh(seen)`, `shakePow`, `shakeDir`).
+  iOS needs a permission prompt from a tap: `stage()` calls `motion.request` on the first tap on any 3D demo except `#mochi`. All 3D demos get a few
+  degrees of gyro parallax in `stage()` (camera orbit applied for the render only; `ctx.gyro` scales it, 0 = off). Dome: tilt = globe tilt, shake = jolt +
+  stir + next line; omikuji: tube leans, phone shake = tube shake; flock: tilt pushes sheep downhill, shake startles the flock. `motion.hint(text)` = one-time toast.
+  Test by dispatching synthetic `deviceorientation` (beta/gamma) and `devicemotion` (acceleration) events.
 - Every interaction needs clear feedback; "tap anywhere" is preferred over tiny buttons, with a subtle cursor follower on PC.
 - Text must never overflow (see omikuji `fitSheet()` auto-shrink).
 

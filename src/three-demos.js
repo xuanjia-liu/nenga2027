@@ -16,6 +16,93 @@ const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 const JP = '"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif';
 const MONO = '"Roboto Mono",ui-monospace,Menlo,monospace';
 
+/* ---------- device motion: tilt + shake (phones / tablets) ----------
+   NENGA.motion.on becomes true once real sensor data arrives (Android: right away; iOS: after the permission prompt,
+   which request() opens — it must run inside a tap, so stage() calls it on the first tap on a 3D demo).
+   g      gravity in screen coordinates (x right, y up, z out of the screen; unit length), smoothed
+   roll   left/right tilt in radians (0 = level, + = right edge down)
+   pitch  front/back tilt relative to how the phone has been held for the last few seconds (+ = top edge toward the user)
+   droll  roll relative to that same slowly adapting baseline (for parallax)
+   shakes / shakeT / shakePow / shakeDir   the latest jerk: a counter, its time (performance.now), 0.3–1 strength,
+          screen-space direction. Demos poll these in frame() (which only runs while the demo is on screen). */
+const motion = (() => {
+  const M = { on: false, asked: false, g: { x: 0, y: -1, z: 0 }, roll: 0, pitch: 0, droll: 0, shakes: 0, shakeT: -1e9, shakePow: 0, shakeDir: { x: 0, y: 0 } };
+  const D = Math.PI / 180, wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
+  let lastO = 0, baseR = 0, baseP = 0, lp = null, lastShake = 0;
+  const hinted = new Set();
+  // device axes → screen axes for the current screen rotation (landscape = device turned counter-clockwise)
+  const toScreen = (x, y) => {
+    const deg = screen.orientation && typeof screen.orientation.angle === 'number' ? screen.orientation.angle : (window.orientation || 0);
+    const a = deg * D, c = Math.cos(a), sn = Math.sin(a); return [x * c - y * sn, x * sn + y * c];
+  };
+  window.addEventListener('deviceorientation', e => {
+    if (e.beta == null || e.gamma == null) return;
+    const now = performance.now(), dt = lastO ? Math.min(.5, (now - lastO) / 1000) : 0; lastO = now;
+    const b = e.beta * D, gm = e.gamma * D;
+    const [x, y] = toScreen(Math.sin(gm) * Math.cos(b), -Math.sin(b)), z = -Math.cos(gm) * Math.cos(b);
+    const first = !M.on, k = first ? 1 : 1 - Math.exp(-dt / .06);
+    M.g.x += (x - M.g.x) * k; M.g.y += (y - M.g.y) * k; M.g.z += (z - M.g.z) * k;
+    const roll = Math.asin(clamp(M.g.x, -1, 1)), p = Math.atan2(M.g.z, -M.g.y);
+    if (first) { baseR = roll; baseP = p; M.on = true; window.dispatchEvent(new Event('nenga:motion')); }
+    const kb = 1 - Math.exp(-dt / 3);
+    baseR += (roll - baseR) * kb; baseP = wrap(baseP + wrap(p - baseP) * kb);
+    M.roll = roll; M.droll = roll - baseR; M.pitch = clamp(wrap(p - baseP), -1, 1);
+  });
+  window.addEventListener('devicemotion', e => {
+    let ax, ay, az; const a = e.acceleration;
+    if (a && a.x != null) { ax = a.x; ay = a.y; az = a.z; }
+    else {                                                       // no linear acceleration: high-pass the raw sensor
+      const g = e.accelerationIncludingGravity; if (!g || g.x == null) return;
+      if (!lp) lp = { x: g.x, y: g.y, z: g.z };
+      lp.x += (g.x - lp.x) * .1; lp.y += (g.y - lp.y) * .1; lp.z += (g.z - lp.z) * .1;
+      ax = g.x - lp.x; ay = g.y - lp.y; az = g.z - lp.z;
+    }
+    const m = Math.hypot(ax, ay, az), now = performance.now();
+    if (m > 13 && now - lastShake > 260) {
+      lastShake = now; M.shakes++; M.shakeT = now; M.shakePow = clamp((m - 9) / 18, .3, 1);
+      const [sx, sy] = toScreen(ax, ay), l = Math.hypot(sx, sy) || 1; M.shakeDir = { x: sx / l, y: sy / l };
+    }
+  });
+  // iOS 13+: ask once, from inside a tap. Retry on the next tap if the call itself failed (no tap / not allowed here).
+  M.request = () => {
+    if (M.asked || M.on) return;
+    const DM = window.DeviceMotionEvent, DO = window.DeviceOrientationEvent;
+    const asks = [DM, DO].filter(o => o && typeof o.requestPermission === 'function');
+    M.asked = true; if (!asks.length) return;
+    Promise.all(asks.map(o => o.requestPermission())).catch(() => { M.asked = false; });
+  };
+  // a shake that happened just now (so a demo coming on screen does not react to an old one)
+  M.fresh = seen => M.shakes !== seen && performance.now() - M.shakeT < 250;
+  // a short hint the first time each demo with tilt / shake reactions is on screen with the sensors on
+  M.hint = txt => {
+    if (hinted.has(txt)) return; hinted.add(txt);
+    document.querySelectorAll('.mo-toast').forEach(t => t.remove());
+    const el = document.createElement('div'); el.className = 'mo-toast'; el.textContent = txt;
+    (document.querySelector('.sp-bar') || document.body).appendChild(el);
+    setTimeout(() => el.classList.add('out'), 3200); setTimeout(() => el.remove(), 3800);
+  };
+  return M;
+})();
+window.NENGA = window.NENGA || {};
+window.NENGA.motion = motion;
+
+// gyro parallax: before a frame is drawn the camera orbits a few degrees around the point it looks at, following the
+// tilt; it is put back right after, so the demos' own camera logic and picking never see it
+const GP = { pos: new T.Vector3(), q: new T.Quaternion(), f: new T.Vector3(), tg: new T.Vector3(), ax: new T.Vector3(), q1: new T.Quaternion(), q2: new T.Quaternion(), v: new T.Vector3() };
+function gyroCam(cam, amt) {
+  const yaw = clamp(-motion.droll * .45, -.12, .12) * amt, pit = clamp(-motion.pitch * .3, -.09, .09) * amt;
+  if (Math.abs(yaw) + Math.abs(pit) < 2e-4) return false;
+  GP.pos.copy(cam.position); GP.q.copy(cam.quaternion);
+  GP.f.set(0, 0, -1).applyQuaternion(cam.quaternion);
+  let d = -cam.position.dot(GP.f); if (!(d > .5)) d = 8;            // pivot: the point on the view line nearest the origin
+  GP.tg.copy(cam.position).addScaledVector(GP.f, d);
+  GP.q1.setFromAxisAngle(GP.ax.set(0, 1, 0).applyQuaternion(cam.quaternion), yaw);
+  GP.q2.setFromAxisAngle(GP.ax.set(1, 0, 0).applyQuaternion(cam.quaternion), pit); GP.q1.multiply(GP.q2);
+  GP.v.copy(cam.position).sub(GP.tg).applyQuaternion(GP.q1); cam.position.copy(GP.tg).add(GP.v);
+  cam.quaternion.premultiply(GP.q1); cam.updateMatrixWorld();
+  return true;
+}
+
 /* ---------- render-loop harness (runs only while visible) ---------- */
 function stage(sel, setup) {
   const root = $(sel), canvas = $('canvas.gl', root);
@@ -25,6 +112,9 @@ function stage(sel, setup) {
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   renderer.setClearColor(0x000000, 0);
   const ctx = setup(root, renderer, canvas);
+  // iOS only lets a page read the motion sensors after a prompt that has to come from a tap
+  // (not on the mochi game: a prompt over its first beat would wreck the timing; it gets the sensors once another demo asked)
+  if (root.id !== 'mochi') ['touchend', 'click'].forEach(ev => root.addEventListener(ev, motion.request, { passive: true }));
   let w = 0, h = 0, visible = false, raf = 0, last = performance.now();
   const resize = force => {
     const nw = root.clientWidth, nh = root.clientHeight;
@@ -36,7 +126,10 @@ function stage(sel, setup) {
     raf = 0; if (!visible) return;
     resize();
     const dt = Math.min(.05, (t - last) / 1000); last = t;
-    ctx.frame(dt, t / 1000); render();
+    ctx.frame(dt, t / 1000);
+    const cam = ctx.camera, tilted = motion.on && ctx.gyro !== 0 && gyroCam(cam, ctx.gyro == null ? 1 : ctx.gyro);
+    render();
+    if (tilted) { cam.position.copy(GP.pos); cam.quaternion.copy(GP.q); cam.updateMatrixWorld(); }
     raf = requestAnimationFrame(loop);
   };
   new IntersectionObserver(es => {
@@ -659,9 +752,44 @@ stage('#flock', (root, renderer, canvas) => {
   const grid = new Map();
   const M = new T.Matrix4(), Mh = new T.Matrix4(), Ml = new T.Matrix4(), Q = new T.Quaternion(), Qh = new T.Quaternion(), V = new T.Vector3(), ONE = new T.Vector3(1, 1, 1), Y = new T.Vector3(0, 1, 0), Z = new T.Vector3(0, 0, 1), tmp = new T.Matrix4(), E = new T.Euler();
   const T1 = new T.Matrix4(), T2 = new T.Matrix4();
+  // phone tilt / shake. Tilt = the meadow leans: every sheep is pushed downhill (screen right/left = the camera's right,
+  // top toward the user = toward the camera), formed sheep get pushed off their spot and walk back when it levels out.
+  // A shake startles the whole flock: hops, boings, spins and a few faints, thrown a little against the jerk.
+  const mo = { x: 0, z: 0, seen: motion.shakes, talkT: 0, hinted: false };
+  const dead = (v, d) => Math.sign(v) * Math.max(0, Math.abs(v) - d);
+  function motionStep(dt) {
+    mo.x = mo.z = 0;
+    if (!motion.on) return;
+    if (!mo.hinted) { mo.hinted = true; motion.hint('スマホをかたむけると群れがすべり、ふるとびっくりします'); }
+    const ca = Math.cos(cam.a || 0), sa = Math.sin(cam.a || 0);
+    const sx = clamp(dead(motion.roll, .06), -.6, .6), sy = clamp(dead(motion.pitch, .06), -.6, .6);
+    mo.x = (ca * sx + sa * sy) * 7; mo.z = (-sa * sx + ca * sy) * 7;
+    mo.talkT -= dt;
+    if (Math.hypot(sx, sy) > .22 && mo.talkT <= 0 && count) {
+      mo.talkT = rnd(.5, 1.1); bubble(sh[(Math.random() * count) | 0], pick(['わわっ', 'すべるメェ〜', '坂だメェ', 'ころがるメェ', 'おっとっと']), true);
+      if (Math.random() < .4) noise('bleat', { rate: rnd(1.05, 1.3) });
+    }
+    if (motion.fresh(mo.seen)) shakeAll(motion.shakePow, motion.shakeDir);
+    mo.seen = motion.shakes;
+  }
+  function shakeAll(pw, dir) {
+    const ca = Math.cos(cam.a || 0), sa = Math.sin(cam.a || 0);
+    const wx = -(ca * dir.x - sa * dir.y), wz = -(-sa * dir.x - ca * dir.y);      // against the jerk (screen up = into the scene)
+    let talk = 0;
+    for (let i = 0; i < count; i++) {
+      const s = sh[i]; s.vx += wx * pw * rnd(1.5, 4); s.vz += wz * pw * rnd(1.5, 4);
+      if (busy(s)) continue;
+      const r = Math.random(), k = r < .5 ? 'hop' : r < .7 ? 'boing' : r < .85 ? 'spin' : r < .95 && pw > .6 ? 'flop' : 'baa';
+      s.rx = rx(k, DUR[k] * rnd(.9, 1.15), rnd(0, .22), { hops: pw > .7 ? 2 : 1, h: rnd(3.4, 4.6) * (.7 + pw * .3), say: false, dir: Math.random() < .5 ? -1 : 1 });
+      s.cool = rnd(1.2, 2);
+      if (talk < 3 && Math.random() < .02) { talk++; bubble(s, pick(['じしん！？', 'ゆれてるメェ', 'わっ', 'ひゃっ', 'メェ〜！']), true); }
+    }
+    noise('pon', { vol: .45 }); setTimeout(() => sfx.bleat({ vol: .3, rate: rnd(1.1, 1.3) }), 120);
+  }
   function step(dt, t) {
     const n = count;
     let arrived = 0;
+    motionStep(dt);
     for (let i = 0; i < n; i++) {
       const s = sh[i];
       let dvx = 0, dvz = 0, maxV = 1;
@@ -716,6 +844,7 @@ stage('#flock', (root, renderer, canvas) => {
           if (r.t >= r.d) s.rx = null;
         }
       }
+      if (mo.x || mo.z) { dvx += mo.x * s.speed; dvz += mo.z * s.speed; maxV = Math.max(maxV, Math.hypot(mo.x, mo.z) + 1); }
       // accelerate toward the desired velocity
       const k = Math.min(1, dt * 4);
       s.vx += (dvx - s.vx) * k; s.vz += (dvz - s.vz) * k;
@@ -2387,8 +2516,8 @@ stage('#dome', (root, renderer, canvas) => {
   const LINES = ['あけましておめでとうございます。', '2027年は未年。「未」は「未来」の「未」です。', '雪がとけたら、新しいことが芽吹く季節。', '今年も皆さまと一緒に、あしたをオモシロク。'];
   const msg = $('.ov-msg', root), linesEl = $('.js-lines', root), sigEl = $('.js-sig', root), shakesEl = $('.js-shakes', root), btn = $('.js-shake', root), allBtn = $('.js-all', root);
   let offX = 0, offY = 0, offVX = 0, offVY = 0, prevRZ = 0, prevRX = 0;
-  let shown = 1, wob = 0, wobV = 0, tiltX = 0, tiltZ = 0, drag = null, dragDist = 0, counted = false, aspect = 1, lock = false;
-  let lastSlosh = 0;
+  let hintedMo = false, shown = 1, wob = 0, wobV = 0, tiltX = 0, tiltZ = 0, drag = null, dragDist = 0, counted = false, aspect = 1, lock = false;
+  let lastSlosh = 0, moSeen = motion.shakes, moReveal = 0;
   function shake(power) {
     const now = performance.now();
     if (now - lastSlosh > 380 || power >= 1) { lastSlosh = now; play('globe', { vol: Math.min(1, .35 + power * .65) }); }
@@ -2466,7 +2595,21 @@ stage('#dome', (root, renderer, canvas) => {
     OBS.forEach(o => { if (!o.tree) return; o.wv += (-o.w * 70 - o.wv * 5) * dt; o.w += o.wv * dt; o.tree.rotation.z = o.w * .12; o.tree.rotation.x = o.w * .06; });
     // wobble spring
     wobV += (-wob * 30 - wobV * 4) * dt; wob += wobV * dt;
-    if (!drag) {
+    if (!drag && motion.on) {
+      // the phone is the globe: tilting it tilts the globe (so the snow, the sheep and the gift slide), and a shake
+      // jolts it sideways, stirs the water and — like a tap — brings the next line (at most one per second)
+      if (!hintedMo) { hintedMo = true; motion.hint('スマホをかたむける・ふるとドームが動きます'); }
+      const k = Math.min(1, dt * 6);
+      tiltZ += (clamp(-motion.roll * .8, -.5, .5) - tiltZ) * k; tiltX += (clamp(motion.pitch * .6, -.4, .4) - tiltX) * k;
+      offVX += (-offX * 40 - offVX * 6) * dt; offVY += (-offY * 40 - offVY * 6) * dt; offX += offVX * dt; offY += offVY * dt;
+      if (motion.fresh(moSeen)) {
+        const pw = motion.shakePow, now = performance.now();
+        offVX += motion.shakeDir.x * pw * 2.6; offVY += motion.shakeDir.y * pw * 1.8;
+        shake(pw * .9);
+        if (now - moReveal > 1000 && shown < LINES.length) { moReveal = now; reveal(); }
+      }
+      moSeen = motion.shakes;
+    } else if (!drag) {
       tiltX *= .9; tiltZ *= .9;
       // the globe springs back to its place with a little overshoot
       offVX += (-offX * 40 - offVX * 6) * dt; offVY += (-offY * 40 - offVY * 6) * dt; offX += offVX * dt; offY += offVY * dt;
