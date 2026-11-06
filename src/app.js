@@ -78,7 +78,7 @@ NENGA.isPC = () => mode === 'pc';
 NENGA.sp = SP;
 
 /* ---------- phone app layout: intro page → each demo full screen → closing page ----------
-   Pages switch with the two arrows in the bottom bar (⌂ jumps back to the intro); ⓘ opens the demo's notes as a bottom sheet.
+   Pages switch with the two arrows in the bottom bar, or from the page list that opens from the title; ⓘ opens the demo's notes as a bottom sheet.
    Only the current page is displayed, so the other demos stop rendering (their observers see them leave). */
 if (SP) (() => {
   const html = document.documentElement; html.classList.add('sp');
@@ -110,29 +110,48 @@ if (SP) (() => {
   const ico = d => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
   const bar = document.createElement('nav'); bar.className = 'sp-bar'; bar.setAttribute('aria-label', 'ページ切り替え');
   bar.innerHTML = `<button type="button" class="sp-arrow sp-prev" aria-label="前へ">${ico('M15 5l-7 7 7 7')}</button>
-    <button type="button" class="sp-home" aria-label="はじめのページへ戻る">${ico('M4 11.5L12 4.5l8 7M6.5 9.5V19.5h4v-5h3v5h4V9.5')}</button>
     <div class="sp-mid"><button type="button" class="sp-info" aria-label="このデモの詳細" aria-expanded="false">${ico('M12 11v6M12 7.5v.01')}</button>
-      <span class="sp-ttl"><b></b><small></small></span></div>
+      <button type="button" class="sp-ttl" aria-haspopup="true" aria-expanded="false" aria-label="ページを選ぶ"><span><b></b><small></small></span>${ico('M7 14.5l5-5 5 5')}</button></div>
     <button type="button" class="sp-arrow sp-next" aria-label="次へ">${ico('M9 5l7 7-7 7')}</button>`;
+  const menuEl = document.createElement('div'); menuEl.className = 'sp-menu'; menuEl.setAttribute('role', 'menu'); menuEl.hidden = true;
+  bar.appendChild(menuEl);   // fixed, so it floats above the bar; inside the bar so it stacks over the deck and the scrim
   deck.appendChild(scrim);   // inside the deck (a fixed element = its own stacking context) so the sheet can sit above it
   document.body.append(deck, bar);
   const pages = [intro, ...demos, outro];
-  const prev = $('.sp-prev', bar), next = $('.sp-next', bar), home = $('.sp-home', bar), info = $('.sp-info', bar), tB = $('.sp-ttl b', bar), tS = $('.sp-ttl small', bar);
+  const prev = $('.sp-prev', bar), next = $('.sp-next', bar), ttl = $('.sp-ttl', bar), info = $('.sp-info', bar), tB = $('.sp-ttl b', bar), tS = $('.sp-ttl small', bar);
   let cur = -1;
+  // page list: every page, the current one marked; opens upward from the title
+  const items = pages.map((p, k) => {
+    const isDemo = p.classList.contains('demo'), b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('role', 'menuitem');
+    b.innerHTML = `<span class="c">${isDemo ? p.dataset.code : k === 0 ? 'TOP' : 'END'}</span><span class="t"></span>`;
+    $('.t', b).textContent = p.dataset.title;
+    b.addEventListener('click', () => { menu(false); go(k); });
+    menuEl.appendChild(b); return b;
+  });
+  const menu = on => {
+    if (on) sheet(false);
+    menuEl.hidden = !on; html.classList.toggle('sp-menu-on', on); ttl.setAttribute('aria-expanded', String(on));
+    if (on && items[cur]) { menuEl.scrollTop = 0; items[cur].scrollIntoView({ block: 'nearest' }); items[cur].focus({ preventScroll: true }); }
+  };
+  ttl.addEventListener('click', () => menu(menuEl.hidden));
+  scrim.addEventListener('click', () => menu(false));
   sheet = on => {
     const p = pages[cur], ex = p && $('.expl', p);
     on = !!(on && ex);
+    if (on) menu(false);
     html.classList.toggle('sp-sheet', on); info.setAttribute('aria-expanded', String(on));
     if (ex) { ex.classList.toggle('sp-open', on); if (on) ex.scrollTop = 0; }
   };
   function go(i, push = true) {
     i = Math.max(0, Math.min(pages.length - 1, i)); if (i === cur) return;
-    sheet(false);
+    sheet(false); menu(false);
     pages.forEach((p, k) => p.classList.toggle('cur', k === i)); cur = i;
+    items.forEach((b, k) => b.toggleAttribute('aria-current', k === i));
     const p = pages[i], isDemo = p.classList.contains('demo');
     tB.textContent = isDemo ? `${p.dataset.code}  ${p.dataset.title}` : p.dataset.title;
     tS.textContent = isDemo ? `デモ ${i} / ${demos.length}` : (i === 0 ? '→ でデモへ' : 'おわり');
-    prev.disabled = home.disabled = i === 0; next.disabled = i === pages.length - 1;
+    prev.disabled = i === 0; next.disabled = i === pages.length - 1;
     info.hidden = !isDemo;
     if (!isDemo) p.scrollTop = 0;
     if (push) history.replaceState(null, '', '#' + p.dataset.hash);
@@ -140,11 +159,10 @@ if (SP) (() => {
   }
   prev.addEventListener('click', () => go(cur - 1));
   next.addEventListener('click', () => go(cur + 1));
-  home.addEventListener('click', () => go(0));
   info.addEventListener('click', () => sheet(!html.classList.contains('sp-sheet')));
   document.addEventListener('keydown', e => {
     if (e.target.closest('input, textarea, [contenteditable]')) return;
-    if (e.key === 'ArrowRight') go(cur + 1); else if (e.key === 'ArrowLeft') go(cur - 1); else if (e.key === 'Escape') sheet(false);
+    if (e.key === 'ArrowRight') go(cur + 1); else if (e.key === 'ArrowLeft') go(cur - 1); else if (e.key === 'Escape') { sheet(false); menu(false); }
   });
   // in-page links (hero buttons, idea cards) jump to the matching page
   const target = id => {

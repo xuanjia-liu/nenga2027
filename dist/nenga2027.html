@@ -1179,8 +1179,8 @@ html.sp .demo .expl.sp-open{display:grid;position:fixed;z-index:70;left:0;right:
 html.sp .expl .sp-close{position:sticky;top:-16px;justify-self:end;margin:-16px -6px -40px 0;z-index:1;width:36px;height:36px;border:0;border-radius:99px;background:var(--chip);display:grid;place-items:center;cursor:pointer}
 html.sp .expl .sp-close svg{width:18px;height:18px;fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round}
 html.sp .sp-scrim{position:fixed;inset:0;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:69;background:rgba(9,10,10,.45);opacity:0;pointer-events:none;transition:opacity .25s}
-html.sp.sp-sheet .sp-scrim{display:block;opacity:1;pointer-events:auto}
-/* bottom bar: ← ⌂ [ⓘ title] → */
+html.sp.sp-sheet .sp-scrim,html.sp.sp-menu-on .sp-scrim{display:block;opacity:1;pointer-events:auto}
+/* bottom bar: ← [ⓘ title ▴] → ; the title opens the page list */
 html.sp .sp-bar{display:flex;align-items:center;gap:8px;position:fixed;z-index:80;left:0;right:0;bottom:0;height:calc(60px + env(safe-area-inset-bottom,0px));
   padding:0 max(10px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(10px,env(safe-area-inset-left,0px));background:var(--ink-strong);color:#fff}
 .sp-bar button{border:0;cursor:pointer;display:grid;place-items:center;color:inherit;flex:none}
@@ -1189,18 +1189,31 @@ html.sp .sp-bar{display:flex;align-items:center;gap:8px;position:fixed;z-index:8
 .sp-arrow:active{transform:scale(.92)}
 .sp-arrow:disabled{opacity:.25;cursor:default}
 .sp-arrow:not(:disabled){background:var(--blue)}   /* both arrows share the active colour */
-.sp-home{width:36px;height:36px;border-radius:99px;background:rgba(255,255,255,.12)}
-.sp-home svg{width:19px;height:19px;stroke-width:2.2}
-.sp-home:active{transform:scale(.92)}
-.sp-home:disabled{opacity:.25;cursor:default}
 .sp-mid{flex:1;min-width:0;display:flex;align-items:center;gap:10px}
 .sp-info{width:32px;height:32px;border-radius:99px;border:2px solid rgba(255,255,255,.8)!important;background:none}
 .sp-info svg{width:18px;height:18px;stroke-width:2.8}
 .sp-info[aria-expanded="true"]{background:#fff;color:var(--ink-strong)}
 .sp-info[hidden]{display:none}
-.sp-ttl{min-width:0;display:grid;line-height:1.25}
+.sp-bar .sp-ttl{flex:1;min-width:0;display:flex;align-items:center;gap:6px;height:44px;padding:0 10px 0 14px;border-radius:12px;background:rgba(255,255,255,.08);text-align:left;font:inherit}
+.sp-ttl:active{background:rgba(255,255,255,.16)}
+.sp-ttl > span{flex:1;min-width:0;display:grid;line-height:1.25}
+.sp-ttl svg{width:18px;height:18px;opacity:.75;transition:transform .2s}
+.sp-ttl[aria-expanded="true"]{background:rgba(255,255,255,.16)}
+.sp-ttl[aria-expanded="true"] svg{transform:rotate(180deg)}
 .sp-ttl b{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sp-ttl small{font-family:var(--mono);font-size:11px;letter-spacing:.04em;opacity:.65}
+/* page list (opens upward from the title) */
+.sp-menu{position:fixed;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:calc(68px + env(safe-area-inset-bottom,0px));
+  max-height:calc(100dvh - 92px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain;
+  display:grid;gap:2px;padding:8px;background:var(--surface);color:var(--ink);border-radius:18px;box-shadow:0 -12px 40px rgba(0,0,0,.3);transform-origin:50% 100%;animation:spMenu .2s cubic-bezier(.2,.9,.3,1)}
+.sp-menu[hidden]{display:none}
+@keyframes spMenu{from{opacity:0;transform:translateY(12px) scale(.98)}}
+.sp-bar .sp-menu button{display:flex;align-items:center;gap:12px;min-height:46px;padding:6px 12px;border-radius:12px;background:none;text-align:left;font:inherit;font-size:14px;font-weight:700;line-height:1.35}
+.sp-menu button:active{background:var(--chip)}
+.sp-menu .c{flex:none;min-width:40px;height:26px;padding:0 6px;border-radius:99px;background:var(--chip);display:grid;place-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--grey-700)}
+.sp-menu .t{min-width:0}
+.sp-menu button[aria-current]{background:var(--blue-soft);color:var(--blue)}
+.sp-menu button[aria-current] .c{background:var(--blue);color:#fff}
 
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="bs-logo" viewBox="312 116 1352 590"><g fill="currentColor"><path d="M916.183 349.662C924.659 354.203 932 358.135 937.933 360.982H937.964C985.053 383.561 1031.960 377.462 1057.330 374.163C1063.120 373.410 1067.800 372.802 1071.090 372.716C1070.520 373.258 1069.870 373.891 1069.140 374.603C1057.290 386.160 1024.110 418.542 952.188 420.451C869.462 422.663 830.393 455.500 819.309 465.975L748.344 294.755C810.607 293.107 876.099 328.190 916.183 349.662Z"/>
@@ -1893,7 +1906,7 @@ NENGA.isPC = () => mode === 'pc';
 NENGA.sp = SP;
 
 /* ---------- phone app layout: intro page → each demo full screen → closing page ----------
-   Pages switch with the two arrows in the bottom bar (⌂ jumps back to the intro); ⓘ opens the demo's notes as a bottom sheet.
+   Pages switch with the two arrows in the bottom bar, or from the page list that opens from the title; ⓘ opens the demo's notes as a bottom sheet.
    Only the current page is displayed, so the other demos stop rendering (their observers see them leave). */
 if (SP) (() => {
   const html = document.documentElement; html.classList.add('sp');
@@ -1925,29 +1938,48 @@ if (SP) (() => {
   const ico = d => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
   const bar = document.createElement('nav'); bar.className = 'sp-bar'; bar.setAttribute('aria-label', 'ページ切り替え');
   bar.innerHTML = `<button type="button" class="sp-arrow sp-prev" aria-label="前へ">${ico('M15 5l-7 7 7 7')}</button>
-    <button type="button" class="sp-home" aria-label="はじめのページへ戻る">${ico('M4 11.5L12 4.5l8 7M6.5 9.5V19.5h4v-5h3v5h4V9.5')}</button>
     <div class="sp-mid"><button type="button" class="sp-info" aria-label="このデモの詳細" aria-expanded="false">${ico('M12 11v6M12 7.5v.01')}</button>
-      <span class="sp-ttl"><b></b><small></small></span></div>
+      <button type="button" class="sp-ttl" aria-haspopup="true" aria-expanded="false" aria-label="ページを選ぶ"><span><b></b><small></small></span>${ico('M7 14.5l5-5 5 5')}</button></div>
     <button type="button" class="sp-arrow sp-next" aria-label="次へ">${ico('M9 5l7 7-7 7')}</button>`;
+  const menuEl = document.createElement('div'); menuEl.className = 'sp-menu'; menuEl.setAttribute('role', 'menu'); menuEl.hidden = true;
+  bar.appendChild(menuEl);   // fixed, so it floats above the bar; inside the bar so it stacks over the deck and the scrim
   deck.appendChild(scrim);   // inside the deck (a fixed element = its own stacking context) so the sheet can sit above it
   document.body.append(deck, bar);
   const pages = [intro, ...demos, outro];
-  const prev = $('.sp-prev', bar), next = $('.sp-next', bar), home = $('.sp-home', bar), info = $('.sp-info', bar), tB = $('.sp-ttl b', bar), tS = $('.sp-ttl small', bar);
+  const prev = $('.sp-prev', bar), next = $('.sp-next', bar), ttl = $('.sp-ttl', bar), info = $('.sp-info', bar), tB = $('.sp-ttl b', bar), tS = $('.sp-ttl small', bar);
   let cur = -1;
+  // page list: every page, the current one marked; opens upward from the title
+  const items = pages.map((p, k) => {
+    const isDemo = p.classList.contains('demo'), b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('role', 'menuitem');
+    b.innerHTML = `<span class="c">${isDemo ? p.dataset.code : k === 0 ? 'TOP' : 'END'}</span><span class="t"></span>`;
+    $('.t', b).textContent = p.dataset.title;
+    b.addEventListener('click', () => { menu(false); go(k); });
+    menuEl.appendChild(b); return b;
+  });
+  const menu = on => {
+    if (on) sheet(false);
+    menuEl.hidden = !on; html.classList.toggle('sp-menu-on', on); ttl.setAttribute('aria-expanded', String(on));
+    if (on && items[cur]) { menuEl.scrollTop = 0; items[cur].scrollIntoView({ block: 'nearest' }); items[cur].focus({ preventScroll: true }); }
+  };
+  ttl.addEventListener('click', () => menu(menuEl.hidden));
+  scrim.addEventListener('click', () => menu(false));
   sheet = on => {
     const p = pages[cur], ex = p && $('.expl', p);
     on = !!(on && ex);
+    if (on) menu(false);
     html.classList.toggle('sp-sheet', on); info.setAttribute('aria-expanded', String(on));
     if (ex) { ex.classList.toggle('sp-open', on); if (on) ex.scrollTop = 0; }
   };
   function go(i, push = true) {
     i = Math.max(0, Math.min(pages.length - 1, i)); if (i === cur) return;
-    sheet(false);
+    sheet(false); menu(false);
     pages.forEach((p, k) => p.classList.toggle('cur', k === i)); cur = i;
+    items.forEach((b, k) => b.toggleAttribute('aria-current', k === i));
     const p = pages[i], isDemo = p.classList.contains('demo');
     tB.textContent = isDemo ? `${p.dataset.code}  ${p.dataset.title}` : p.dataset.title;
     tS.textContent = isDemo ? `デモ ${i} / ${demos.length}` : (i === 0 ? '→ でデモへ' : 'おわり');
-    prev.disabled = home.disabled = i === 0; next.disabled = i === pages.length - 1;
+    prev.disabled = i === 0; next.disabled = i === pages.length - 1;
     info.hidden = !isDemo;
     if (!isDemo) p.scrollTop = 0;
     if (push) history.replaceState(null, '', '#' + p.dataset.hash);
@@ -1955,11 +1987,10 @@ if (SP) (() => {
   }
   prev.addEventListener('click', () => go(cur - 1));
   next.addEventListener('click', () => go(cur + 1));
-  home.addEventListener('click', () => go(0));
   info.addEventListener('click', () => sheet(!html.classList.contains('sp-sheet')));
   document.addEventListener('keydown', e => {
     if (e.target.closest('input, textarea, [contenteditable]')) return;
-    if (e.key === 'ArrowRight') go(cur + 1); else if (e.key === 'ArrowLeft') go(cur - 1); else if (e.key === 'Escape') sheet(false);
+    if (e.key === 'ArrowRight') go(cur + 1); else if (e.key === 'ArrowLeft') go(cur - 1); else if (e.key === 'Escape') { sheet(false); menu(false); }
   });
   // in-page links (hero buttons, idea cards) jump to the matching page
   const target = id => {
