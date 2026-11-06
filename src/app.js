@@ -82,6 +82,14 @@ NENGA.sp = SP;
    Only the current page is displayed, so the other demos stop rendering (their observers see them leave). */
 if (SP) (() => {
   const html = document.documentElement; html.classList.add('sp');
+  // no accidental zooming in the app layout: a fixed viewport (also stops iOS zooming into the 未来ポスト letter's text box
+  // on focus), touch-action on <html> (no double-tap / pinch zoom; see style.css) and, because iOS Safari ignores
+  // user-scalable, its pinch gesture events cancelled
+  let vm = document.querySelector('meta[name="viewport"]');
+  if (!vm) { vm = document.createElement('meta'); vm.name = 'viewport'; document.head.appendChild(vm); }
+  vm.content = 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover';
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, { passive: false });
   const deck = document.createElement('div'); deck.className = 'sp-deck';
   const page = (cls, nodes) => { const p = document.createElement('div'); p.className = 'sp-page sp-text ' + cls; nodes.filter(Boolean).forEach(n => p.appendChild(n)); return p; };
   const intro = page('sp-intro', [$('.hero') && $('.hero').closest('.band'), $('.neta') && $('.neta').closest('section'), $('#ideas')]);

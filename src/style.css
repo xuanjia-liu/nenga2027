@@ -1146,6 +1146,7 @@ footer.ft p{margin:8px 0 0;color:var(--grey-350);font-size:12px;line-height:1.6;
 
 /* ---------- phone app layout (html.sp, set by app.js on phones): one full-screen page at a time ---------- */
 html.sp, html.sp body{height:100%;overflow:hidden;overscroll-behavior:none}
+html.sp{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}   /* scrolling yes, double-tap / pinch zoom no */
 html.sp body::before{display:none}
 html.sp body > :not(.sp-deck):not(.sp-bar):not(.sp-scrim):not(svg):not(script):not(style):not(link){display:none!important}
 .sp-deck,.sp-bar,.sp-scrim{display:none}

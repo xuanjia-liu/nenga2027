@@ -8,7 +8,7 @@ The page is a **single self-contained HTML file** published as a claude.ai Artif
 (https://claude.ai/artifact/CY872UEdM4MJmfU41mvcuy). Every demo has a **phone (9:17)** and a **PC (1280×760, scaled)** version.
 On an actual phone (width < 700 px or a coarse-pointer small screen, decided once at load; `?sp=1` / `?sp=0` force it) the page
 becomes an app (`html.sp`, app.js): intro page (hero, ネタ帳, ideas) → each demo full screen → closing page (CEO draft, memo, footer),
-switched with ← / → in a bottom bar (both arrows brand blue when usable) or from the page list that opens from the title (`.sp-menu`, TOP / A–J / END); ⓘ opens the demo's `.expl` as a bottom sheet. Only the current page is displayed.
+switched with ← / → in a bottom bar (both arrows brand blue when usable) or from the page list that opens from the title (`.sp-menu`, TOP / A–J / END); ⓘ opens the demo's `.expl` as a bottom sheet. Only the current page is displayed. Zoom is locked in this layout (viewport `maximum-scale=1,user-scalable=no` set by app.js, `touch-action:pan-x pan-y` on `html.sp`, iOS `gesture*` events cancelled).
 
 ## Commands
 
