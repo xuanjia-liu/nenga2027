@@ -1173,7 +1173,7 @@ html.sp .expl .sp-close{position:sticky;top:-16px;justify-self:end;margin:-16px 
 html.sp .expl .sp-close svg{width:18px;height:18px;fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round}
 html.sp .sp-scrim{position:fixed;inset:0;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:69;background:rgba(9,10,10,.45);opacity:0;pointer-events:none;transition:opacity .25s}
 html.sp.sp-sheet .sp-scrim{display:block;opacity:1;pointer-events:auto}
-/* bottom bar: ← [ⓘ title] → */
+/* bottom bar: ← ⌂ [ⓘ title] → */
 html.sp .sp-bar{display:flex;align-items:center;gap:8px;position:fixed;z-index:80;left:0;right:0;bottom:0;height:calc(60px + env(safe-area-inset-bottom,0px));
   padding:0 max(10px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(10px,env(safe-area-inset-left,0px));background:var(--ink-strong);color:#fff}
 .sp-bar button{border:0;cursor:pointer;display:grid;place-items:center;color:inherit;flex:none}
@@ -1181,7 +1181,11 @@ html.sp .sp-bar{display:flex;align-items:center;gap:8px;position:fixed;z-index:8
 .sp-arrow{width:44px;height:44px;border-radius:99px;background:rgba(255,255,255,.12)}
 .sp-arrow:active{transform:scale(.92)}
 .sp-arrow:disabled{opacity:.25;cursor:default}
-.sp-next:not(:disabled){background:var(--blue)}
+.sp-arrow:not(:disabled){background:var(--blue)}   /* both arrows share the active colour */
+.sp-home{width:36px;height:36px;border-radius:99px;background:rgba(255,255,255,.12)}
+.sp-home svg{width:19px;height:19px;stroke-width:2.2}
+.sp-home:active{transform:scale(.92)}
+.sp-home:disabled{opacity:.25;cursor:default}
 .sp-mid{flex:1;min-width:0;display:flex;align-items:center;gap:10px}
 .sp-info{width:32px;height:32px;border-radius:99px;border:2px solid rgba(255,255,255,.8)!important;background:none}
 .sp-info svg{width:18px;height:18px;stroke-width:2.8}
