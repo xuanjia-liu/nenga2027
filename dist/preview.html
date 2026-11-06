@@ -5987,12 +5987,14 @@ N3.stage('#mochi', (r, renderer, cv) => {
 
   /* ---------- stage: a floating tiled platform ---------- */
   const world = new T.Group(); scene.add(world);
-  const tiles = [];
-  for (let ix = -4; ix <= 4; ix++) for (let iz = -3; iz <= 3; iz++) tiles.push({ x: ix, y: -.18, z: iz, s: .96, sy: .36 / .96, c: hex((ix + iz) & 1 ? 0x77B4FF : 0x8CC2FF, .015) });
+  // half-size tiles (18 × 14 over the same 9 × 7 platform) so the impact shockwave reads as a rolling wave
+  const TS = .5, tiles = [];
+  for (let ix = 0; ix < 18; ix++) for (let iz = 0; iz < 14; iz++) tiles.push({ x: -4.25 + ix * TS, y: -.18, z: -3.25 + iz * TS, s: TS * .94, sy: .36 / (TS * .94), c: hex((ix + iz) & 1 ? 0x77B4FF : 0x8CC2FF, .015) });
   // a rim of lighter edge blocks along the front edges
   const tileV = vox(tiles, world, { k: 180, d: 9 });
-  const tileWave = [];   // impact waves travelling across the floor
-  const tileHit = new Float32Array(tiles.length);
+  const tileWave = [];   // impact shockwaves travelling out across the floor
+  const tileBase = tiles.map(c => new T.Color(c.c)), tileD = new Float32Array(tiles.length);
+  const CREST = new T.Color(0xE8F8FF), CREST_F = new T.Color(0xFFE0F0), TROUGH = new T.Color(0x3F7FE8);
 
   /* ---------- usu (octagonal wooden mortar) ---------- */
   const U = { x: 1.15, z: .25 }, CU = .22, R_OUT = 1.08, R_IN = .74, U_LAYERS = 6;
@@ -6208,15 +6210,29 @@ N3.stage('#mochi', (r, renderer, cv) => {
   const markV = vox(markCells.length ? markCells : [{ x: 0, y: MK_Y, z: 0, s: 0, c: hex(0x0066FF) }], markG, { k: 200, d: 10 }); markV.mesh.visible = false;
 
   /* ---------- camera / layout ---------- */
-  let W = 1, H = 1;
+  let W = 1, H = 1, viewX = 0, viewY = 0, camShift = 0, camShiftTo = 0;   // camShift: px the scene is moved down (phone, final card)
+  const applyView = () => camera.setViewOffset(W, H, viewX, viewY - camShift, W, H);
   function resize(w, h) {
     W = w; H = h;
     const pc = isPC(), vh = pc ? 7.6 : 11.2, aspect = w / h;
     camera.left = -vh * aspect / 2; camera.right = vh * aspect / 2; camera.top = vh / 2; camera.bottom = -vh / 2;
     const tgt = new T.Vector3(pc ? .05 : .3, pc ? .95 : .55, .1);
     camera.position.copy(tgt).add(new T.Vector3(7.2, 7.6, 10.5)); camera.lookAt(tgt);
-    if (pc) camera.setViewOffset(w, h, -150, 6, w, h); else camera.setViewOffset(w, h, 0, -h * .1, w, h);
-    camera.updateProjectionMatrix();
+    if (pc) { viewX = -150; viewY = 6; } else { viewX = 0; viewY = -h * .1; }
+    applyView(); camera.updateProjectionMatrix();
+    if (state === 'done') requestAnimationFrame(fitDone);
+  }
+  // phone: when the final card is up, slide the scene down so the bravesoft mark sits in the middle of the
+  // space between the card and the button (on PC the card sits beside the mortar)
+  const MARK_C = new T.Vector3();
+  function fitDone() {
+    camShiftTo = 0;
+    if (state !== 'done' || finalEl.hidden || isPC()) return;
+    const rr = root.getBoundingClientRect(), k = root.clientWidth / (rr.width || 1);
+    const top = (finalEl.getBoundingClientRect().bottom - rr.top) * k, bot = (btn.getBoundingClientRect().top - rr.top) * k;
+    markG.localToWorld(MARK_C.set(0, MK_Y + MK_ROWS * MK_C / 2, 0)).project(camera);
+    const yBase = (1 - MARK_C.y) / 2 * H - camShift;
+    camShiftTo = clamp((top + bot) / 2 - yBase, 0, H * .35);
   }
 
   /* ---------- game state ---------- */
@@ -6244,7 +6260,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     state = 'play'; missedUpTo = -1; prog = 0; combo = 0; maxCombo = 0; shown = 0; fever = false; root.classList.remove('fever', 'done');
     Object.keys(stats).forEach(k => stats[k] = 0);
     period = PERIOD0; t0 = now + period * 1.6; lastBeat = -1; judgedBeat = -1;
-    finalEl.hidden = true; msgEl.classList.remove('on'); updHud();
+    finalEl.hidden = true; camShiftTo = 0; msgEl.classList.remove('on'); updHud();
     markV.mesh.visible = false; mochiV.cells.forEach((c, i) => { mochiV.sc[i] = 1; c.x = c.bx; c.y = c.by; c.z = c.bz; });
     setMochiLook(0);
     btn.textContent = 'ぺったん!'; howEl.innerHTML = '<b>黄色い輪</b>が重なった<br>瞬間にタップ';
@@ -6323,8 +6339,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     kick(mochiV, U.x, MOCHI_TOP - .1, U.z, 4.2 * P, 1.2, -.3, 1);
     kick(usuV, U.x, USU_TOP, U.z, 2.4 * P, 2.0, .9, .45);
     kick(kineV, KL, 0, 0, 2.4 * P, .7, .6, .6);
-    tileWave.push({ t: 0, x: U.x, z: U.z, a: 2.2 * P });
-    tileHit.fill(0);
+    tileWave.push({ t: 0, x: U.x, z: U.z, a: P, hit: new Uint8Array(tileV.n) });
     shakeA = Math.max(shakeA, .12 * P);
     if (q === 'danger') {
       stats.danger++; combo = 0; fever = false; root.classList.remove('fever');
@@ -6389,7 +6404,7 @@ N3.stage('#mochi', (r, renderer, cv) => {
     setTimeout(() => {
       finalEl.innerHTML = `<span class="k">MOCHITSUKI COMPLETE</span><h5>つきたての一年を。</h5><ol>${LINES.map(l => `<li>${l}</li>`).join('')}</ol><span class="sig">${SIG}</span>
         <div class="stats"><span>ぺったん ${stats.perfect}</span><span>いいね ${stats.good}</span><span>最大 ${maxCombo} コンボ</span>${stats.danger ? `<span>あぶない ${stats.danger}</span>` : ''}</div>`;
-      finalEl.hidden = false;
+      finalEl.hidden = false; fitDone();
       if (!RM) finalEl.animate([{ opacity: 0, transform: 'translateY(24px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.2,1.2,.4,1)' });
     }, RM ? 100 : 2200);
   }
@@ -6488,21 +6503,34 @@ N3.stage('#mochi', (r, renderer, cv) => {
     // impact star
     starT += dt; if (starT < .35) { const u = starT / .35; star.visible = true; star.scale.setScalar(.6 + u * 2.4 * starK); star.material.opacity = 1 - u; star.quaternion.copy(camera.quaternion); } else star.visible = false;
     // camera punch
+    if (Math.abs(camShiftTo - camShift) > .2) { camShift += (camShiftTo - camShift) * (1 - Math.exp(-dt * 3.5)); applyView(); }
     zoomP = Math.max(0, zoomP - dt * .5); camera.zoom = 1 + zoomP + slowAmt * slowAmt * .05; camera.updateProjectionMatrix();
     // shockwave on the floor
     shockT += dt; if (shockT < .6) { shock.scale.setScalar(.8 + shockT * 6); shock.material.opacity = 1 - shockT / .6; } else shock.material.opacity = 0;
     // squash the whole mochi (spring)
     squashV += (-squashY * 260 - squashV * 13) * dt; squashY += squashV * dt;
     mochiG.scale.set(1 - squashY * .5, 1 + squashY, 1 - squashY * .5);
-    // floor waves: each tile gets a kick when the wavefront passes under it
+    // floor shockwave: a ring (crest, then a shallow trough) rolls out from the mortar; the tiles' spring targets follow it,
+    // each tile gets a little kick as the crest reaches it, and the tiles brighten on the crest / darken in the trough
+    tileD.fill(0);
     for (let w = tileWave.length - 1; w >= 0; w--) {
-      const wv = tileWave[w]; wv.t += dt; const front = wv.t * 9;
+      const wv = tileWave[w]; wv.t += dt; const front = wv.t * 6.5, amp = .5 * wv.a * Math.exp(-wv.t * 1.1);
       for (let i = 0; i < tileV.n; i++) {
-        const c = tileV.cells[i], d = Math.hypot(c.x - wv.x, c.z - wv.z);
-        if (tileHit[i] < w + 1 && d < front) { tileHit[i] = w + 1; tileV.vel[i * 3 + 1] += wv.a * Math.max(0, 1 - d / 7); }
+        const c = tileV.cells[i], d = Math.hypot(c.x - wv.x, c.z - wv.z), u = d - front;
+        if (u > 1.6 || u < -3) continue;
+        const near = clamp((d - .7) / .8, 0, 1);              // tiles under the mortar stay put
+        tileD[i] += amp * near / (1 + d * .18) * Math.exp(-u * u / .55) * Math.cos(u * 1.9);
+        if (!wv.hit[i] && u < 0) { wv.hit[i] = 1; tileV.vel[i * 3 + 1] += 1.4 * wv.a * near * Math.max(0, 1 - d / 8); }
       }
-      if (front > 9) tileWave.splice(w, 1);
+      if (front > 11) tileWave.splice(w, 1);
     }
+    for (let i = 0; i < tileV.n; i++) {
+      tileV.rest[i * 3 + 1] = tileD[i];
+      const y = tileV.off[i * 3 + 1], k = clamp(y / .3, -1, 1);
+      COL.copy(tileBase[i]); if (k > 0) COL.lerp(fever ? CREST_F : CREST, k * .8); else COL.lerp(TROUGH, -k * .55);
+      tileV.mesh.setColorAt(i, COL);
+    }
+    tileV.mesh.instanceColor.needsUpdate = true;
     // completion: mochi cubes fly into the kagami-mochi shape, the bravesoft mark pops on top
     if (state === 'done') {
       doneT += dt;
